@@ -10,10 +10,10 @@ import {
   Tag,
 } from "antd";
 import type { Dayjs } from "dayjs";
-import { getAnalytics } from "firebase/analytics";
 import { initializeApp } from "firebase/app";
 import "firebase/database";
 import {
+  Timestamp,
   collection,
   doc,
   getDoc,
@@ -28,36 +28,14 @@ import dayjs from "dayjs";
 import "dayjs/locale/zh-cn";
 dayjs.locale("zh-cn");
 
-const getListData = (value: Dayjs) => {
-  let listData;
-  switch (value.date()) {
-    case 8:
-      listData = [
-        { type: "meeting", content: "This is warning event." },
-        { type: "success", content: "This is usual event." },
-      ];
-      break;
-    case 10:
-      listData = [
-        { type: "warning", content: "This is warning event." },
-        { type: "success", content: "This is usual event." },
-        { type: "error", content: "This is error event." },
-      ];
-      break;
-    case 15:
-      listData = [
-        { type: "warning", content: "This is warning event" },
-        { type: "success", content: "This is very long usual event......" },
-        { type: "error", content: "This is error event 1." },
-        { type: "error", content: "This is error event 2." },
-        { type: "error", content: "This is error event 3." },
-        { type: "error", content: "This is error event 4." },
-      ];
-      break;
-    default:
-  }
-  return listData || [];
-};
+interface DailyMealPlan {
+  mealPlan: {
+    name: string;
+    serving: number;
+    unit: string;
+  }[];
+  planDate: Timestamp;
+}
 
 const firebaseConfig = {
   apiKey: "AIzaSyASak1RhNpksXuoa_xg4ibo5_NqLTMuYNE",
@@ -73,8 +51,6 @@ const App: React.FC = () => {
   const [mealItems, setmealItems] = useState();
   // const [mealItems, setmealItems] = useState([]);
   const app = initializeApp(firebaseConfig);
-  const analytics = getAnalytics(app);
-  console.log(analytics);
   const db = getFirestore();
   const recipesCollection = collection(db, "recipes");
   const docRef = doc(recipesCollection, "100");
@@ -119,13 +95,12 @@ const App: React.FC = () => {
     console.log("Search value:", value);
     setSearchInputValue(value);
   };
-  console.log(searchInputValue);
+
   //// firebase 查找資料庫資訊
   const [searchResults, setSearchResults] = useState([]);
 
   // 在這裡執行副作用操作
   const handleSearch = async () => {
-    // const recipesCollection = collection(db, "recipes");
     const q = query(recipesCollection, where("name", "==", searchInputValue));
 
     try {
@@ -143,15 +118,50 @@ const App: React.FC = () => {
   };
   useEffect(() => {
     handleSearch();
-  }, [searchInputValue]);
-  ///
+  }, []);
+  ///// get DailyMealPlan collection
+  const [thisMonthMealPlans, setThisMonthMealPlans] = useState<DailyMealPlan[]>(
+    []
+  );
+  const handleDailyMealPlan = async () => {
+    const DailyMealPlanCollection = collection(db, "DailyMealPlan");
+    const queryRef = query(
+      DailyMealPlanCollection,
+      where("planDate", ">", Timestamp.fromDate(new Date(2023, 10, 1))),
+      where("planDate", "<", Timestamp.fromDate(new Date(2023, 11, 1)))
+    );
+
+    try {
+      const querySnapshot = await getDocs(queryRef);
+      const results: DailyMealPlan[] = [];
+
+      querySnapshot.forEach((doc) => {
+        results.push(doc.data());
+      });
+      setThisMonthMealPlans(results);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+  useEffect(() => {
+    handleDailyMealPlan();
+  }, []);
+
+  console.log(thisMonthMealPlans);
+
+  ////
   const preventDefault = (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
     console.log("Clicked! But prevent default.");
   };
   const dateCellRender = (value: Dayjs) => {
-    // const listData = mealItems;
-    const listData = getListData(value);
+    // value.date()
+    value.
+
+    const listData = [
+      { type: "meeting", content: "This is warning event." },
+      { type: "success", content: "This is usual event." },
+    ];
 
     return (
       <>
@@ -159,7 +169,7 @@ const App: React.FC = () => {
           {listData.map((item) => (
             <li key={item.content}>
               <Tag closeIcon onClose={preventDefault}>
-                {item.content}
+                {item.type}
               </Tag>
             </li>
           ))}
@@ -169,7 +179,6 @@ const App: React.FC = () => {
   };
 
   const cellRender: CalendarProps<Dayjs>["cellRender"] = (current, info) => {
-    console.log(mealItems);
     // if (info.type === "date") return dateCellRender(current, mealItems);
     if (info.type === "date") return dateCellRender(current);
     return info.originNode;
@@ -196,6 +205,10 @@ const App: React.FC = () => {
         <Flex gap="small" wrap="wrap">
           <Button type="primary" onClick={handleSearch}>
             新增規劃料理
+          </Button>
+          <br />
+          <Button type="primary" onClick={handleDailyMealPlan}>
+            獲取DailyMealPlan
           </Button>
           <h2>{searchResults}</h2>
         </Flex>
