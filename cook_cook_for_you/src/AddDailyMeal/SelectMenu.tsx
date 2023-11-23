@@ -1,23 +1,16 @@
 import { DownOutlined } from "@ant-design/icons";
-import { DatePicker, DatePickerProps, Dropdown, Space, message } from "antd";
+import type { DatePickerProps, MenuProps } from "antd";
+import { Button, DatePicker, Dropdown, Space, message } from "antd";
 import "firebase/database";
-import React from "react";
+import { Timestamp, collection, doc, setDoc } from "firebase/firestore";
+import React, { useState } from "react";
+import { db } from "../firbase";
 
 interface MenuItem {
   label: string;
   key: string;
 }
 
-const handleDateChange: DatePickerProps["onChange"] = (date, dateString) => {
-  console.log(date, dateString);
-};
-const onClick = ({ key }: { key: string }) => {
-  const selectedItem = items.find((item) => item?.key === key);
-  if (selectedItem) {
-    message.info(`You selected : ${selectedItem.label}`);
-    console.log(selectedItem.label);
-  }
-};
 const items: MenuItem[] = [
   {
     label: "歐姆蛋",
@@ -58,27 +51,66 @@ const items: MenuItem[] = [
 ];
 
 // ///
-//  async function addArticle() {
-//   const DailymealPlanCollection = collection(db, "DailymealPlan");
-//   const docRef = doc(DailymealPlanCollection);
-//   const newPlan = {
-//     mealPlan: "",
-//     planDate:Timestamp
-//   };
-
-//   newArticle.id = docRef.id;
-//   await setDoc(docRef, newPlan);
-// }
-
-// ///
+const quantities: MenuProps["items"] = [
+  { key: "1", label: "1" },
+  { key: "2", label: "2" },
+  { key: "3", label: "3" },
+  { key: "4", label: "4" },
+  { key: "5", label: "5" },
+];
 
 const SelectMenu: React.FC = () => {
+  const [newMealPlan, setNewMealPlan] = useState();
+  const [newTime, setNewTime] = useState();
+  const [newQty, setNewQty] = useState();
+  const handleDateChange: DatePickerProps["onChange"] = (date) => {
+    // console.log(date, dateString);
+    const timestamp = Timestamp.fromDate(date.toDate());
+    console.log("Timestamp:", timestamp);
+    setNewTime(timestamp);
+  };
+
+  const onClick = ({ key }: { key: string }) => {
+    const selectedItem = items.find((item) => item?.key === key);
+    if (selectedItem) {
+      message.info(`You selected : ${selectedItem.label}`);
+      setNewMealPlan(selectedItem.label);
+      console.log(selectedItem);
+    }
+  };
+  const handleQuantitySelection = ({ key }: { key: string }) => {
+    console.log(`Selected Quantity: ${key}`);
+    setNewQty(key);
+  };
+
+  console.log(newTime);
+  console.log(newMealPlan);
+  console.log(newQty);
+
+  ///
+  async function addMealPlan() {
+    const DailymealPlanCollection = collection(db, "DailyMealPlan");
+    const docRef = doc(DailymealPlanCollection);
+    const newPlan = {
+      mealPlan: [{ name: newMealPlan, serving: newQty, unit: "份" }],
+      planDate: newTime,
+    };
+    try {
+      await setDoc(docRef, newPlan);
+      console.log("Document written successfully!");
+    } catch (error) {
+      console.error("Error writing document: ", error);
+    }
+  }
+
   return (
     <>
+      <h2>選取日期</h2>
       <Space direction="vertical">
         <DatePicker onChange={handleDateChange} />
       </Space>
       <br />
+      <h2>選取料理</h2>
       <Dropdown menu={{ items, onClick }}>
         <a onClick={(e) => e.preventDefault()}>
           <Space>
@@ -87,6 +119,15 @@ const SelectMenu: React.FC = () => {
           </Space>
         </a>
       </Dropdown>
+
+      <Dropdown
+        menu={{ items: quantities, onClick: handleQuantitySelection }}
+        placement="bottomLeft"
+        arrow
+      >
+        <Button>Choose Quantity</Button>
+      </Dropdown>
+      <Button onClick={addMealPlan}>寫入資料庫</Button>
     </>
   );
 };
