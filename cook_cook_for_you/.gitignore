@@ -24,4 +24,4 @@ dist-ssr
 *.sw?
 
 # Firebase Hosting
-/hosting.cHVibGlj.cache
+*.cache
