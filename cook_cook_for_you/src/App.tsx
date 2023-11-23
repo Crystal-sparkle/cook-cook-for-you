@@ -1,7 +1,6 @@
 import type { CalendarProps } from "antd";
 import { Button, Calendar, Tag } from "antd";
 import type { Dayjs } from "dayjs";
-import { initializeApp } from "firebase/app";
 import "firebase/database";
 import {
   Timestamp,
@@ -9,7 +8,6 @@ import {
   doc,
   getDoc,
   getDocs,
-  getFirestore,
   query,
   where,
 } from "firebase/firestore";
@@ -18,8 +16,8 @@ import AddDailyMeal from "./AddDailyMeal";
 // The default locale is en-US, if you want to use other locale, just set locale in entry file globally.
 import dayjs from "dayjs";
 import "dayjs/locale/zh-cn";
+import { db } from "./Firbase";
 dayjs.locale("zh-cn");
-
 interface DailyMealPlan {
   mealPlan: {
     name: string;
@@ -30,20 +28,10 @@ interface DailyMealPlan {
   userId: string;
 }
 
-const firebaseConfig = {
-  apiKey: "AIzaSyASak1RhNpksXuoa_xg4ibo5_NqLTMuYNE",
-  authDomain: "cook-cook-for-you-test.firebaseapp.com",
-  projectId: "cook-cook-for-you-test",
-  storageBucket: "cook-cook-for-you-test.appspot.com",
-  messagingSenderId: "200140396105",
-  appId: "1:200140396105:web:858fccd67c7784cf6f5198",
-  measurementId: "G-QC9P648LL8",
-};
-
 const App: React.FC = () => {
   const [mealItems, setmealItems] = useState();
-  initializeApp(firebaseConfig);
-  const db = getFirestore();
+
+  // const db = getFirestore();
   const recipesCollection = collection(db, "recipes");
   const docRef = doc(recipesCollection, "100");
 
@@ -75,6 +63,7 @@ const App: React.FC = () => {
   const [thisMonthMealPlans, setThisMonthMealPlans] = useState<DailyMealPlan[]>(
     []
   );
+
   const handleDailyMealPlan = async () => {
     const DailyMealPlanCollection = collection(db, "DailyMealPlan");
     const queryRef = query(
