@@ -64,7 +64,6 @@ function Profile() {
     } catch (error) {
       console.error("Registration failed:", error);
       alert(`Registration failed: ${(error as any).message}`);
-      console.log(typeof error);
     }
   };
 

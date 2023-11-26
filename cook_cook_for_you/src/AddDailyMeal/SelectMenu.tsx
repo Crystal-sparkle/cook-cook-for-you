@@ -60,14 +60,18 @@ const quantities: MenuProps["items"] = [
 ];
 
 const SelectMenu: React.FC = () => {
-  const [newMealPlan, setNewMealPlan] = useState();
-  const [newTime, setNewTime] = useState();
+  const [newMealPlan, setNewMealPlan] = useState<string | undefined>();
+  //newTime 的初始值為 undefined，並且可以接受 Timestamp 或 undefined。
+  // string 或 undefined。修改 useState 行如下：
+  const [newTime, setNewTime] = useState<Timestamp | undefined>();
   const [newQty, setNewQty] = useState();
   const handleDateChange: DatePickerProps["onChange"] = (date) => {
     // console.log(date, dateString);
-    const timestamp = Timestamp.fromDate(date.toDate());
-    console.log("Timestamp:", timestamp);
-    setNewTime(timestamp);
+    if (date !== null) {
+      const timestamp = Timestamp.fromDate(date.toDate());
+      console.log("Timestamp:", timestamp);
+      setNewTime(timestamp);
+    }
   };
 
   const onClick = ({ key }: { key: string }) => {
@@ -92,7 +96,7 @@ const SelectMenu: React.FC = () => {
     const DailymealPlanCollection = collection(db, "DailyMealPlan");
     const docRef = doc(DailymealPlanCollection);
     const newPlan = {
-      mealPlan: [{ name: newMealPlan, serving: newQty, unit: "份" }],
+      mealPlan: [{ name: newMealPlan, serving: Number(newQty), unit: "份" }],
       planDate: newTime,
     };
     try {
@@ -127,7 +131,7 @@ const SelectMenu: React.FC = () => {
       >
         <Button>Choose Quantity</Button>
       </Dropdown>
-      <Button onClick={addMealPlan}>寫入資料庫</Button>
+      <Button onClick={addMealPlan}>新增菜單規劃</Button>
     </>
   );
 };

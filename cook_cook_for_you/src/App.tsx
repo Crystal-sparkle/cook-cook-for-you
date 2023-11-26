@@ -114,16 +114,15 @@ const App: React.FC = () => {
   };
 
   const cellRender: CalendarProps<Dayjs>["cellRender"] = (current, info) => {
-    // if (info.type === "date") return dateCellRender(current, mealItems);
     if (info.type === "date") return dateCellRender(current);
     return info.originNode;
   };
 
   return (
-    <>
+    <Wrapper>
       <AddDailyMeal />
       <Button type="primary" onClick={handleDailyMealPlan}>
-        獲取DailyMealPlan
+        Daily Meal Menu
       </Button>
       <Calendar
         cellRender={cellRender}
