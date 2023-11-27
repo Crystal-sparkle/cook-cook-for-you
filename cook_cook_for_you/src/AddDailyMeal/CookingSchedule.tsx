@@ -200,12 +200,71 @@ function CookingSchedule({
     }
   }
 
+  // 所有的烹煮行程表中的料理
+  // const allMealPlans = cookingMeals.flatMap((meal) => meal.mealPlan);
 
   const combinedServingArray = Object.values(combinedSearvings);
   const handleClick = () => {
-    handleCookingMeals();
-    addCookingPlan();
+    handleConfirm();
   };
+
+  const [visible, setVisible] = useState(false);
+
+  const handleConfirm = () => {
+    setVisible(true);
+  };
+
+  const handleOk = async () => {
+    addCookingPlan();
+
+    setVisible(false);
+  };
+
+  const handleCancel = () => {
+    setVisible(false);
+  };
+
+  const [activeCookingPlan, setActiveCookingPlan] = useState<CookingPlanData>();
+
+  useEffect(() => {
+    const getActivePlan = async () => {
+      const CookingPlanCollection = collection(db, "cookingPlan");
+      const q = query(CookingPlanCollection, where("isActive", "==", true));
+
+      try {
+        const unsubscribe = onSnapshot(q, (querySnapshot) => {
+          let results = null;
+
+          querySnapshot.forEach((doc) => {
+            results = doc.data();
+          });
+
+          if (results) {
+            setActiveCookingPlan(results);
+            console.log("找到了", results);
+          } else {
+            console.log("找不到活動計劃");
+            setActiveCookingPlan("");
+          }
+        });
+
+        return () => {
+          unsubscribe();
+        };
+      } catch (error) {
+        console.error("獲取數據時出錯:", error);
+      }
+    };
+
+    getActivePlan();
+  }, []);
+  const dateForCooking = activeCookingPlan?.cookingDate
+    ?.toDate()
+    .toLocaleDateString("zh-TW");
+
+  if (activeCookingPlan === null) {
+    return;
+  }
 
   return (
     <Wrapper>
