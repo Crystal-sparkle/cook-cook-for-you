@@ -7,10 +7,12 @@ import dayjs from "dayjs";
 import "dayjs/locale/zh-cn";
 import { db } from "../firbase";
 import CookingSchedule from "./CookingSchedule";
+import PurchasingPlan from "./PurchasingPlan";
 import SelectMenu from "./SelectMenu";
 dayjs.locale("zh-cn");
 
 const AddDailyMeal: React.FC = () => {
+  const [cookingPlanId, setCookingPlanId] = useState<string>("");
   const recipesCollection = collection(db, "recipes");
   const [searchInputValue, setSearchInputValue] = useState("");
   const { Search } = Input;
@@ -58,7 +60,11 @@ const AddDailyMeal: React.FC = () => {
           <h2>{searchResults}</h2>
         </Flex>
       </div>
-      <CookingSchedule />
+      <CookingSchedule
+        cookingPlanId={cookingPlanId}
+        setCookingPlanId={setCookingPlanId}
+      />
+      <PurchasingPlan cookingPlanId={cookingPlanId} />
     </>
   );
 };

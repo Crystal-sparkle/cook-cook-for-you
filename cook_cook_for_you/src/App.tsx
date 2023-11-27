@@ -28,10 +28,15 @@ interface DailyMealPlan {
   userId: string;
 }
 
+const Wrapper = styled.div`
+  margin: 40px;
+  padding: 20px;
+  border-radius: 20px;
+`;
+
 const App: React.FC = () => {
   const [mealItems, setmealItems] = useState();
 
-  // const db = getFirestore();
   const recipesCollection = collection(db, "recipes");
   const docRef = doc(recipesCollection, "100");
 
@@ -121,16 +126,16 @@ const App: React.FC = () => {
   return (
     <Wrapper>
       <AddDailyMeal />
-      <Button type="primary" onClick={handleDailyMealPlan}>
+      {/* <Button type="primary" onClick={handleDailyMealPlan}>
         Daily Meal Menu
-      </Button>
+      </Button> */}
       <Calendar
         cellRender={cellRender}
         onSelect={(date) => {
           console.log("selected Date", date);
         }}
       />
-    </>
+    </Wrapper>
   );
 };
 

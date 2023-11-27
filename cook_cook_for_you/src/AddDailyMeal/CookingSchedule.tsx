@@ -1,12 +1,14 @@
 import type { DatePickerProps } from "antd";
-import { Button, DatePicker, Space } from "antd";
+import { Button, DatePicker, Modal, Space } from "antd";
 import type { Dayjs } from "dayjs";
 import dayjs from "dayjs";
 import {
   Timestamp,
+  addDoc,
   collection,
   doc,
   getDocs,
+  onSnapshot,
   query,
   setDoc,
   where,
@@ -27,13 +29,28 @@ interface Accumulator {
   [key: string]: { name: string; serving: number; unit: string };
 }
 
+interface CookingPlanData {
+  cookingDate: Timestamp;
+  cookingItems: {
+    id: string;
+    name: string;
+    serving: number;
+    unit: string;
+  }[];
+  isActive: boolean;
+  mealsStartDate: Timestamp;
+  mealsEndDate: Timestamp;
+  planId: string;
+  userId: string;
+}
+
 const { RangePicker } = DatePicker;
 const Wrapper = styled.div`
   margin: 20px;
   padding: 5px 40px;
   height: 100%;
   width: 90%;
-  background-color: #5ba294;
+  background-color: #728288;
   border: 2px;
   border-radius: 10px;
 `;
@@ -49,14 +66,11 @@ function CookingSchedule({
 }) {
   const [cookingDate, setCookingDate] = useState<Date | undefined>();
   const pickCookingDate: DatePickerProps["onChange"] = (date, dateString) => {
-    console.log(date, dateString);
-
     if (date !== null) {
       const pickDate: Date = date?.toDate();
       setCookingDate(pickDate);
     }
   };
-  console.log(cookingDate);
 
   const [dates, setDates] = useState<RangeValue>(null);
   const [value, setValue] = useState<RangeValue>(null);
@@ -77,8 +91,6 @@ function CookingSchedule({
       setDates(null);
     }
   };
-  console.log(dates);
-  console.log(value);
 
   const [selectDate, setSelectDate] = useState<(Timestamp | null)[]>([]);
   useEffect(() => {
@@ -93,41 +105,56 @@ function CookingSchedule({
 
   const [cookingMeals, setCookingMeals] = useState<MealPlan[]>([]);
 
-  const handleCookingMeals = async () => {
-    const CookingMealCollection = collection(db, "DailyMealPlan");
-    const startDate = selectDate[0]?.toDate() || null;
-    const endDate = selectDate[1]?.toDate() || null;
-    const queryRef = query(
-      CookingMealCollection,
-      where(
-        "planDate",
-        ">",
-        startDate ? dayjs(startDate).startOf("day").toDate() : null
-      ),
-      where(
-        "planDate",
-        "<",
-        endDate ? dayjs(endDate).endOf("day").toDate() : null
-      )
-    );
-
-    try {
-      const querySnapshot = await getDocs(queryRef);
-      const results: MealPlan[] = [];
-      querySnapshot.forEach((doc) => {
-        results.push(doc.data() as MealPlan);
-        console.log(doc);
+  const combinedSearvings = cookingMeals.reduce(
+    (accumulator: Accumulator, meal) => {
+      meal.mealPlan.forEach((item) => {
+        const { name, serving } = item;
+        if (accumulator[name]) {
+          accumulator[name].serving += serving;
+        } else {
+          accumulator[name] = { ...item };
+        }
       });
+      return accumulator;
+    },
 
-      setCookingMeals(results);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
-  console.log(cookingMeals);
+    {}
+  );
   useEffect(() => {
-    handleCookingMeals();
-  }, []);
+    const handleCookingMeals = async () => {
+      const CookingMealCollection = collection(db, "DailyMealPlan");
+      const startDate = selectDate[0]?.toDate() || null;
+      const endDate = selectDate[1]?.toDate() || null;
+      const queryRef = query(
+        CookingMealCollection,
+        where(
+          "planDate",
+          ">",
+          startDate ? dayjs(startDate).startOf("day").toDate() : null
+        ),
+        where(
+          "planDate",
+          "<",
+          endDate ? dayjs(endDate).endOf("day").toDate() : null
+        )
+      );
+
+      try {
+        const querySnapshot = await getDocs(queryRef);
+        const results: MealPlan[] = [];
+        querySnapshot.forEach((doc) => {
+          results.push(doc.data() as MealPlan);
+        });
+
+        setCookingMeals(results);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+    if (cookingDate !== undefined && selectDate !== null) {
+      handleCookingMeals();
+    }
+  }, [cookingDate, selectDate]);
 
   async function addCookingPlan() {
     const CookingPlanCollection = collection(db, "cookingPlan");
@@ -163,19 +190,6 @@ function CookingSchedule({
     addPurchasingPlan();
   }, [cookingPlanId]);
 
-  const combinedSearvings = cookingMeals.reduce(
-    (accumulator: Accumulator, meal) => {
-      meal.mealPlan.forEach((item) => {
-        const { name, serving } = item;
-        if (accumulator[name]) {
-          accumulator[name].serving += serving;
-        } else {
-          accumulator[name] = { ...item };
-        }
-        console.log(accumulator);
-      });
-      return accumulator;
-    },
   async function addPurchasingPlan() {
     if (cookingPlanId) {
       const purchasePlanCollection = collection(db, "purchasePlan");
@@ -268,7 +282,19 @@ function CookingSchedule({
 
   return (
     <Wrapper>
-      <h1>cooking schedule</h1>
+      <div>
+        <h1>Active Cooking schedule </h1>
+        <h3>烹煮日期：{dateForCooking}</h3>
+        {activeCookingPlan?.cookingItems.map((plan, index) => (
+          <div key={index}>
+            <div>品項: {plan.name}</div>
+            <div>份量: {plan.serving}</div>
+            <div>單位: {plan.unit}</div>
+            <hr />
+          </div>
+        ))}
+      </div>
+      <h1>Setting cooking schedule</h1>
       <h2>烹煮日期：</h2>
       <Space direction="vertical">
         <DatePicker onChange={pickCookingDate} />
@@ -288,35 +314,30 @@ function CookingSchedule({
           changeOnBlur
         />
       </div>
-      <br />
-      <br />
-      <Button type="primary" onClick={handleClick}>
-        烹煮份量表
-      </Button>
       <div>
-        {/* <h2>烹煮品項與分量</h2>
-        <div>
-          {allMealPlans.map((meal, index) => (
-            <div key={index}>
-              <p>No.{index + 1}</p>
-              <p>Name: {meal.name}</p>
-              <p>Serving: {meal.serving}</p>
-              <p>Unit: {meal.unit}</p>
-              <hr />
-            </div>
-          ))}
-        </div> */}
         <div>
           <h2>統整份量</h2>
           {combinedServingArray.map((meal, index) => (
             <div key={index}>
-              <p>Name: {meal.name}</p>
-              <p>Serving: {meal.serving}</p>
-              <p>Unit: {meal.unit}</p>
+              <div>品項: {meal.name}</div>
+              <div>份量: {meal.serving}</div>
+              <div>單位: {meal.unit}</div>
               <hr />
             </div>
           ))}
+          <br />
+          <Button type="primary" onClick={handleClick}>
+            確認烹煮計畫
+          </Button>
         </div>
+        <Modal
+          title="已新增烹煮行程"
+          open={visible}
+          onOk={handleOk}
+          onCancel={handleCancel}
+        >
+          <p>要建立採購清單嗎？</p>
+        </Modal>
       </div>
     </Wrapper>
   );

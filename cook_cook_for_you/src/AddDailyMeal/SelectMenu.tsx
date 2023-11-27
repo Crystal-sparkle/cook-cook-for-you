@@ -25,11 +25,11 @@ const items: MenuItem[] = [
     key: "3",
   },
   {
-    label: "海鮮鍋燒麵",
+    label: "蛋炒高麗菜",
     key: "4",
   },
   {
-    label: "湯咖哩",
+    label: "泡菜豬肉",
     key: "5",
   },
   {
@@ -37,7 +37,7 @@ const items: MenuItem[] = [
     key: "6",
   },
   {
-    label: "可頌",
+    label: "咖喱飯",
     key: "7",
   },
   {
