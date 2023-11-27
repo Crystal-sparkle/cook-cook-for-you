@@ -40,7 +40,13 @@ const Wrapper = styled.div`
 
 type RangeValue = [Dayjs | null, Dayjs | null] | null;
 
-function CookingSchedule() {
+function CookingSchedule({
+  setCookingPlanId,
+  cookingPlanId,
+}: {
+  setCookingPlanId: (id: string) => void;
+  cookingPlanId: string;
+}) {
   const [cookingDate, setCookingDate] = useState<Date | undefined>();
   const pickCookingDate: DatePickerProps["onChange"] = (date, dateString) => {
     console.log(date, dateString);
@@ -128,24 +134,34 @@ function CookingSchedule() {
 
     const startDate = selectDate[0]?.toDate() || null;
     const endDate = selectDate[1]?.toDate() || null;
-    const docRef = doc(CookingPlanCollection);
+
+    // const docRef = doc(CookingPlanCollection);
     const newPlan = {
       cookingDate: cookingDate,
-      cookingItems: cookingMeals,
+      cookingItems: combinedServingArray,
       userId: "crystal",
       mealsStartDate: startDate,
       mealsEndDate: endDate,
+      isActive: true,
     };
     try {
-      await setDoc(docRef, newPlan);
-      console.log("Document written successfully!");
+      const docRef = await addDoc(CookingPlanCollection, newPlan);
+      console.log("Document added with ID: ", docRef.id);
+
+      const updatedData = { planId: docRef.id };
+      await setDoc(doc(CookingPlanCollection, docRef.id), updatedData, {
+        merge: true,
+      });
+      setCookingPlanId(docRef.id);
     } catch (error) {
       console.error("Error writing document: ", error);
     }
   }
 
-  // 所有的烹煮行程表中的料理
-  // const allMealPlans = cookingMeals.flatMap((meal) => meal.mealPlan);
+  console.log("cookingPlanId", cookingPlanId);
+  useEffect(() => {
+    addPurchasingPlan();
+  }, [cookingPlanId]);
 
   const combinedSearvings = cookingMeals.reduce(
     (accumulator: Accumulator, meal) => {
@@ -160,9 +176,30 @@ function CookingSchedule() {
       });
       return accumulator;
     },
+  async function addPurchasingPlan() {
+    if (cookingPlanId) {
+      const purchasePlanCollection = collection(db, "purchasePlan");
 
-    {}
-  );
+      const startDate = selectDate[0]?.toDate() || null;
+      const endDate = selectDate[1]?.toDate() || null;
+
+      const newPlan = {
+        cookingDate: cookingDate,
+        Items: "",
+        userId: "crystal",
+        mealsStartDate: startDate,
+        mealsEndDate: endDate,
+        planId: cookingPlanId,
+      };
+      try {
+        const docRef = await addDoc(purchasePlanCollection, newPlan);
+        console.log("Document written successfully!", docRef.id);
+      } catch (error) {
+        console.error("Error writing document: ", error);
+      }
+    }
+  }
+
 
   const combinedServingArray = Object.values(combinedSearvings);
   const handleClick = () => {
