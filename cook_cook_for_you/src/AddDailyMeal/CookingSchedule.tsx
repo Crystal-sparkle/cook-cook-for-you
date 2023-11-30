@@ -44,6 +44,15 @@ interface CookingPlanData {
   userId: string;
 }
 
+interface CookingScheduleProps {
+  setCookingPlanId: (id: string) => void;
+  cookingPlanId: string;
+  activeCookingPlan: CookingPlanData | undefined;
+  setActiveCookingPlan: React.Dispatch<
+    React.SetStateAction<CookingPlanData | undefined>
+  >;
+}
+
 const { RangePicker } = DatePicker;
 const Wrapper = styled.div`
   margin: 20px;
@@ -60,12 +69,11 @@ type RangeValue = [Dayjs | null, Dayjs | null] | null;
 function CookingSchedule({
   setCookingPlanId,
   cookingPlanId,
-}: {
-  setCookingPlanId: (id: string) => void;
-  cookingPlanId: string;
-}) {
+  activeCookingPlan,
+  setActiveCookingPlan,
+}: CookingScheduleProps) {
   const [cookingDate, setCookingDate] = useState<Date | undefined>();
-  const pickCookingDate: DatePickerProps["onChange"] = (date, dateString) => {
+  const pickCookingDate: DatePickerProps["onChange"] = (date) => {
     if (date !== null) {
       const pickDate: Date = date?.toDate();
       setCookingDate(pickDate);
@@ -96,7 +104,9 @@ function CookingSchedule({
   useEffect(() => {
     if (value !== null) {
       const filterDates = value.map((item) => {
-        const date = item?.$d;
+        const date = item?.toDate();
+        console.log(date);
+        console.log(item);
         return date ? Timestamp.fromDate(date) : null;
       });
       setSelectDate(filterDates);
@@ -187,32 +197,32 @@ function CookingSchedule({
 
   console.log("cookingPlanId", cookingPlanId);
   useEffect(() => {
-    addPurchasingPlan();
-  }, [cookingPlanId]);
+    async function addPurchasingPlan() {
+      if (cookingPlanId) {
+        const purchasePlanCollection = collection(db, "purchasePlan");
 
-  async function addPurchasingPlan() {
-    if (cookingPlanId) {
-      const purchasePlanCollection = collection(db, "purchasePlan");
+        const startDate = selectDate[0]?.toDate() || null;
+        const endDate = selectDate[1]?.toDate() || null;
 
-      const startDate = selectDate[0]?.toDate() || null;
-      const endDate = selectDate[1]?.toDate() || null;
-
-      const newPlan = {
-        cookingDate: cookingDate,
-        Items: "",
-        userId: "crystal",
-        mealsStartDate: startDate,
-        mealsEndDate: endDate,
-        planId: cookingPlanId,
-      };
-      try {
-        const docRef = await addDoc(purchasePlanCollection, newPlan);
-        console.log("Document written successfully!", docRef.id);
-      } catch (error) {
-        console.error("Error writing document: ", error);
+        const newPlan = {
+          cookingDate: cookingDate,
+          Items: "",
+          userId: "crystal",
+          mealsStartDate: startDate,
+          mealsEndDate: endDate,
+          planId: cookingPlanId,
+        };
+        try {
+          const docRef = await addDoc(purchasePlanCollection, newPlan);
+          console.log("Document written successfully!", docRef.id);
+        } catch (error) {
+          console.error("Error writing document: ", error);
+        }
       }
     }
-  }
+
+    addPurchasingPlan();
+  }, [cookingPlanId]);
 
   // 所有的烹煮行程表中的料理
   // const allMealPlans = cookingMeals.flatMap((meal) => meal.mealPlan);
@@ -230,15 +240,12 @@ function CookingSchedule({
 
   const handleOk = async () => {
     addCookingPlan();
-
     setVisible(false);
   };
 
   const handleCancel = () => {
     setVisible(false);
   };
-
-  const [activeCookingPlan, setActiveCookingPlan] = useState<CookingPlanData>();
 
   useEffect(() => {
     const getActivePlan = async () => {
@@ -258,7 +265,6 @@ function CookingSchedule({
             console.log("找到了", results);
           } else {
             console.log("找不到活動計劃");
-            setActiveCookingPlan("");
           }
         });
 
@@ -282,18 +288,6 @@ function CookingSchedule({
 
   return (
     <Wrapper>
-      <div>
-        <h1>Active Cooking schedule </h1>
-        <h3>烹煮日期：{dateForCooking}</h3>
-        {activeCookingPlan?.cookingItems.map((plan, index) => (
-          <div key={index}>
-            <div>品項: {plan.name}</div>
-            <div>份量: {plan.serving}</div>
-            <div>單位: {plan.unit}</div>
-            <hr />
-          </div>
-        ))}
-      </div>
       <h1>Setting cooking schedule</h1>
       <h2>烹煮日期：</h2>
       <Space direction="vertical">
@@ -314,6 +308,7 @@ function CookingSchedule({
           changeOnBlur
         />
       </div>
+
       <div>
         <div>
           <h2>統整份量</h2>
@@ -338,6 +333,18 @@ function CookingSchedule({
         >
           <p>要建立採購清單嗎？</p>
         </Modal>
+      </div>
+      <div>
+        <h1>Active Cooking schedule </h1>
+        <h3>烹煮日期：{dateForCooking}</h3>
+        {activeCookingPlan?.cookingItems.map((plan, index) => (
+          <div key={index}>
+            <div>品項: {plan.name}</div>
+            <div>份量: {plan.serving}</div>
+            <div>單位: {plan.unit}</div>
+            <hr />
+          </div>
+        ))}
       </div>
     </Wrapper>
   );

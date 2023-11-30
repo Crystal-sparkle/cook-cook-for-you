@@ -64,7 +64,7 @@ const SelectMenu: React.FC = () => {
   //newTime 的初始值為 undefined，並且可以接受 Timestamp 或 undefined。
   // string 或 undefined。修改 useState 行如下：
   const [newTime, setNewTime] = useState<Timestamp | undefined>();
-  const [newQty, setNewQty] = useState();
+  const [newQty, setNewQty] = useState<string | undefined>();
   const handleDateChange: DatePickerProps["onChange"] = (date) => {
     // console.log(date, dateString);
     if (date !== null) {
