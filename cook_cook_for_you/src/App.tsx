@@ -1,5 +1,5 @@
 import type { CalendarProps } from "antd";
-import { Button, Calendar, Tag } from "antd";
+import { Calendar, Tag } from "antd";
 import type { Dayjs } from "dayjs";
 import "firebase/database";
 import {
@@ -7,7 +7,7 @@ import {
   collection,
   doc,
   getDoc,
-  getDocs,
+  onSnapshot,
   query,
   where,
 } from "firebase/firestore";
@@ -16,7 +16,8 @@ import AddDailyMeal from "./AddDailyMeal";
 // The default locale is en-US, if you want to use other locale, just set locale in entry file globally.
 import dayjs from "dayjs";
 import "dayjs/locale/zh-cn";
-import { db } from "./Firbase";
+import styled from "styled-components";
+import { db } from "./firbase";
 dayjs.locale("zh-cn");
 interface DailyMealPlan {
   mealPlan: {
@@ -69,28 +70,36 @@ const App: React.FC = () => {
     []
   );
 
-  const handleDailyMealPlan = async () => {
-    const DailyMealPlanCollection = collection(db, "DailyMealPlan");
-    const queryRef = query(
-      DailyMealPlanCollection,
-      where("planDate", ">", Timestamp.fromDate(new Date(2023, 10, 1))),
-      where("planDate", "<", Timestamp.fromDate(new Date(2023, 11, 1)))
-    );
+  useEffect(() => {
+    const handleDailyMealPlan = () => {
+      const DailyMealPlanCollection = collection(db, "DailyMealPlan");
+      const queryRef = query(
+        DailyMealPlanCollection,
+        where("planDate", ">", Timestamp.fromDate(new Date(2023, 9, 1))),
+        where("planDate", "<", Timestamp.fromDate(new Date(2024, 11, 1)))
+      );
 
-    try {
-      const querySnapshot = await getDocs(queryRef);
-      const results: DailyMealPlan[] = [];
-      querySnapshot.forEach((doc) => {
-        results.push(doc.data() as DailyMealPlan);
-      });
+      const unsubscribe = onSnapshot(
+        queryRef,
+        (querySnapshot) => {
+          const results: DailyMealPlan[] = [];
+          querySnapshot.forEach((doc) => {
+            results.push(doc.data() as DailyMealPlan);
+          });
 
-      setThisMonthMealPlans(results);
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
+          setThisMonthMealPlans(results);
+        },
+        (error) => {
+          console.error("取得資料時發生錯誤:", error);
+        }
+      );
 
-  console.log(thisMonthMealPlans);
+      // 當元件卸載時取消監聽
+      return () => unsubscribe();
+    };
+
+    handleDailyMealPlan(); // 呼叫函數以執行一次
+  }, []);
 
   const preventDefault = (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
@@ -105,10 +114,11 @@ const App: React.FC = () => {
         type: "",
         content: plan.mealPlan.map((meal) => meal.name),
       }));
+
     const eventTags = dynamicListData.map((item, index) => (
       <li key={index}>
-        {item.content.map((manu) => (
-          <Tag closable onClose={preventDefault}>
+        {item.content.map((manu, index) => (
+          <Tag key={index} closable onClose={preventDefault}>
             {manu}
           </Tag>
         ))}
@@ -125,7 +135,7 @@ const App: React.FC = () => {
 
   return (
     <Wrapper>
-      <AddDailyMeal />
+      <h1>Create Your Daily</h1>
       {/* <Button type="primary" onClick={handleDailyMealPlan}>
         Daily Meal Menu
       </Button> */}
@@ -135,6 +145,7 @@ const App: React.FC = () => {
           console.log("selected Date", date);
         }}
       />
+      <AddDailyMeal />
     </Wrapper>
   );
 };
