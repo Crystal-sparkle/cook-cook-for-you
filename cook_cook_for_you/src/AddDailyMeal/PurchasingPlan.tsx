@@ -1,4 +1,4 @@
-import { Select } from "antd";
+import { Button, Select } from "antd";
 import "firebase/database";
 import {
   Timestamp,
@@ -41,7 +41,7 @@ interface PurchasePlan {
 //dummy data
 const partners = [
   {
-    label: "CrystaL",
+    label: "Crystal",
     key: "1",
   },
   {
@@ -337,6 +337,47 @@ const PurchasingPlan = ({ activeCookingPlan }: PurchasePlanProps) => {
   }, []);
 
   console.log(purchasePlanCollection);
+  const handleClick = () => {
+    const closePurchasePlan = async () => {
+      const PurchasePlanCollection = collection(db, "purchasePlan");
+      const q = query(PurchasePlanCollection, where("isActive", "==", true));
+
+      try {
+        const querySnapshot = await getDocs(q);
+        querySnapshot.forEach(async (doc) => {
+          const docRef = doc.ref;
+
+          await updateDoc(docRef, {
+            isActive: false,
+          });
+        });
+        console.log("設為false");
+      } catch (error) {
+        console.error("Error writing document: ", error);
+      }
+    };
+    const closeCookingSchedule = async () => {
+      const CookingPlanCollection = collection(db, "cookingPlan");
+      const q = query(CookingPlanCollection, where("isActive", "==", true));
+
+      try {
+        const querySnapshot = await getDocs(q);
+        querySnapshot.forEach(async (doc) => {
+          const docRef = doc.ref;
+
+          await updateDoc(docRef, {
+            isActive: false,
+          });
+        });
+        console.log("設為false");
+      } catch (error) {
+        console.error("Error writing document: ", error);
+      }
+    };
+    closeCookingSchedule();
+    closePurchasePlan();
+    alert("開啟新旅程吧");
+  };
 
   return (
     <Wrapper>
@@ -388,6 +429,10 @@ const PurchasingPlan = ({ activeCookingPlan }: PurchasePlanProps) => {
         ) : (
           <div>請先建立烹煮計畫唷</div>
         )}
+        <br />
+        <Button type="primary" onClick={handleClick}>
+          完成計畫
+        </Button>
       </div>
     </Wrapper>
   );
