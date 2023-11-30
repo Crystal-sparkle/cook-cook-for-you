@@ -105,8 +105,7 @@ function CookingSchedule({
     if (value !== null) {
       const filterDates = value.map((item) => {
         const date = item?.toDate();
-        console.log(date);
-        console.log(item);
+
         return date ? Timestamp.fromDate(date) : null;
       });
       setSelectDate(filterDates);
@@ -172,7 +171,6 @@ function CookingSchedule({
     const startDate = selectDate[0]?.toDate() || null;
     const endDate = selectDate[1]?.toDate() || null;
 
-    // const docRef = doc(CookingPlanCollection);
     const newPlan = {
       cookingDate: cookingDate,
       cookingItems: combinedServingArray,
@@ -195,7 +193,6 @@ function CookingSchedule({
     }
   }
 
-  console.log("cookingPlanId", cookingPlanId);
   useEffect(() => {
     async function addPurchasingPlan() {
       if (cookingPlanId) {
@@ -206,11 +203,12 @@ function CookingSchedule({
 
         const newPlan = {
           cookingDate: cookingDate,
-          Items: "",
+          items: [],
           userId: "crystal",
           mealsStartDate: startDate,
           mealsEndDate: endDate,
           planId: cookingPlanId,
+          isActive: true,
         };
         try {
           const docRef = await addDoc(purchasePlanCollection, newPlan);
@@ -262,9 +260,8 @@ function CookingSchedule({
 
           if (results) {
             setActiveCookingPlan(results);
-            console.log("找到了", results);
           } else {
-            console.log("找不到活動計劃");
+            console.log("no plan");
           }
         });
 
@@ -272,7 +269,7 @@ function CookingSchedule({
           unsubscribe();
         };
       } catch (error) {
-        console.error("獲取數據時出錯:", error);
+        console.error(error);
       }
     };
 

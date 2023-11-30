@@ -1,11 +1,13 @@
 import { Select } from "antd";
-import dayjs from "dayjs";
 import "firebase/database";
 import {
   Timestamp,
   collection,
+  getDoc,
   getDocs,
+  onSnapshot,
   query,
+  updateDoc,
   where,
 } from "firebase/firestore";
 import { useEffect, useState } from "react";
@@ -83,44 +85,38 @@ interface CookingPlanItem {
 const PurchasingPlan = ({ activeCookingPlan }: PurchasePlanProps) => {
   const { Option } = Select;
 
-  const [purchasePlanCollection, setPurchasePanCollection] = useState<
-    PurchasePlan[]
-  >([]);
-
-  useEffect(() => {
-    const getPurchasePlan = async () => {
-      const purchaseCollection = collection(db, "purchasePlan");
-
-      const endDateStartTime = dayjs("2023-11-08").startOf("day").toDate();
-      const endDateEndTime = dayjs("2023-11-08").endOf("day").toDate();
-
-      const endTimestamp0 = Timestamp.fromDate(endDateStartTime);
-      const endTimestamp1 = Timestamp.fromDate(endDateEndTime);
-
-      const queryRef = query(
-        purchaseCollection,
-        where("mealsEndDate", ">=", endTimestamp0),
-        where("mealsEndDate", "<=", endTimestamp1)
-      );
-
-      try {
-        const querySnapshot = await getDocs(queryRef);
-        const results: PurchasePlan[] = [];
-        querySnapshot.forEach((doc) => {
-          const data = doc.data();
-
-          results.push(data as PurchasePlan);
-          console.log(results);
-        });
-        setPurchasePanCollection(results);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-    getPurchasePlan();
-  }, []);
-
   const [checkedItems, setCheckedItems] = useState<Array<Array<boolean>>>([]);
+
+  const updateCheckboxStatus = async (
+    planIndex: number,
+    itemIndex: number,
+    isChecked: boolean
+  ) => {
+    const purchaseCollection = collection(db, "purchasePlan");
+    const q = query(purchaseCollection, where("isActive", "==", true));
+
+    try {
+      const querySnapshot = await getDocs(q);
+      querySnapshot.forEach(async (doc) => {
+        const docRef = doc.ref;
+
+        const docData = (await getDoc(docRef)).data();
+
+        if (docData && docData.items && docData.items[itemIndex]) {
+          docData.items[itemIndex].isPurchased = isChecked;
+
+          console.log(planIndex, itemIndex, isChecked);
+          await updateDoc(docRef, {
+            items: docData.items,
+          });
+
+          console.log(`成功更改 isPurchased 状态：${isChecked}`);
+        }
+      });
+    } catch (error) {
+      console.error("Error writing document: ", error);
+    }
+  };
 
   const handleCheckboxChange = (planIndex: number, itemIndex: number) => {
     setCheckedItems((prevCheckedItems) => {
@@ -128,16 +124,44 @@ const PurchasingPlan = ({ activeCookingPlan }: PurchasePlanProps) => {
       newCheckedItems[planIndex] = [...(newCheckedItems[planIndex] || [])];
       newCheckedItems[planIndex][itemIndex] =
         !newCheckedItems[planIndex][itemIndex];
+      updateCheckboxStatus(
+        planIndex,
+        itemIndex,
+        newCheckedItems[planIndex][itemIndex]
+      );
+
       return newCheckedItems;
     });
   };
 
-  const handleSelectChange = (
+  const handleSelectChange = async (
     value: string,
     index: number,
     itemIndex: number
   ) => {
-    console.log(value, index, itemIndex);
+    const purchaseCollection = collection(db, "purchasePlan");
+    const q = query(purchaseCollection, where("isActive", "==", true));
+
+    try {
+      const querySnapshot = await getDocs(q);
+      querySnapshot.forEach(async (doc) => {
+        const docRef = doc.ref;
+
+        const docData = (await getDoc(docRef)).data();
+
+        if (docData && docData.items && docData.items[itemIndex]) {
+          docData.items[itemIndex].responsible = value;
+
+          await updateDoc(docRef, {
+            items: docData.items,
+          });
+
+          console.log(`成功更改採買人員：${value}`);
+        }
+      });
+    } catch (error) {
+      console.error("Error writing document: ", error);
+    }
   };
 
   const [activePlanIngredients, setActivePlanIngredients] = useState<
@@ -146,7 +170,6 @@ const PurchasingPlan = ({ activeCookingPlan }: PurchasePlanProps) => {
 
   useEffect(() => {
     const purchaseMeals = activeCookingPlan?.cookingItems;
-    console.log(purchaseMeals);
 
     if (Array.isArray(purchaseMeals) && purchaseMeals.length > 0) {
       const getRecipesIngredients = async () => {
@@ -171,7 +194,7 @@ const PurchasingPlan = ({ activeCookingPlan }: PurchasePlanProps) => {
                   serving: meal.serving,
                   ingredients: ingredients,
                 };
-                console.log(newIngredients);
+
                 console.log(
                   `Ingredients for meal ${meal.id} with serving ${serving}:`,
                   ingredients
@@ -192,6 +215,7 @@ const PurchasingPlan = ({ activeCookingPlan }: PurchasePlanProps) => {
           const newIngredients = results.filter(
             (result) => result !== null
           ) as CookingPlanItem[];
+          console.log("test newIngredients", newIngredients);
 
           setActivePlanIngredients((prevIngredients) => [
             ...prevIngredients,
@@ -231,12 +255,13 @@ const PurchasingPlan = ({ activeCookingPlan }: PurchasePlanProps) => {
             name: ingredient.name,
             quantity: ingredient.quantity * item.serving,
             unit: ingredient.unit,
+            isPurchased: false,
+            responsible: "",
           });
         }
       });
       return accumulator;
     }, []);
-
     setPurchaseItems(purchaseItemsArray);
   }, [activePlanIngredients]);
 
