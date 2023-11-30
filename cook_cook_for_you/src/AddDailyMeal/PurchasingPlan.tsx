@@ -31,8 +31,8 @@ interface PurchaseItem {
 }
 
 interface PurchasePlan {
-  date: Timestamp;
-  items: PurchaseItem[];
+  cookingDate: Timestamp;
+  items: PurchaseItem[] | [];
   mealsEndDate: Timestamp;
   mealsStartDate: Timestamp;
   test: string;
@@ -69,7 +69,7 @@ interface CookingPlanData {
   userId: string;
 }
 interface PurchasePlanProps {
-  activeCookingPlan: CookingPlanData | undefined; // 這裡修正
+  activeCookingPlan: CookingPlanData | undefined;
 }
 
 interface CookingPlanItem {
@@ -229,17 +229,28 @@ const PurchasingPlan = ({ activeCookingPlan }: PurchasePlanProps) => {
       getRecipesIngredients();
     }
   }, [activeCookingPlan]);
-  console.log(activeCookingPlan);
 
-  console.log(activePlanIngredients);
+  console.log("activePlanIngredients", activePlanIngredients);
 
   const [purchaseItems, setPurchaseItems] = useState<
-    { name: string; quantity: number; unit: string }[]
+    {
+      name: string;
+      quantity: number;
+      unit: string;
+      isPurchased: boolean;
+      responsible: string;
+    }[]
   >([]);
 
   useEffect(() => {
     const purchaseItemsArray = activePlanIngredients.reduce<
-      { name: string; quantity: number; unit: string }[]
+      {
+        name: string;
+        quantity: number;
+        unit: string;
+        isPurchased: boolean;
+        responsible: string;
+      }[]
     >((accumulator, item) => {
       item.ingredients.forEach((ingredient) => {
         const existingIngredient = accumulator.find(
@@ -262,52 +273,121 @@ const PurchasingPlan = ({ activeCookingPlan }: PurchasePlanProps) => {
       });
       return accumulator;
     }, []);
+    console.log("purchaseItemsArray", purchaseItemsArray);
     setPurchaseItems(purchaseItemsArray);
   }, [activePlanIngredients]);
 
   console.log(purchaseItems);
 
+  useEffect(() => {
+    const addPurchaseItems = async () => {
+      const PurchasePlanCollection = collection(db, "purchasePlan");
+      const q = query(PurchasePlanCollection, where("isActive", "==", true));
+
+      try {
+        const querySnapshot = await getDocs(q);
+        querySnapshot.forEach(async (doc) => {
+          const docRef = doc.ref;
+          if (doc.data().items.length === 0) {
+            await updateDoc(docRef, {
+              items: purchaseItems,
+            });
+          }
+        });
+        console.log("成功加入items");
+      } catch (error) {
+        console.error("Error writing document: ", error);
+      }
+    };
+
+    addPurchaseItems();
+  }, [purchaseItems]);
+
+  const [purchasePlanCollection, setPurchasePanCollection] = useState<
+    PurchasePlan[]
+  >([]);
+
+  console.log(activeCookingPlan);
+
+  useEffect(() => {
+    const getPurchasePlan = async () => {
+      const purchaseCollection = collection(db, "purchasePlan");
+      const queryRef = query(purchaseCollection, where("isActive", "==", true));
+
+      const unsubscribe = onSnapshot(
+        queryRef,
+        (querySnapshot) => {
+          const results: PurchasePlan[] = [];
+          querySnapshot.forEach((doc) => {
+            const data = doc.data();
+
+            results.push(data as PurchasePlan);
+          });
+          setPurchasePanCollection(results);
+        },
+        (error) => {
+          console.error("取得資料時發生錯誤:", error);
+        }
+      );
+
+      return () => unsubscribe();
+    };
+
+    getPurchasePlan();
+  }, []);
+
+  console.log(purchasePlanCollection);
+
   return (
     <Wrapper>
       <h2>採購清單</h2>
       <div>
-        {purchasePlanCollection.map((item, index) => (
-          <div key={index}>
-            <span>採購品項</span>
-            <span> {item.items.length} 個</span>
-            <p>烹煮計畫日期：{item.date.toDate().toLocaleDateString()}</p>
-            <hr />
-            {item.items.map((purchaseItem, itemIndex) => (
-              <div key={itemIndex}>
-                <span>品項{itemIndex + 1}:</span>
-                <input
-                  type="checkbox"
-                  checked={checkedItems[index]?.[itemIndex] || false}
-                  onChange={() => handleCheckboxChange(index, itemIndex)}
-                />
-                <span>{purchaseItem.name}</span>
-                <span>{purchaseItem.quantity}</span>
-                <span>{purchaseItem.unit}</span>
-                <br />
-                <p>誰採買</p>
-                <Select
-                  defaultValue={purchaseItem.responsible}
-                  style={{ width: 120 }}
-                  onChange={(value) =>
-                    handleSelectChange(value, index, itemIndex)
-                  }
-                >
-                  {partners.map((partner) => (
-                    <Option key={partner.key} value={partner.label}>
-                      {partner.label}
-                    </Option>
-                  ))}
-                </Select>
-                <hr />
-              </div>
-            ))}
-          </div>
-        ))}
+        {purchasePlanCollection.length > 0 ? (
+          purchasePlanCollection.map((item, index) => (
+            <div key={index}>
+              <span>採購品項</span>
+              <span> {item?.items?.length} 個</span>
+              <p>
+                烹煮計畫日期：{item?.cookingDate?.toDate().toLocaleDateString()}
+              </p>
+              <hr />
+              {item?.items?.map((purchaseItem, itemIndex) => (
+                <div key={itemIndex}>
+                  <span>品項{itemIndex + 1}:</span>
+                  <input
+                    type="checkbox"
+                    checked={
+                      checkedItems[index]?.[itemIndex] ||
+                      purchaseItem.isPurchased
+                    }
+                    onChange={() => handleCheckboxChange(index, itemIndex)}
+                  />
+                  <span>{purchaseItem.name}</span>
+                  <span>{purchaseItem.quantity}</span>
+                  <span>{purchaseItem.unit}</span>
+                  <br />
+                  <p>誰採買</p>
+                  <Select
+                    defaultValue={purchaseItem.responsible}
+                    style={{ width: 120 }}
+                    onChange={(value) =>
+                      handleSelectChange(value, index, itemIndex)
+                    }
+                  >
+                    {partners.map((partner) => (
+                      <Option key={partner.key} value={partner.label}>
+                        {partner.label}
+                      </Option>
+                    ))}
+                  </Select>
+                  <hr />
+                </div>
+              ))}
+            </div>
+          ))
+        ) : (
+          <div>請先建立烹煮計畫唷</div>
+        )}
       </div>
     </Wrapper>
   );
