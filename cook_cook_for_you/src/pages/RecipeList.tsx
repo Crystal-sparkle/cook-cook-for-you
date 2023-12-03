@@ -16,10 +16,31 @@ const { TextArea } = Input;
 // import { Timestamp } from "firebase/firestore";
 import dayjs from "dayjs";
 import "dayjs/locale/zh-cn";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import React from "react";
 import styled from "styled-components";
-import { db } from "../firbase";
+import { db, storage } from "../firbase";
 dayjs.locale("zh-cn");
+
+interface Recipe {
+  category: string;
+  cookingTime: number;
+  description: string;
+  name: string;
+  note: string;
+
+  ingredients: {
+    qty: number;
+    name: string;
+    unit: string;
+  }[];
+  steps: {
+    stepDescription: string;
+    stepPhoto: string;
+  }[];
+  mainPhoto: string;
+  userId: string;
+}
 
 const Wrapper = styled.div`
   margin: 40px;
@@ -39,29 +60,69 @@ const RecipeList: React.FC = () => {
   // const onFinish = (values: any) => {
   //   console.log("Received values of form:", values);
   // };
+
+  //  上傳圖片
+
+  const handleUpload = async (file: any) => {
+    console.log(file);
+    try {
+      const storageRef = ref(storage); // 這裡的 'images' 是存儲桶中的路徑
+      const imageRef = ref(storage, "`images/${file.name +file.uid}.jpg`");
+
+      // 上傳圖片文件
+      const snapshot = await uploadBytes(imageRef, file.originFileObj);
+
+      //獲取url
+      const downloadURL = await getDownloadURL(snapshot.ref);
+
+      console.log("Image uploaded:", downloadURL);
+
+      // 圖片的 URL 設置到表單中
+      setMainPhoto(downloadURL);
+    } catch (error) {
+      console.error("Error uploading image:", error);
+    }
+  };
+
+  const [mainPhoto, setMainPhoto] = useState("");
+
+  //上傳圖片
+
   const [form] = Form.useForm();
 
-  const onFinish = async (values: any) => {
+  const onFinish = async (values: Recipe) => {
     const recipesCollection = collection(db, "recipess");
+    await waitTime(2000);
     try {
-      const docRef = await addDoc(recipesCollection, values);
+      // 將圖片的 URL 添加到表單值
+      // const formValues = form.getFieldsValue();
+      const valuesWithImageURL = {
+        ...values,
+        mainPhoto: mainPhoto,
+      };
+      console.log(valuesWithImageURL);
+      const docRef = await addDoc(recipesCollection, valuesWithImageURL);
+
       console.log("Document written successfully!", docRef.id);
-      message.success("成功新增", values.name);
+      //將狀態清空
+      setMainPhoto("");
+      message.success("成功新增");
+      return true;
     } catch (error) {
       console.error("新增失败", error);
       message.error("新增失败");
     }
   };
+
   const normFile = (e: any) => {
     if (Array.isArray(e)) {
       return e;
     }
     return e?.fileList;
   };
-  // const [form] = Form.useForm<{ name: string; company: string }>();
+
   return (
     <Wrapper>
-      <p>hello</p>
       <ModalForm<{
         name: string;
         company: string;
@@ -80,24 +141,18 @@ const RecipeList: React.FC = () => {
           onCancel: () => console.log("run"),
         }}
         submitTimeout={2000}
-        // onFinish={async (values) => {
-        //   await waitTime(2000);
-        //   console.log(values.name);
-        //   message.success("提交成功");
-        //   return true;
-        // }}
         onFinish={onFinish}
         submitter={{
           searchConfig: {
             submitText: "確認",
           },
         }}
-        // onValuesChange={(changedValues, allValues) => {
-        //   // changedValues 發生變化的表單單向的值
-        //   // allValues 所有表單內容當前的值
-        //   console.log("Changed Values:", changedValues);
-        //   console.log("All Values:", allValues);
-        // }}
+        onValuesChange={(changedValues) => {
+          //   // changedValues 發生變化的表單單向的值
+          //   // allValues 所有表單內容當前的值
+          console.log("Changed Values:", changedValues);
+          //   console.log("All Values:", allValues);
+        }}
       >
         <ProForm.Group>
           <ProFormText
@@ -121,11 +176,21 @@ const RecipeList: React.FC = () => {
         <ProForm.Group>
           <Form.Item
             label="上傳圖片"
-            name="mainPhoto"
             valuePropName="fileList"
             getValueFromEvent={normFile}
           >
-            <Upload action="/upload.do" listType="picture-card" maxCount={1}>
+            <Upload
+              customRequest={({ file, onSuccess, onError }) => {
+                handleUpload(file)
+                  .then(() => onSuccess())
+                  .catch((error) => {
+                    console.error("Custom upload error:", error);
+                    onError(error);
+                  });
+              }}
+              listType="picture-card"
+              maxCount={1}
+            >
               <div>
                 <PlusOutlined />
                 <div style={{ marginTop: 8 }}>上傳</div>
@@ -137,7 +202,7 @@ const RecipeList: React.FC = () => {
           <ProFormSelect
             request={async () => [
               {
-                value: "1",
+                value: 1,
                 label: "1",
               },
             ]}
@@ -148,43 +213,43 @@ const RecipeList: React.FC = () => {
           <ProFormSelect
             options={[
               {
-                value: "10 mins",
+                value: 10,
                 label: "10分鐘",
               },
               {
-                value: "15 mins",
+                value: 15,
                 label: "15分鐘",
               },
               {
-                value: "20 mins",
+                value: 20,
                 label: "20分鐘",
               },
               {
-                value: "25 mins",
+                value: 25,
                 label: "25分鐘",
               },
               {
-                value: "30 mins",
+                value: 30,
                 label: "30分鐘",
               },
               {
-                value: "45 mins",
+                value: 45,
                 label: "45分鐘",
               },
               {
-                value: "60 mins",
+                value: 60,
                 label: "60分鐘",
               },
               {
-                value: "90 mins",
+                value: 90,
                 label: "90分鐘",
               },
               {
-                value: "120 mins",
+                value: 120,
                 label: "120分鐘",
               },
             ]}
-            initialValue="15 mins"
+            initialValue="15分鐘"
             width="xs"
             name="cookingTime"
             label="烹煮時間"
@@ -266,7 +331,7 @@ const RecipeList: React.FC = () => {
                       {...restField}
                       name={[name, "stepPhote"]}
                     >
-                      <Upload action="/upload.do" listType="picture-card">
+                      <Upload listType="picture-card">
                         <div>
                           <PlusOutlined />
                           <div style={{ marginTop: 8 }}>Upload</div>
