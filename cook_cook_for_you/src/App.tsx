@@ -1,5 +1,7 @@
+import { PlusOutlined } from "@ant-design/icons";
 import type { CalendarProps } from "antd";
-import { Calendar, Tag } from "antd";
+
+import { Button, Calendar, Tag } from "antd";
 import type { Dayjs } from "dayjs";
 import "firebase/database";
 import {
@@ -107,25 +109,33 @@ const App: React.FC = () => {
   };
 
   const dateCellRender = (value: Dayjs) => {
-    // value.date()
     const dynamicListData = thisMonthMealPlans
       .filter((plan) => dayjs(plan.planDate.toDate()).isSame(value, "day"))
       .map((plan) => ({
         type: "",
-        content: plan.mealPlan.map((meal) => meal.name),
+        content: plan.mealPlan.map((meal) => ({
+          name: meal.name,
+          serving: meal.serving,
+        })),
       }));
 
     const eventTags = dynamicListData.map((item, index) => (
       <li key={index}>
-        {item.content.map((manu, index) => (
-          <Tag key={index} closable onClose={preventDefault}>
-            {manu}
-          </Tag>
-        ))}
+        {item.content.map((menu, subIndex) =>
+          Array.from({ length: menu.serving }).map((_, servingIndex) => (
+            <Tag
+              key={subIndex + servingIndex}
+              closable
+              onClose={preventDefault}
+            >
+              {menu.name}
+            </Tag>
+          ))
+        )}
       </li>
     ));
 
-    return <ul className="events">{eventTags}</ul>;
+    return <div className="events">{eventTags}</div>;
   };
 
   const cellRender: CalendarProps<Dayjs>["cellRender"] = (current, info) => {
@@ -135,10 +145,16 @@ const App: React.FC = () => {
 
   return (
     <Wrapper>
+      <Button
+        type="primary"
+        onClick={() => {
+          setModalVisit(true);
+        }}
+      >
+        <PlusOutlined />
+      </Button>
+
       <h1>Create Your Daily</h1>
-      {/* <Button type="primary" onClick={handleDailyMealPlan}>
-        Daily Meal Menu
-      </Button> */}
       <Calendar
         cellRender={cellRender}
         onSelect={(date) => {
