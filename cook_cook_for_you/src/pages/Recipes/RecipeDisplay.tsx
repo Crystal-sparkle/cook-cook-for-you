@@ -145,6 +145,8 @@ const RecipeDisplay: React.FC = () => {
                 onClose={onClose}
                 open={open}
                 forceRender={true}
+                mask
+                maskClosable
                 extra={
                   <Space>
                     <Button onClick={onClose}>編輯</Button>
@@ -153,7 +155,6 @@ const RecipeDisplay: React.FC = () => {
                     </Button>
                   </Space>
                 }
-                mask={false}
               >
                 {currentItem && (
                   <>

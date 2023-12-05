@@ -1,4 +1,6 @@
-import { Button, Select } from "antd";
+import { CarryOutOutlined } from "@ant-design/icons";
+
+import { Button, Drawer, Select, Space } from "antd";
 import "firebase/database";
 import {
   Timestamp,
@@ -11,17 +13,17 @@ import {
   where,
 } from "firebase/firestore";
 import { useEffect, useState } from "react";
-import { styled } from "styled-components";
+// import { styled } from "styled-components";
 import { db } from "../firbase";
-const Wrapper = styled.div`
-  margin: 20px;
-  padding: 5px 40px;
-  height: 100%;
-  width: 90%;
-  background-color: #858297;
-  border: 2px;
-  border-radius: 10px;
-`;
+// const Wrapper = styled.div`
+//   margin: 20px;
+//   padding: 5px 40px;
+//   height: 100%;
+//   width: 90%;
+//   background-color: #858297;
+//   border: 2px;
+//   border-radius: 10px;
+// `;
 interface PurchaseItem {
   isPurchased: boolean | string;
   name: string;
@@ -378,11 +380,39 @@ const PurchasingPlan = ({ activeCookingPlan }: PurchasePlanProps) => {
     closePurchasePlan();
     alert("開啟新旅程吧");
   };
+  const [open, setOpen] = useState(false);
 
+  const showDrawer = () => {
+    setOpen(true);
+  };
+
+  const onClose = () => {
+    setOpen(false);
+  };
   return (
-    <Wrapper>
-      <h2>採購清單</h2>
-      <div>
+    <div>
+      <Button type="primary" onClick={showDrawer} icon={<CarryOutOutlined />}>
+        購物清單
+      </Button>
+      <Drawer
+        title="你的購買清單"
+        width={720}
+        onClose={onClose}
+        open={open}
+        styles={{
+          body: {
+            paddingBottom: 80,
+          },
+        }}
+        extra={
+          <Space>
+            <Button onClick={onClose}>Cancel</Button>
+            <Button onClick={onClose} type="primary">
+              Submit
+            </Button>
+          </Space>
+        }
+      >
         {purchasePlanCollection.length > 0 ? (
           purchasePlanCollection.map((item, index) => (
             <div key={index}>
@@ -428,11 +458,15 @@ const PurchasingPlan = ({ activeCookingPlan }: PurchasePlanProps) => {
           <div>請先建立烹煮計畫唷</div>
         )}
         <br />
-        <Button type="primary" onClick={handleClick}>
-          完成計畫
-        </Button>
-      </div>
-    </Wrapper>
+        {purchasePlanCollection.length > 0 ? (
+          <Button type="primary" onClick={handleClick}>
+            完成計畫
+          </Button>
+        ) : (
+          <div></div>
+        )}
+      </Drawer>
+    </div>
   );
 };
 
