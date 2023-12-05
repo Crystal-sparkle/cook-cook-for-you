@@ -69,7 +69,7 @@ const SelectMenu: React.FC = () => {
     // console.log(date, dateString);
     if (date !== null) {
       const timestamp = Timestamp.fromDate(date.toDate());
-      console.log("Timestamp:", timestamp);
+
       setNewTime(timestamp);
     }
   };
@@ -101,7 +101,7 @@ const SelectMenu: React.FC = () => {
     };
     try {
       await setDoc(docRef, newPlan);
-      console.log("Document written successfully!");
+      console.log("addMealPlan Document written successfully!");
     } catch (error) {
       console.error("Error writing document: ", error);
     }

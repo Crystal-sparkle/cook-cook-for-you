@@ -136,7 +136,7 @@ const PurchasingPlan = ({ activeCookingPlan }: PurchasePlanProps) => {
 
   const handleSelectChange = async (
     value: string,
-    index: number,
+    // index: number,
     itemIndex: number
   ) => {
     const purchaseCollection = collection(db, "purchasePlan");
@@ -411,9 +411,7 @@ const PurchasingPlan = ({ activeCookingPlan }: PurchasePlanProps) => {
                   <Select
                     defaultValue={purchaseItem.responsible}
                     style={{ width: 120 }}
-                    onChange={(value) =>
-                      handleSelectChange(value, index, itemIndex)
-                    }
+                    onChange={(value) => handleSelectChange(value, itemIndex)}
                   >
                     {partners.map((partner) => (
                       <Option key={partner.key} value={partner.label}>
