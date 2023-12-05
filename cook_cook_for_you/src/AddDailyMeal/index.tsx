@@ -13,6 +13,7 @@ import dayjs from "dayjs";
 import "dayjs/locale/zh-cn";
 import { db } from "../firbase";
 import CookingSchedule from "./CookingSchedule";
+import MealCalendar from "./MealCalendar";
 import PurchasingPlan from "./PurchasingPlan";
 import SelectMenu from "./SelectMenu";
 dayjs.locale("zh-cn");
@@ -61,35 +62,50 @@ const AddDailyMeal: React.FC = () => {
 
   return (
     <>
-      <div style={{ width: "100%", height: "400px", padding: "50px" }}>
-        <h1>Create Cook Buy ! </h1>
-        <SelectMenu />
-        <br />
-        <br />
-        <br />
-        <Space direction="vertical">
-          <Search
-            placeholder="input search text"
-            value={searchInputValue}
-            onChange={(e) => setSearchInputValue(e.target.value)}
-            onSearch={onSearch}
-            enterButton
+      <h1>Create Your Daily</h1>
+
+      <div style={{ display: "flex" }}>
+        <div>
+          <div style={{ width: "100%", padding: "10px" }}>
+            <h3>快來新增你的每日料理吧</h3>
+            <SelectMenu />
+            <br />
+            <div>
+              <MealCalendar />
+            </div>
+          </div>
+        </div>
+        <div>
+          <h2>Create Cook Buy ! </h2>
+
+          <CookingSchedule
+            cookingPlanId={cookingPlanId}
+            setCookingPlanId={setCookingPlanId}
+            activeCookingPlan={activeCookingPlan}
+            setActiveCookingPlan={setActiveCookingPlan}
           />
-        </Space>
-        <Flex gap="small" wrap="wrap">
-          <Button type="primary" onClick={handleSearch}>
-            顯示搜尋結果
-          </Button>
-        </Flex>
-        <h2>{searchResults}</h2>
+          <div style={{ display: "flex", flexWrap: "nowrap" }}>
+            <PurchasingPlan activeCookingPlan={activeCookingPlan} />
+            <br />
+          </div>
+        </div>
       </div>
-      <CookingSchedule
-        cookingPlanId={cookingPlanId}
-        setCookingPlanId={setCookingPlanId}
-        activeCookingPlan={activeCookingPlan}
-        setActiveCookingPlan={setActiveCookingPlan}
-      />
-      <PurchasingPlan activeCookingPlan={activeCookingPlan} />
+      <br />
+      <Space direction="vertical">
+        <Search
+          placeholder="input search text"
+          value={searchInputValue}
+          onChange={(e) => setSearchInputValue(e.target.value)}
+          onSearch={onSearch}
+          enterButton
+        />
+      </Space>
+      <Flex gap="small" wrap="wrap">
+        <Button type="primary" onClick={handleSearch}>
+          顯示搜尋結果
+        </Button>
+      </Flex>
+      <h2>{searchResults}</h2>
     </>
   );
 };
