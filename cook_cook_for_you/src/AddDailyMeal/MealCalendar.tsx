@@ -94,8 +94,6 @@ const MealCalendar: React.FC = () => {
           console.error("取得資料時發生錯誤:", error);
         }
       );
-
-      // 當元件卸載時取消監聽
       return () => unsubscribe();
     };
 
@@ -181,20 +179,20 @@ const MealCalendar: React.FC = () => {
     return info.originNode;
   };
 
-  const [selectedDate, setSelectedDate] = useState(null);
+  // const [selectedDate, setSelectedDate] = useState(null);
 
-  const onSelect = (date) => {
-    console.log("selected Date", date);
-    setSelectedDate(date);
-  };
+  // const onSelect = (date:any) => {
+  //   console.log("selected Date", date);
+  //   setSelectedDate(date);
+  // };
 
   return (
     <div style={{ width: "70%" }}>
       <Calendar
         cellRender={cellRender}
-        onSelect={(date) => {
-          console.log("selected Date", date);
-        }}
+        // onSelect={(date) => {
+        //   console.log("selected Date", date);
+        // }}
       />
     </div>
   );

@@ -74,7 +74,7 @@ const RecipeForm: React.FC = () => {
   const handleUpload = async (file: RcFile) => {
     console.log(file);
     try {
-      const storageRef = ref(storage); // 這裡的 'images' 是存儲桶中的路徑
+      // const storageRef = ref(storage);
       const imageRef = ref(storage, `images/${file.name + file.uid}.jpg`);
 
       // 上傳圖片文件
@@ -112,7 +112,7 @@ const RecipeForm: React.FC = () => {
       console.log(valuesWithImageURL);
       const docRef = await addDoc(recipesCollection, valuesWithImageURL);
       // 將 docRef.id 放入recipess裡
-      const updatedData = { recipeId: docRef.id };
+      const updatedData = { id: docRef.id };
       await setDoc(doc(recipesCollection, docRef.id), updatedData, {
         merge: true,
       });
@@ -129,11 +129,14 @@ const RecipeForm: React.FC = () => {
     }
   };
 
-  const normFile = (e: any[]) => {
+  interface FileListObject {
+    fileList: any[]; // Adjust the type of fileList according to your needs
+  }
+  const normFile = (e: any[] | FileListObject): any[] => {
     if (Array.isArray(e)) {
       return e;
     }
-    return e?.fileList;
+    return e?.fileList || [];
   };
 
   return (

@@ -16,6 +16,7 @@ import CookingSchedule from "./CookingSchedule";
 import MealCalendar from "./MealCalendar";
 import PurchasingPlan from "./PurchasingPlan";
 import SelectMenu from "./SelectMenu";
+
 dayjs.locale("zh-cn");
 interface CookingPlanData {
   cookingDate: Timestamp;
@@ -67,7 +68,6 @@ const AddDailyMeal: React.FC = () => {
       <div style={{ display: "flex" }}>
         <div>
           <div style={{ width: "100%", padding: "10px" }}>
-            <h3>快來新增你的每日料理吧</h3>
             <SelectMenu />
             <br />
             <div>

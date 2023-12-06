@@ -25,7 +25,7 @@ import { db } from "../firbase";
 //   border-radius: 10px;
 // `;
 interface PurchaseItem {
-  isPurchased: boolean | string;
+  isPurchased: boolean;
   name: string;
   quantity: number;
   responsible: string;

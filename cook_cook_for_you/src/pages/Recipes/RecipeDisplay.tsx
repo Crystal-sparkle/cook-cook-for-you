@@ -137,7 +137,6 @@ const RecipeDisplay: React.FC = () => {
               >
                 See more
               </Button>
-
               <Drawer
                 placement="right"
                 title="食譜"
@@ -145,8 +144,8 @@ const RecipeDisplay: React.FC = () => {
                 onClose={onClose}
                 open={open}
                 forceRender={true}
-                mask
-                maskClosable
+                mask={false}
+                maskClosable={true}
                 extra={
                   <Space>
                     <Button onClick={onClose}>編輯</Button>
