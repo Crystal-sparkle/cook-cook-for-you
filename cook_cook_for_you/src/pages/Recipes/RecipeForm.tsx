@@ -34,7 +34,7 @@ interface Recipe {
   note: string;
 
   ingredients: {
-    qty: number;
+    quantity: number;
     name: string;
     unit: string;
   }[];
@@ -151,6 +151,10 @@ const RecipeForm: React.FC = () => {
             </Button>
           }
           form={form}
+          // initialValues={{
+          //   name: "12",
+          //   description: "good",
+          // }}
           autoFocusFirstInput
           modalProps={{
             destroyOnClose: true,
@@ -177,14 +181,13 @@ const RecipeForm: React.FC = () => {
               label="食譜名稱"
               tooltip="最常為 24 位"
               placeholder="蛋沙拉三明治"
-              initialValue="蛋沙拉三明治"
+              initialValue=""
             />
 
             <ProFormTextArea
               width="lg"
               name="description"
               label="簡介料理"
-              initialValue="冬天早上柔軟的蛋液與吐司間與熱紅茶的交織相容的三角愛情故事"
               placeholder="冬天早上柔軟的蛋液與吐司間與熱紅茶的交織相容的三角愛情故事"
             />
             {/* <ProFormDateRangePicker name="contractTime" label="合同生效时间" /> */}
@@ -305,7 +308,7 @@ const RecipeForm: React.FC = () => {
                       </Form.Item>
                       <Form.Item
                         {...restField}
-                        name={[name, "qty"]}
+                        name={[name, "quantity"]}
                         rules={[
                           {
                             type: "number",
@@ -402,7 +405,7 @@ const RecipeForm: React.FC = () => {
             width="lg"
             name="note"
             label="備註"
-            initialValue="很好吃唷"
+            initialValue="要注意的事"
           />
         </ModalForm>
       </ProCard>

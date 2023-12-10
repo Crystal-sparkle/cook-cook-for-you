@@ -9,11 +9,8 @@ const Wrapper = styled.div`
 `;
 
 const Recipes: React.FC = () => {
-  const happyCodring = "happy coding, happy day";
-
   return (
     <Wrapper>
-      <h2>{happyCodring}</h2>
       <RecipeForm />
       <RecipeDisplay />
     </Wrapper>
