@@ -8,25 +8,11 @@ import {
 } from "firebase/auth";
 import "firebase/firestore";
 import { useState } from "react";
+import Parner from "./Parner";
 // import styled from "styled-components";
 import { auth } from "../firbase";
 
 function Profile() {
-  ////
-  // 初始值為 null，表示使用者未登入
-  // const authState = {
-  //   user: null,
-  // };
-
-  // // 監聽身份驗證狀態變化
-  // onAuthStateChanged(auth, (user) => {
-  //   authState.user = user;
-  // });
-  // addEventListener('click', () => {
-
-  // })
-
-  ////
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -113,6 +99,7 @@ function Profile() {
             </Button>
           </Space>
         </ProCard>
+        <Parner />
       </Flex>
     </>
   );
