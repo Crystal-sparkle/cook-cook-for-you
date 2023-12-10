@@ -1,3 +1,5 @@
+import { ConfigProvider } from "antd";
+import zhTW from "antd/es/locale/zh_TW";
 import "dayjs/locale/zh-cn";
 import "firebase/database";
 import React from "react";
@@ -39,10 +41,12 @@ auth.onAuthStateChanged((user) => {
 const App: React.FC = () => {
   return (
     <>
-      <GlobalStyle />
-      <Header />
-      <Outlet />
-      {/* <AddDailyMeal /> */}
+      <ConfigProvider locale={zhTW}>
+        <GlobalStyle />
+        <Header />
+        <Outlet />
+        {/* <AddDailyMeal /> */}
+      </ConfigProvider>
     </>
   );
 };

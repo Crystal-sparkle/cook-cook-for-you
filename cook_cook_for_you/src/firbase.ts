@@ -5,7 +5,7 @@ import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 
 import "firebase/storage";
-import "./index.css";
+
 const firebaseConfig = {
   apiKey: "AIzaSyASak1RhNpksXuoa_xg4ibo5_NqLTMuYNE",
   authDomain: "cook-cook-for-you-test.firebaseapp.com",
