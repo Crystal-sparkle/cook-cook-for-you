@@ -1,6 +1,6 @@
 import { CarryOutOutlined } from "@ant-design/icons";
-
-import { Button, Drawer, Select, Space } from "antd";
+import { ProCard } from "@ant-design/pro-components";
+import { Button, Divider, Drawer, Select, Space } from "antd";
 import "firebase/database";
 import {
   Timestamp,
@@ -15,15 +15,7 @@ import {
 import { useEffect, useState } from "react";
 // import { styled } from "styled-components";
 import { db } from "../firbase";
-// const Wrapper = styled.div`
-//   margin: 20px;
-//   padding: 5px 40px;
-//   height: 100%;
-//   width: 90%;
-//   background-color: #858297;
-//   border: 2px;
-//   border-radius: 10px;
-// `;
+
 interface PurchaseItem {
   isPurchased: boolean;
   name: string;
@@ -72,6 +64,7 @@ interface CookingPlanData {
 }
 interface PurchasePlanProps {
   activeCookingPlan: CookingPlanData | undefined;
+  setActiveCookingPlan: (cookingPlanData?: CookingPlanData) => void;
 }
 
 interface CookingPlanItem {
@@ -84,7 +77,10 @@ interface CookingPlanItem {
   serving: number;
 }
 
-const PurchasingPlan = ({ activeCookingPlan }: PurchasePlanProps) => {
+const PurchasingPlan = ({
+  setActiveCookingPlan,
+  activeCookingPlan,
+}: PurchasePlanProps) => {
   const { Option } = Select;
 
   const [checkedItems, setCheckedItems] = useState<Array<Array<boolean>>>([]);
@@ -112,7 +108,7 @@ const PurchasingPlan = ({ activeCookingPlan }: PurchasePlanProps) => {
             items: docData.items,
           });
 
-          console.log(`成功更改 isPurchased 状态：${isChecked}`);
+          console.log(`成功更改 isPurchased 狀態：${isChecked}`);
         }
       });
     } catch (error) {
@@ -172,10 +168,11 @@ const PurchasingPlan = ({ activeCookingPlan }: PurchasePlanProps) => {
 
   useEffect(() => {
     const purchaseMeals = activeCookingPlan?.cookingItems;
+    console.log("purchaseMeals", purchaseMeals);
 
     if (Array.isArray(purchaseMeals) && purchaseMeals.length > 0) {
       const getRecipesIngredients = async () => {
-        const recipesCollection = collection(db, "recipes");
+        const recipesCollection = collection(db, "recipess");
 
         try {
           const promises = purchaseMeals.map(async (meal) => {
@@ -262,11 +259,12 @@ const PurchasingPlan = ({ activeCookingPlan }: PurchasePlanProps) => {
         );
 
         if (existingIngredient) {
-          existingIngredient.quantity += ingredient.quantity * item.serving;
+          existingIngredient.quantity +=
+            Number(ingredient.quantity) * Number(item.serving);
         } else {
           accumulator.push({
             name: ingredient.name,
-            quantity: ingredient.quantity * item.serving,
+            quantity: Number(ingredient.quantity) * Number(item.serving),
             unit: ingredient.unit,
             isPurchased: false,
             responsible: "",
@@ -378,8 +376,11 @@ const PurchasingPlan = ({ activeCookingPlan }: PurchasePlanProps) => {
     };
     closeCookingSchedule();
     closePurchasePlan();
+    setActiveCookingPlan();
+
     alert("開啟新旅程吧");
   };
+
   const [open, setOpen] = useState(false);
 
   const showDrawer = () => {
@@ -389,83 +390,152 @@ const PurchasingPlan = ({ activeCookingPlan }: PurchasePlanProps) => {
   const onClose = () => {
     setOpen(false);
   };
+  const dateForCooking = activeCookingPlan?.cookingDate
+    ?.toDate()
+    .toLocaleDateString("zh-TW");
+
+  if (activeCookingPlan === undefined) {
+    return;
+  }
+
   return (
-    <div>
-      <Button type="primary" onClick={showDrawer} icon={<CarryOutOutlined />}>
-        購物清單
-      </Button>
-      <Drawer
-        title="你的購買清單"
-        width={720}
-        onClose={onClose}
-        open={open}
-        styles={{
-          body: {
-            paddingBottom: 80,
-          },
-        }}
-        extra={
-          <Space>
-            <Button onClick={onClose}>Cancel</Button>
-            <Button onClick={onClose} type="primary">
-              Submit
-            </Button>
-          </Space>
-        }
-      >
-        {purchasePlanCollection.length > 0 ? (
-          purchasePlanCollection.map((item, index) => (
-            <div key={index}>
-              <span>採購品項</span>
-              <span> {item?.items?.length} 個</span>
-              <p>
-                烹煮計畫日期：{item?.cookingDate?.toDate().toLocaleDateString()}
-              </p>
-              <hr />
-              {item?.items?.map((purchaseItem, itemIndex) => (
-                <div key={itemIndex}>
-                  <span>品項{itemIndex + 1}:</span>
-                  <input
-                    type="checkbox"
-                    checked={
-                      checkedItems[index]?.[itemIndex] ||
-                      purchaseItem.isPurchased
-                    }
-                    onChange={() => handleCheckboxChange(index, itemIndex)}
-                  />
-                  <span>{purchaseItem.name}</span>
-                  <span>{purchaseItem.quantity}</span>
-                  <span>{purchaseItem.unit}</span>
-                  <br />
-                  <p>誰採買</p>
-                  <Select
-                    defaultValue={purchaseItem.responsible}
-                    style={{ width: 120 }}
-                    onChange={(value) => handleSelectChange(value, itemIndex)}
-                  >
-                    {partners.map((partner) => (
-                      <Option key={partner.key} value={partner.label}>
-                        {partner.label}
-                      </Option>
-                    ))}
-                  </Select>
-                  <hr />
+    <div
+      style={{
+        width: " 100%",
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "center",
+        margin: "0, auto",
+        justifyContent: "space-around",
+      }}
+    >
+      <div>
+        <ProCard bordered>
+          <div>
+            <Divider orientation="left" orientationMargin={50}>
+              烹煮日期：{dateForCooking}
+            </Divider>
+            {activeCookingPlan?.cookingItems.map((plan, index) => (
+              <div
+                key={index}
+                style={{ display: "flex", flexDirection: "row" }}
+              >
+                <div>
+                  品項{index + 1}: {plan.name}
                 </div>
-              ))}
-            </div>
-          ))
-        ) : (
-          <div>請先建立烹煮計畫唷</div>
-        )}
-        <br />
-        {purchasePlanCollection.length > 0 ? (
-          <Button type="primary" onClick={handleClick}>
-            完成計畫
-          </Button>
-        ) : (
-          <div></div>
-        )}
-      </Drawer>
+                <div>
+                  份量: {plan.serving} {plan.unit}
+                </div>
+              </div>
+            ))}
+          </div>
+        </ProCard>
+      </div>
+      <div>
+        <Button type="primary" onClick={showDrawer} icon={<CarryOutOutlined />}>
+          購買食材細項
+        </Button>
+        <Drawer
+          title="你的購買清單"
+          width={720}
+          onClose={onClose}
+          open={open}
+          styles={{
+            body: {
+              paddingBottom: 80,
+            },
+          }}
+          extra={
+            <Space>
+              <Button onClick={onClose}>Cancel</Button>
+              <Button onClick={onClose} type="primary">
+                Submit
+              </Button>
+            </Space>
+          }
+        >
+          {purchasePlanCollection.length > 0 ? (
+            purchasePlanCollection.map((item, index) => (
+              <div key={index}>
+                <span style={{ fontSize: 20 }}>採購品項</span>
+                <span style={{ fontSize: 20 }}> {item?.items?.length} 個</span>
+                <p style={{ fontSize: 20 }}>
+                  烹煮計畫日期：
+                  {item?.cookingDate?.toDate().toLocaleDateString()}
+                </p>
+                <hr />
+                {item?.items?.map((purchaseItem, itemIndex) => (
+                  <div key={itemIndex}>
+                    <input
+                      type="checkbox"
+                      checked={
+                        checkedItems[index]?.[itemIndex] ||
+                        purchaseItem.isPurchased
+                      }
+                      onChange={() => handleCheckboxChange(index, itemIndex)}
+                    />
+
+                    <span style={{ fontSize: 16 }}>品項{itemIndex + 1}:</span>
+                    <div
+                      style={{
+                        marginTop: 10,
+                        marginBottom: 10,
+                        display: "flex",
+                        flexDirection: "row",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <span style={{ fontSize: 16 }}>{purchaseItem.name}</span>
+                      <span style={{ fontSize: 16 }}>
+                        {purchaseItem.quantity}
+                      </span>
+                      <span style={{ fontSize: 16 }}>{purchaseItem.unit}</span>
+                      <br />
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "row",
+                          alignItems: "center",
+                        }}
+                      >
+                        <div style={{ marginRight: "10px", fontSize: 16 }}>
+                          負責採買
+                        </div>
+                        <div>
+                          <Select
+                            defaultValue={purchaseItem.responsible}
+                            style={{ width: 120 }}
+                            onChange={(value) =>
+                              handleSelectChange(value, itemIndex)
+                            }
+                          >
+                            {partners.map((partner) => (
+                              <Option key={partner.key} value={partner.label}>
+                                {partner.label}
+                              </Option>
+                            ))}
+                          </Select>
+                        </div>
+                      </div>
+                    </div>
+                    <hr />
+                  </div>
+                ))}
+              </div>
+            ))
+          ) : (
+            <div>請先建立烹煮計畫唷</div>
+          )}
+          <br />
+          {purchasePlanCollection.length > 0 ? (
+            <Button type="primary" onClick={handleClick}>
+              完成計畫
+            </Button>
+          ) : (
+            <div></div>
+          )}
+        </Drawer>
+      </div>
     </div>
   );
 };

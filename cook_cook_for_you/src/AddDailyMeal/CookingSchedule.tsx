@@ -1,15 +1,5 @@
-import { ProCard } from "@ant-design/pro-components";
 import type { DatePickerProps } from "antd";
-import {
-  Button,
-  Card,
-  DatePicker,
-  Divider,
-  Modal,
-  Skeleton,
-  Space,
-  Switch,
-} from "antd";
+import { Button, Card, DatePicker, Modal, Space } from "antd";
 import type { Dayjs } from "dayjs";
 import dayjs from "dayjs";
 import {
@@ -57,24 +47,23 @@ interface CookingPlanData {
 interface CookingScheduleProps {
   setCookingPlanId: (id: string) => void;
   cookingPlanId: string;
-  activeCookingPlan: CookingPlanData | undefined;
-  setActiveCookingPlan: React.Dispatch<
-    React.SetStateAction<CookingPlanData | undefined>
-  >;
+  activeCookingPlan?: CookingPlanData | undefined;
+  setActiveCookingPlan: (cookingPlanData: CookingPlanData) => void;
 }
 const { Meta } = Card;
 
 const { RangePicker } = DatePicker;
 const Wrapper = styled.div`
-  margin: 0 20px;
-  padding: 10px 20px;
-  width: 320px;
-  background-color: #728288;
+  /* margin: 0 10px;
+  padding: 10px 20px; */
+  width: 700px;
   border: 2px;
   border-radius: 10px;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
+  margin: 0 auto;
+  justify-content: space-between;
 `;
 
 type RangeValue = [Dayjs | null, Dayjs | null] | null;
@@ -82,7 +71,6 @@ type RangeValue = [Dayjs | null, Dayjs | null] | null;
 function CookingSchedule({
   setCookingPlanId,
   cookingPlanId,
-  activeCookingPlan,
   setActiveCookingPlan,
 }: CookingScheduleProps) {
   const [cookingDate, setCookingDate] = useState<Date | undefined>();
@@ -288,121 +276,108 @@ function CookingSchedule({
 
     getActivePlan();
   }, []);
-  const dateForCooking = activeCookingPlan?.cookingDate
-    ?.toDate()
-    .toLocaleDateString("zh-TW");
 
-  if (activeCookingPlan === null) {
-    return;
-  }
-  const [loading, setLoading] = useState(true);
+  // const onChange = (checked: boolean) => {
+  //   setLoading(!checked);
+  // };
 
-  const onChange = (checked: boolean) => {
-    setLoading(!checked);
-  };
+  // const dateForCooking = activeCookingPlan?.cookingDate
+  //   ?.toDate()
+  //   .toLocaleDateString("zh-TW");
+
+  // if (activeCookingPlan === null) {
+  //   return;
+  // }
+
   return (
     <Wrapper>
-      <Switch checked={!loading} onChange={onChange} />
-      <Card style={{ width: 300, marginTop: 16 }} loading={loading}>
-        <Meta title="烹煮計畫" description="想好什麼時候要來下廚了嗎？" />
-        <h3>烹煮日期：</h3>
-        <Space direction="vertical">
-          <DatePicker onChange={pickCookingDate} />
-        </Space>
-        <div>
-          <p>烹飪區間：</p>
-          <RangePicker
-            value={dates || value}
-            disabledDate={disabledDate}
-            onCalendarChange={(val) => {
-              setDates(val);
-            }}
-            onChange={(val) => {
-              setValue(val);
-            }}
-            onOpenChange={onOpenChange}
-            changeOnBlur
-          />
-          <br />
-          <br />
-          <Button type="primary" onClick={handleClick}>
-            確認烹煮計畫
-          </Button>
-        </div>
-        <div>
-          <Modal
-            title="已新增烹煮行程"
-            open={visible}
-            onOk={handleOk}
-            onCancel={handleCancel}
-          >
-            <p>要建立採購清單嗎？</p>
-          </Modal>
-        </div>
-      </Card>
-      <Card style={{ width: 300, marginTop: 16 }}>
-        <Skeleton loading={loading} avatar active>
-          <Meta title="預覽清單" description="This is the description" />
+      <div>
+        <Card
+          style={{ width: 300, height: 300, marginTop: 16, marginBottom: 10 }}
+        >
+          <Meta title="烹煮計畫" description="" />
+          <h3>烹煮日期：</h3>
+          <Space direction="vertical">
+            <DatePicker onChange={pickCookingDate} />
+          </Space>
           <div>
-            <h2>預計份量</h2>
-            {combinedServingArray.map((meal, index) => (
-              <div key={index}>
-                <div>品項: {meal.name}</div>
-                <div>份量: {meal.serving}</div>
-                <div>單位: {meal.unit}</div>
-                <hr />
+            <h3>烹飪區間：</h3>
+            <RangePicker
+              value={dates || value}
+              disabledDate={disabledDate}
+              onCalendarChange={(val) => {
+                setDates(val);
+              }}
+              onChange={(val) => {
+                setValue(val);
+              }}
+              onOpenChange={onOpenChange}
+              changeOnBlur
+            />
+            <br />
+            <br />
+            <Button type="primary" onClick={handleClick}>
+              確認烹煮計畫
+            </Button>
+          </div>
+          <div>
+            <Modal
+              title="已新增烹煮行程"
+              open={visible}
+              onOk={handleOk}
+              onCancel={handleCancel}
+            >
+              <p>要建立採購清單嗎？</p>
+            </Modal>
+          </div>
+        </Card>
+      </div>
+
+      <div>
+        <Card
+          style={{ width: 300, height: 300, marginTop: 16, marginBottom: 10 }}
+        >
+          <Meta title="烹煮份量" description="" />
+          <div>
+            {combinedServingArray?.map((meal, index) => (
+              <div
+                key={index}
+                style={{
+                  display: "flex",
+                  flexDirection: "row",
+                  alignItems: "center",
+                  margin: "5px ,auto",
+                }}
+              >
+                <div style={{ fontSize: "16px" }}>品項: {meal.name}</div>
+                <div style={{ fontSize: "16px" }}> {meal.serving}</div>
+                <div style={{ fontSize: "16px" }}> {meal.unit}</div>
               </div>
             ))}
           </div>
-        </Skeleton>
-      </Card>
-      <Card style={{ width: 300, marginTop: 16 }} loading={loading}>
-        <Meta title="還不知道要放什麼的計畫" />
-        <div>
-          <Divider orientation="right" orientationMargin={50}>
-            烹煮日期：{dateForCooking}
-          </Divider>
-
-          {activeCookingPlan?.cookingItems.map((plan, index) => (
-            <div key={index} style={{ display: "flex", flexDirection: "row" }}>
-              <div>品項: {plan.name}</div>
-              <div>
-                份量: {plan.serving} {plan.unit}
-              </div>
-            </div>
-          ))}
-        </div>
-      </Card>
+        </Card>
+      </div>
 
       <div>
         <>
-          <ProCard
-            style={{ width: 300, marginTop: 16 }}
-            title="現有烹煮計畫"
-            ghost
-            gutter={8}
-            collapsible
-            type="inner"
-          >
-            <ProCard bordered>
-              <div>
-                <Divider orientation="left" orientationMargin={50}>
-                  烹煮日期：{dateForCooking}
-                </Divider>
-                {activeCookingPlan?.cookingItems.map((plan, index) => (
-                  <div
-                    key={index}
-                    style={{ display: "flex", flexDirection: "row" }}
-                  >
-                    <div>品項: {plan.name}</div>
-                    <div>
-                      份量: {plan.serving} {plan.unit}
-                    </div>
+          {/* <ProCard bordered>
+            <div>
+              <Divider orientation="left" orientationMargin={50}>
+                烹煮日期：{dateForCooking}
+              </Divider>
+              {activeCookingPlan?.cookingItems.map((plan, index) => (
+                <div
+                  key={index}
+                  style={{ display: "flex", flexDirection: "row" }}
+                >
+                  <div>品項: {plan.name}</div>
+                  <div>
+                    份量: {plan.serving} {plan.unit}
                   </div>
-                ))}
-              </div>
-            </ProCard>
-          </ProCard>
+                </div>
+              ))}
+            </div>
+          </ProCard> */}
         </>
       </div>
     </Wrapper>
