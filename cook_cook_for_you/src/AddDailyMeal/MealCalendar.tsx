@@ -147,6 +147,13 @@ const MealCalendar: React.FC = () => {
         {item.content.map((menu, subIndex) =>
           Array.from({ length: menu.serving }).map((_, servingIndex) => (
             <Tag
+              style={{
+                fontSize: "16px",
+                backgroundColor: "#f7e4ae",
+                color: "#4b4947",
+                marginBottom: "5px",
+                padding: "3px",
+              }}
               key={subIndex + servingIndex}
               closable
               onClose={preventDefault(value, menu, item.id)}
@@ -164,14 +171,29 @@ const MealCalendar: React.FC = () => {
       </div>
     );
   };
+  //current 是代表目前處理的日期，它是 cellRender 函式的一個參數。在你的情境中，dateCellRender 函式中的 value 參數即是 current，用來表示正在處理的日期。
+  //info.originNode 是一個用來取得日期單元格原始節點的屬性，你可以使用它來獲取和操作原始的日期單元格內容。
   const cellRender: CalendarProps<Dayjs>["cellRender"] = (current, info) => {
     if (info.type === "date") return dateCellRender(current);
     return info.originNode;
   };
 
   return (
-    <div style={{ margin: "5px" }}>
+    <div
+      style={{
+        margin: "5px",
+        borderRadius: "5px",
+        backgroundColor: "#b7dbdf",
+        height: "794px",
+      }}
+    >
       <Calendar
+        style={{
+          borderRadius: "5px",
+          margin: "5px",
+          fontSize: "14px",
+          backgroundColor: "#b7dbdf",
+        }}
         cellRender={cellRender}
         onChange={(date) => {
           console.log("點擊的日期是" + date.toDate());
