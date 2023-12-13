@@ -14,6 +14,7 @@ import {
 } from "firebase/firestore";
 import { useEffect, useState } from "react";
 // import { styled } from "styled-components";
+import styled from "styled-components";
 import { db } from "../firbase";
 
 interface PurchaseItem {
@@ -32,6 +33,67 @@ interface PurchasePlan {
   test: string;
   userId: string;
 }
+
+// styled
+
+const Header = styled.div`
+  display: flex;
+  justify-content: space-around;
+
+  @media screen and (max-width: 1279px) {
+    border-bottom: 1px solid #3f3a3a;
+    padding: 10px 0;
+  }
+`;
+
+const Item = styled.div`
+  width: 100px;
+  font-size: 16px;
+  text-align: center;
+
+  @media screen and (max-width: 1279px) {
+  }
+`;
+const ItemOrder = styled.div`
+  width: 70px;
+  font-size: 16px;
+  text-align: center;
+`;
+// const ItemCheckBox = styled.div`
+//   width: 60px;
+//   font-size: 16px;
+// `;
+
+const InputCheck = styled.input`
+  margin: 0 3px;
+  width: 16px;
+  height: 16px;
+`;
+// const ItemContainer = styled.div`
+//   margin-top: 10px;
+//   margin-bottom: 10px;
+//   display: "flex";
+//   flex-direction: "row";
+//   align-items: "center";
+// `;
+
+const TitleContainer = styled.div`
+  width: 100%;
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  flex-wrap: nowrap;
+  align-items: center;
+
+  border: 2px dashed #33cfe0;
+  font-size: 18px;
+  line-height: 30px;
+  font-weight: bold;
+`;
+
+// styled
+
 //dummy data
 const partners = [
   {
@@ -307,8 +369,6 @@ const PurchasingPlan = ({
     PurchasePlan[]
   >([]);
 
-  console.log(activeCookingPlan);
-
   useEffect(() => {
     const getPurchasePlan = async () => {
       const purchaseCollection = collection(db, "purchasePlan");
@@ -395,7 +455,7 @@ const PurchasingPlan = ({
     .toLocaleDateString("zh-TW");
 
   if (activeCookingPlan === undefined) {
-    return;
+    return <div>請先建立烹煮計畫</div>;
   }
 
   return (
@@ -403,7 +463,7 @@ const PurchasingPlan = ({
       style={{
         width: " 100%",
         display: "flex",
-        flexDirection: "row",
+        flexDirection: "column",
         alignItems: "center",
         margin: "0, auto",
         justifyContent: "space-around",
@@ -412,13 +472,17 @@ const PurchasingPlan = ({
       <div>
         <ProCard bordered>
           <div>
-            <Divider orientation="left" orientationMargin={50}>
-              烹煮日期：{dateForCooking}
-            </Divider>
+            <div>烹煮日期：{dateForCooking}</div>
+            <Divider dashed />
             {activeCookingPlan?.cookingItems.map((plan, index) => (
               <div
                 key={index}
-                style={{ display: "flex", flexDirection: "row" }}
+                style={{
+                  display: "flex",
+                  flexDirection: "row",
+                  alignItems: "center",
+                  marginBottom: "5px,auto",
+                }}
               >
                 <div>
                   品項{index + 1}: {plan.name}
@@ -432,91 +496,110 @@ const PurchasingPlan = ({
         </ProCard>
       </div>
       <div>
-        <Button type="primary" onClick={showDrawer} icon={<CarryOutOutlined />}>
+        <Button
+          type="primary"
+          style={{ backgroundColor: "#b7dbdf", color: "#4b4947" }}
+          onClick={showDrawer}
+          icon={<CarryOutOutlined />}
+        >
           購買食材細項
         </Button>
         <Drawer
-          title="你的購買清單"
-          width={720}
+          title="購買清單"
+          width={600}
           onClose={onClose}
           open={open}
           styles={{
             body: {
-              paddingBottom: 80,
+              paddingBottom: 70,
             },
           }}
           extra={
             <Space>
-              <Button onClick={onClose}>Cancel</Button>
-              <Button onClick={onClose} type="primary">
-                Submit
+              <Button
+                style={{ backgroundColor: "#b7dbdf", color: "#4b4947" }}
+                onClick={onClose}
+              >
+                Close
               </Button>
+              {purchasePlanCollection.length > 0 ? (
+                <Button
+                  type="primary"
+                  style={{ backgroundColor: "#FFE57A", color: "#4b4947" }}
+                  onClick={handleClick}
+                >
+                  完成計畫
+                </Button>
+              ) : (
+                <div></div>
+              )}
             </Space>
           }
         >
           {purchasePlanCollection.length > 0 ? (
             purchasePlanCollection.map((item, index) => (
-              <div key={index}>
-                <span style={{ fontSize: 20 }}>採購品項</span>
-                <span style={{ fontSize: 20 }}> {item?.items?.length} 個</span>
-                <p style={{ fontSize: 20 }}>
-                  烹煮計畫日期：
-                  {item?.cookingDate?.toDate().toLocaleDateString()}
-                </p>
-                <hr />
+              <div key={index} style={{ padding: "10px,20px" }}>
+                <TitleContainer>
+                  <div style={{ fontSize: 18 }}>
+                    烹煮計畫日期：
+                    {item?.cookingDate?.toDate().toLocaleDateString()}
+                  </div>
+                  <div>共計 {item?.items?.length} 個</div>
+                </TitleContainer>
+                <Header>
+                  <Item></Item>
+                  <ItemOrder>項目</ItemOrder>
+                  <Item>名稱</Item>
+                  <Item>數量</Item>
+
+                  <Item>負責人</Item>
+                </Header>
+
                 {item?.items?.map((purchaseItem, itemIndex) => (
                   <div key={itemIndex}>
-                    <input
-                      type="checkbox"
-                      checked={
-                        checkedItems[index]?.[itemIndex] ||
-                        purchaseItem.isPurchased
-                      }
-                      onChange={() => handleCheckboxChange(index, itemIndex)}
-                    />
-
-                    <span style={{ fontSize: 16 }}>品項{itemIndex + 1}:</span>
                     <div
                       style={{
                         marginTop: 10,
                         marginBottom: 10,
                         display: "flex",
                         flexDirection: "row",
-                        justifyContent: "space-between",
+                        alignItems: "center",
+                        justifyContent: "space-around",
                       }}
                     >
-                      <span style={{ fontSize: 16 }}>{purchaseItem.name}</span>
-                      <span style={{ fontSize: 16 }}>
+                      <Item>
+                        <InputCheck
+                          type="checkbox"
+                          checked={
+                            checkedItems[index]?.[itemIndex] ||
+                            purchaseItem.isPurchased
+                          }
+                          onChange={() =>
+                            handleCheckboxChange(index, itemIndex)
+                          }
+                        />
+                      </Item>
+                      <ItemOrder>{itemIndex + 1}</ItemOrder>
+                      <Item>{purchaseItem.name}</Item>
+                      <Item>
                         {purchaseItem.quantity}
-                      </span>
-                      <span style={{ fontSize: 16 }}>{purchaseItem.unit}</span>
-                      <br />
-                      <div
-                        style={{
-                          display: "flex",
-                          flexDirection: "row",
-                          alignItems: "center",
-                        }}
-                      >
-                        <div style={{ marginRight: "10px", fontSize: 16 }}>
-                          負責採買
-                        </div>
-                        <div>
-                          <Select
-                            defaultValue={purchaseItem.responsible}
-                            style={{ width: 120 }}
-                            onChange={(value) =>
-                              handleSelectChange(value, itemIndex)
-                            }
-                          >
-                            {partners.map((partner) => (
-                              <Option key={partner.key} value={partner.label}>
-                                {partner.label}
-                              </Option>
-                            ))}
-                          </Select>
-                        </div>
-                      </div>
+                        {purchaseItem.unit}
+                      </Item>
+                      <Item>
+                        <Select
+                          defaultValue={purchaseItem.responsible}
+                          style={{ width: 100 }}
+                          onChange={(value) =>
+                            handleSelectChange(value, itemIndex)
+                          }
+                        >
+                          {partners.map((partner) => (
+                            <Option key={partner.key} value={partner.label}>
+                              {partner.label}
+                            </Option>
+                          ))}
+                        </Select>
+                      </Item>
                     </div>
                     <hr />
                   </div>
@@ -527,13 +610,6 @@ const PurchasingPlan = ({
             <div>請先建立烹煮計畫唷</div>
           )}
           <br />
-          {purchasePlanCollection.length > 0 ? (
-            <Button type="primary" onClick={handleClick}>
-              完成計畫
-            </Button>
-          ) : (
-            <div></div>
-          )}
         </Drawer>
       </div>
     </div>
