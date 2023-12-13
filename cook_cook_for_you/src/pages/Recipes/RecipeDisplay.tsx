@@ -1,8 +1,8 @@
 import {
   ClockCircleOutlined,
   MinusCircleOutlined,
-  MoreOutlined,
   PlusOutlined,
+  PushpinOutlined,
 } from "@ant-design/icons";
 import {
   ModalForm,
@@ -36,6 +36,7 @@ import {
 } from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { db, storage } from "../../firbase";
 import { CurrentItem, Recipe } from "../../types";
@@ -65,8 +66,9 @@ const waitTime = (time: number = 100) => {
 const ImageContainer = styled.div`
   position: relative;
   width: 280px;
-  height: 162px;
+  height: 190px;
   overflow: hidden;
+  border-radius: 15px;
 
   img {
     width: 100%;
@@ -81,6 +83,23 @@ const ImageContainer = styled.div`
 
   &:hover img {
     transform: scale(1.2);
+  }
+`;
+
+const ImageDisplay = styled.div`
+  position: relative;
+  width: 340px;
+  height: 250px;
+  overflow: hidden;
+  border-radius: 15px;
+  margin: 0 auto;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+
+    border: 2px solid white;
   }
 `;
 
@@ -108,6 +127,95 @@ const TextContainer = styled.div`
   margin: 10px auto;
 `;
 
+const Detail = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  font-size: 16px;
+  justify-content: space-around;
+  margin-top: 10px;
+  margin-bottom: 10px;
+`;
+
+const Description = styled.div`
+  border: dashed 2px #bad4d4;
+  padding: 10px;
+`;
+const DescriptionText = styled.div`
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 5px;
+`;
+
+const TipsContainer = styled.div`
+  margin: 24px 0;
+  background-color: #bad4d4;
+  padding: 10px 10px;
+  border-radius: 5px;
+  font-size: 16px;
+`;
+
+const Tips = styled.mark`
+  display: inline-block;
+  line-height: 20px;
+  padding-bottom: 0.5em;
+  background-color: #fec740;
+  margin-bottom: 8px;
+  font-size: 18px;
+  font-weight: bold;
+`;
+
+const StepsContainer = styled.div`
+  font-size: 16px;
+  padding: 5px;
+  line-height: 24px;
+`;
+
+const StepsTag = styled.div`
+  font-weight: bold;
+  margin-bottom: 8px;
+`;
+
+// const RefTag = styled.div`
+//   font-size: 18px;
+//   line-height: 20px;
+//   margin-bottom: 8px;
+// `;
+
+const LinkContainer = styled.div`
+  max-width: 600px;
+  word-wrap: break-word;
+  font-size: 16px;
+`;
+const IngredientsWrapper = styled.div`
+  width: 550px;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  margin: 0 auto;
+`;
+
+const IngredientsContainer = styled.div`
+  width: 48%;
+  display: flex;
+  flex-direction: row;
+  margin: 5px 0;
+  flex-wrap: nowrap;
+  font-size: 16px;
+`;
+
+const IngredientsItem = styled.div`
+  width: 40%;
+  line-height: 24px;
+  flex-direction: row;
+  flex-wrap: nowrap;
+`;
+
+const IngredientsOrder = styled.div`
+  width: 20px;
+  margin-right: 5px;
+`;
+
 const RecipeDisplay: React.FC = () => {
   const [userRecipe, setUserRecipe] = useState<Recipe[]>([]);
   //D
@@ -115,9 +223,8 @@ const RecipeDisplay: React.FC = () => {
   // const [placement, setPlacement] = useState<DrawerProps["placement"]>("right");
   const [currentItem, setCurrentItem] = useState<CurrentItem>();
   const showDrawer = (item: CurrentItem) => {
-    setCurrentItem(item);
-    console.log(item);
     setOpen(true);
+    setCurrentItem(item);
   };
 
   const onClose = () => {
@@ -232,7 +339,7 @@ const RecipeDisplay: React.FC = () => {
             <CardWrapper>
               <ProCard
                 key={item.recipeId}
-                style={{ maxWidth: "320px", maxHeight: "400px" }}
+                style={{ maxWidth: "320px", maxHeight: "420px" }}
                 hoverable
                 bordered
               >
@@ -251,66 +358,96 @@ const RecipeDisplay: React.FC = () => {
                       <TextLine>{item.category}</TextLine>
                     </div>
                   </TextContainer>
-                  <Button
-                    type="primary"
-                    icon={<MoreOutlined />}
-                    onClick={() => showDrawer(item)}
-                  >
-                    See more
-                  </Button>
+                  <div style={{ margin: 5 }}>
+                    <Button type="primary" onClick={() => showDrawer(item)}>
+                      查看食譜
+                    </Button>
+                  </div>
                   <Space />
                   <Drawer
-                    placement="right"
                     title="食譜"
-                    width={500}
+                    width={700}
                     onClose={onClose}
                     open={open}
-                    forceRender={true}
-                    mask={false}
+                    maskStyle={{ backgroundColor: "rgba(0,0,0,.06)" }}
                     maskClosable={true}
+                    contentWrapperStyle={{ boxShadow: "none" }}
                   >
                     {currentItem && (
                       <>
                         <Title level={3}>{currentItem.name}</Title>
-                        <img
-                          src={currentItem.mainPhoto}
-                          alt={currentItem.name}
-                          style={{ width: 200 }}
-                        />
-                        <p>份量：{currentItem.searving}人份</p>
-                        <p>簡介：{currentItem.description}</p>
-                        <p>分類：{currentItem.category}</p>
+                        <ImageDisplay>
+                          <img
+                            src={currentItem.mainPhoto}
+                            alt={currentItem.name}
+                          />
+                        </ImageDisplay>
+                        <Detail>
+                          <div>份量：{currentItem.searving}人份</div>
+                          <div>分類：{currentItem.category}</div>
+                          <div>烹煮時間：{currentItem.cookingTime}</div>
+                        </Detail>
+                        <DescriptionText>簡介</DescriptionText>
+                        <Description>{currentItem.description}</Description>
 
                         <hr />
                         <h3>食材</h3>
-                        {currentItem?.ingredients?.map((ingredient, index) => (
-                          <div key={index}>
-                            <h4>品項{index + 1}</h4>
-                            <span>{ingredient.name}</span>
-                            <br />
-                            <span>{ingredient.quantity}</span>
-                            <span>{ingredient.unit}</span>
-                          </div>
-                        ))}
+                        <IngredientsWrapper>
+                          {currentItem?.ingredients?.map(
+                            (ingredient, index) => (
+                              <IngredientsContainer key={index}>
+                                <IngredientsOrder>
+                                  {index + 1}.
+                                </IngredientsOrder>
+                                <IngredientsItem>
+                                  {ingredient.name}
+                                </IngredientsItem>
+                                <br />
+                                <IngredientsItem>
+                                  {ingredient.quantity}
+                                  {ingredient.unit}
+                                </IngredientsItem>
+                              </IngredientsContainer>
+                            )
+                          )}
+                        </IngredientsWrapper>
                         <hr />
                         <h3>步驟</h3>
                         {currentItem?.steps?.map((step, index) => (
-                          <div key={index}>
-                            <h4>第{index + 1}步：</h4>
-                            <p>{step?.stepDescription}</p>
-                            <span>還沒做好的照片</span>
-                          </div>
+                          <StepsContainer key={index}>
+                            <StepsTag>第{index + 1}步：</StepsTag>
+                            <div>{step?.stepDescription}</div>
+                            <hr />
+                          </StepsContainer>
                         ))}
-                        <hr />
-                        <p>備註：{currentItem.note}</p>
-                        <p>參考網址：{currentItem.refLink}</p>
+
+                        <TipsContainer>
+                          <div>
+                            <PushpinOutlined />
+                            <Tips> Tips :</Tips>
+                          </div>
+                          <div></div>
+                          {currentItem.note}
+                          <div></div>
+                        </TipsContainer>
+                        <div>
+                          <LinkContainer>
+                            <Link to={currentItem.refLink} target="_blank">
+                              參考食譜連結
+                            </Link>
+                          </LinkContainer>
+                        </div>
                       </>
                     )}
                   </Drawer>
 
                   <ModalForm<Recipe>
                     title="編輯食譜"
-                    trigger={<Button type="primary">編輯食譜</Button>}
+                    trigger={
+                      <Button style={{ margin: 5 }} type="primary">
+                        編輯
+                      </Button>
+                    }
                     form={form}
                     initialValues={{
                       name: item.name,
@@ -559,7 +696,6 @@ const RecipeDisplay: React.FC = () => {
                       </Form.List>
                     </ProForm.Group>
                     <hr />
-
                     <ProFormText width="lg" name="refLink" label="參考連結" />
                     <ProFormTextArea width="lg" name="note" label="備註" />
                   </ModalForm>
