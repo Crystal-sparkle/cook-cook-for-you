@@ -56,11 +56,11 @@ const { RangePicker } = DatePicker;
 const Wrapper = styled.div`
   /* margin: 0 10px;
   padding: 10px 20px; */
-  width: 700px;
+
   border: 2px;
   border-radius: 10px;
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   align-items: center;
   margin: 0 auto;
   justify-content: space-between;
@@ -80,7 +80,6 @@ function CookingSchedule({
       setCookingDate(pickDate);
     }
   };
-
   const [dates, setDates] = useState<RangeValue>(null);
   const [value, setValue] = useState<RangeValue>(null);
 
@@ -293,15 +292,21 @@ function CookingSchedule({
     <Wrapper>
       <div>
         <Card
-          style={{ width: 300, height: 300, marginTop: 16, marginBottom: 10 }}
+          style={{
+            width: 250,
+            height: 300,
+            marginTop: 6,
+            marginBottom: 10,
+            padding: "5px",
+          }}
         >
           <Meta title="烹煮計畫" description="" />
-          <h3>烹煮日期：</h3>
+          <h4>烹煮日期：</h4>
           <Space direction="vertical">
             <DatePicker onChange={pickCookingDate} />
           </Space>
           <div>
-            <h3>烹飪區間：</h3>
+            <h4>烹飪區間：</h4>
             <RangePicker
               value={dates || value}
               disabledDate={disabledDate}
@@ -316,7 +321,11 @@ function CookingSchedule({
             />
             <br />
             <br />
-            <Button type="primary" onClick={handleClick}>
+            <Button
+              type="primary"
+              style={{ backgroundColor: "#b7dbdf", color: "#4b4947" }}
+              onClick={handleClick}
+            >
               確認烹煮計畫
             </Button>
           </div>
@@ -335,23 +344,37 @@ function CookingSchedule({
 
       <div>
         <Card
-          style={{ width: 300, height: 300, marginTop: 16, marginBottom: 10 }}
+          style={{ width: 250, height: 300, marginTop: 16, marginBottom: 10 }}
         >
           <Meta title="烹煮份量" description="" />
-          <div>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              margin: "5px ,auto",
+              fontSize: "14px",
+              textAlign: "center",
+            }}
+          >
+            <div>總共{combinedServingArray.length}道</div>
             {combinedServingArray?.map((meal, index) => (
               <div
                 key={index}
                 style={{
                   display: "flex",
-                  flexDirection: "row",
                   alignItems: "center",
-                  margin: "5px ,auto",
+                  marginTop: "6px ",
+                  fontSize: "14px",
+                  textAlign: "center",
                 }}
               >
-                <div style={{ fontSize: "16px" }}>品項: {meal.name}</div>
-                <div style={{ fontSize: "16px" }}> {meal.serving}</div>
-                <div style={{ fontSize: "16px" }}> {meal.unit}</div>
+                <div>{index + 1}.</div>
+                <div>{meal.name}</div>
+                <div>
+                  {meal.serving}
+                  {meal.unit}
+                </div>
               </div>
             ))}
           </div>
