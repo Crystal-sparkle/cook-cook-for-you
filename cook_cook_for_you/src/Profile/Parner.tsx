@@ -30,9 +30,8 @@ const Parner: React.FC = () => {
           { name: values.parner2Name, email: values.parner2Email },
         ],
       };
-      const docRef = await addDoc(userCollection, parners);
+      await addDoc(userCollection, parners);
 
-      //將狀態清空
       console.log(values);
       console.log(values.parner2Name);
       message.success("成功新增");
