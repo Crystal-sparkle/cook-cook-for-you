@@ -7,7 +7,7 @@ export interface Recipe {
   note: string;
   searving: number;
   ingredients: {
-    qty: number;
+    quantity: number;
     name: string;
     unit: string;
   }[];
@@ -39,7 +39,7 @@ export interface CurrentItem {
 
 interface Ingredient {
   name: string;
-  qty: number;
+  quantity: number;
   unit: string;
 }
 
