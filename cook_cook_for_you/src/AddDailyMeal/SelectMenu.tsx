@@ -142,12 +142,13 @@ const SelectMenu: React.FC = () => {
       <Space>
         <Button
           type="primary"
+          style={{ backgroundColor: "#b7dbdf", color: "#4b4947" }}
           onClick={() => {
             setModalVisit(true);
           }}
         >
           <PlusOutlined />
-          新增每日餐點
+          每日餐點
         </Button>
       </Space>
       <ModalForm
