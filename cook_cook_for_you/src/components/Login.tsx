@@ -54,50 +54,111 @@ function Login() {
     }
   };
 
+  const [showLogin, setShowLogin] = useState(true);
+
+  const handleToggle = () => {
+    setShowLogin(!showLogin);
+  };
+
   return (
     <>
-      <Flex wrap="wrap" gap="small" justify="center" align="middle">
-        <ProCard
-          title="登入"
-          tooltip="这是提示"
-          style={{ maxWidth: 400, margin: 100 }}
-          boxShadow
-        >
-          <Space direction="vertical" size="middle" style={{ display: "flex" }}>
-            <Input
-              size="large"
-              placeholder="E-mail"
-              prefix={<UserOutlined />}
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-            <Input
-              size="large"
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            <br />
-          </Space>
-          <Space>
+      {showLogin ? (
+        <Flex wrap="wrap" gap="small" justify="center" align="middle">
+          <ProCard
+            title="登入"
+            style={{ maxWidth: 400, margin: 100 }}
+            boxShadow
+          >
+            <Space
+              direction="vertical"
+              size="middle"
+              style={{ display: "flex" }}
+            >
+              <Input
+                size="large"
+                placeholder="E-mail"
+                prefix={<UserOutlined />}
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+              <Input
+                size="large"
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <br />
+            </Space>
+
+            <Space>
+              <Button type="primary" onClick={handleLogin}>
+                Login
+              </Button>
+              <br />
+              <br />
+              <Button type="primary" onClick={handleLogout}>
+                Logout
+              </Button>
+              <br />
+              <Button type="link" onClick={handleToggle}>
+                還沒有帳號嗎？ 點選註冊
+              </Button>
+            </Space>
+          </ProCard>
+        </Flex>
+      ) : (
+        <Flex wrap="wrap" gap="small" justify="center" align="middle">
+          <ProCard
+            title="註冊帳號"
+            tooltip="請輸入有效帳號"
+            style={{ maxWidth: 400, margin: 100 }}
+            boxShadow
+          >
+            <Space
+              direction="vertical"
+              size="middle"
+              style={{ display: "flex" }}
+            >
+              <Input
+                size="large"
+                type="name"
+                placeholder="Crystal"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+
+              <Input
+                size="large"
+                placeholder="E-mail"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+              <Input
+                size="large"
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <br />
+            </Space>
+
             <Button type="primary" onClick={handleRegister}>
               Register
             </Button>
-            <br />
-            <br />
-            <Button type="primary" onClick={handleLogin}>
-              Login
+            <Button
+              style={{ marginLeft: "5px" }}
+              type="link"
+              onClick={handleToggle}
+            >
+              已有帳號囉 點選登入
             </Button>
-            <br />
-            <br />
-            <Button type="primary" onClick={handleLogout}>
-              Logout
-            </Button>
-          </Space>
-        </ProCard>
-      </Flex>
+          </ProCard>
+        </Flex>
+      )}
     </>
   );
 }
