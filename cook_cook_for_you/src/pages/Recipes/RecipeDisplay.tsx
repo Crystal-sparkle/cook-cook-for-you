@@ -1,5 +1,6 @@
 import {
   ClockCircleOutlined,
+  EditOutlined,
   MinusCircleOutlined,
   PlusOutlined,
   PushpinOutlined,
@@ -65,7 +66,7 @@ const waitTime = (time: number = 100) => {
 //styled
 const ImageContainer = styled.div`
   position: relative;
-  width: 280px;
+
   height: 190px;
   overflow: hidden;
   border-radius: 15px;
@@ -103,18 +104,25 @@ const ImageDisplay = styled.div`
   }
 `;
 
+const TitleContent = styled.div`
+  min-height: 50px;
+  margin-bottom: 3px;
+`;
+
 const CardContent = styled.div`
   display: flex;
   flex-direction: row;
-  width: 90%;
+  width: 100%;
   flex-wrap: wrap;
   row-gap: 20px;
   align-items: center;
   margin: 0 auto;
+  justify-content: start;
 `;
 
 const CardWrapper = styled.div`
-  flex-grow: 1;
+  width: 24%;
+  margin: 5px;
 `;
 const TextLine = styled.span`
   text-align: center;
@@ -123,8 +131,10 @@ const TextLine = styled.span`
 `;
 
 const TextContainer = styled.div`
-  display: block;
-  margin: 10px auto;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding: 0 10px;
 `;
 
 const Detail = styled.div`
@@ -339,7 +349,7 @@ const RecipeDisplay: React.FC = () => {
             <CardWrapper>
               <ProCard
                 key={item.recipeId}
-                style={{ maxWidth: "320px", maxHeight: "420px" }}
+                style={{ maxWidth: "340px", minHeight: "390px" }}
                 hoverable
                 bordered
               >
@@ -347,7 +357,295 @@ const RecipeDisplay: React.FC = () => {
                   <ImageContainer>
                     <img src={item.mainPhoto} alt="主要照片" />
                   </ImageContainer>
-                  <Title level={3}>{item.name}</Title>
+                  <div style={{ display: "flex", alignItems: "center" }}>
+                    <TitleContent>
+                      <Title level={4}>{item.name}</Title>
+                    </TitleContent>
+                    <div>
+                      <ModalForm<Recipe>
+                        title="編輯食譜"
+                        trigger={
+                          <Button
+                            style={{ margin: 5 }}
+                            type="text"
+                            icon={<EditOutlined />}
+                          ></Button>
+                        }
+                        form={form}
+                        initialValues={{
+                          name: item.name,
+                          description: item.description,
+                          searving: item.searving,
+                          cookingTime: item.cookingTime,
+                          category: item.category,
+                          refLink: item.refLink,
+                          note: item.note,
+                        }}
+                        autoFocusFirstInput
+                        modalProps={{
+                          destroyOnClose: true,
+                          onCancel: () => console.log("run"),
+                        }}
+                        submitTimeout={2000}
+                        onFinish={onFinish}
+                        submitter={{
+                          searchConfig: {
+                            submitText: "確認",
+                          },
+                        }}
+                        onValuesChange={(changedValues) => {
+                          //   // changedValues 發生變化的表單單向的值
+                          //   // allValues 所有表單內容當前的值
+                          console.log("Changed Values:", changedValues);
+                          //   console.log("All Values:", allValues);
+                        }}
+                      >
+                        <ProForm.Group>
+                          <ProFormText
+                            width="md"
+                            name="name"
+                            label="食譜名稱"
+                          />
+
+                          <ProFormTextArea
+                            width="lg"
+                            name="description"
+                            label="簡介料理"
+                          />
+                        </ProForm.Group>
+                        <ProForm.Group>
+                          <Form.Item
+                            label="上傳圖片"
+                            valuePropName="fileList"
+                            getValueFromEvent={normFile}
+                            name="mainPhoto"
+                          >
+                            <Upload
+                              customRequest={({ file, onSuccess, onError }) => {
+                                if (file) {
+                                  handleUpload(file as RcFile)
+                                    .then(() => onSuccess?.(true))
+                                    .catch((error) => {
+                                      console.error(
+                                        "Custom upload error:",
+                                        error
+                                      );
+                                      onError?.(error);
+                                    });
+                                } else {
+                                  // 處理 file 為 undefined 的情況
+                                  console.error("File is undefined");
+                                  onError?.(new Error("File is undefined"));
+                                }
+                              }}
+                              listType="picture-card"
+                              maxCount={1}
+                            >
+                              <div>
+                                <PlusOutlined />
+                                <div style={{ marginTop: 8 }}>上傳</div>
+                              </div>
+                            </Upload>
+                          </Form.Item>
+                        </ProForm.Group>
+                        <ProForm.Group>
+                          <ProFormSelect
+                            request={async () => [
+                              {
+                                value: 1,
+                                label: "1",
+                              },
+                            ]}
+                            width="xs"
+                            name="searving"
+                            label="烹煮份量"
+                          />
+                          <ProFormSelect
+                            options={[
+                              {
+                                value: 10,
+                                label: "10分鐘",
+                              },
+                              {
+                                value: 15,
+                                label: "15分鐘",
+                              },
+                              {
+                                value: 20,
+                                label: "20分鐘",
+                              },
+                              {
+                                value: 25,
+                                label: "25分鐘",
+                              },
+                              {
+                                value: 30,
+                                label: "30分鐘",
+                              },
+                              {
+                                value: 45,
+                                label: "45分鐘",
+                              },
+                              {
+                                value: 60,
+                                label: "60分鐘",
+                              },
+                              {
+                                value: 90,
+                                label: "90分鐘",
+                              },
+                              {
+                                value: 120,
+                                label: "120分鐘",
+                              },
+                            ]}
+                            width="xs"
+                            name="cookingTime"
+                            label="烹煮時間"
+                          />
+                        </ProForm.Group>
+                        <ProFormRadio.Group
+                          label="類別"
+                          name="category"
+                          options={[
+                            "主餐",
+                            "肉類",
+                            "蔬菜類",
+                            "蛋、豆類",
+                            "海鮮",
+                            "烘焙類",
+                            "其他類",
+                          ]}
+                        />
+                        <ProForm.Group>
+                          <Form.List name="ingredients">
+                            {(fields, { add, remove }) => (
+                              <>
+                                {fields.map(({ key, name, ...restField }) => (
+                                  <Space
+                                    key={key}
+                                    style={{ display: "flex", marginBottom: 8 }}
+                                    align="baseline"
+                                  >
+                                    <Form.Item
+                                      {...restField}
+                                      name={[name, "name"]}
+                                    >
+                                      <Input placeholder="食材" />
+                                    </Form.Item>
+                                    <Form.Item
+                                      {...restField}
+                                      name={[name, "quantity"]}
+                                      rules={[
+                                        {
+                                          type: "number",
+
+                                          message: "請輸入有效的數字",
+                                        },
+                                        {
+                                          required: true,
+                                          message: "請輸入數量",
+                                        },
+                                      ]}
+                                      normalize={(value) =>
+                                        value ? Number(value) : undefined
+                                      }
+                                    >
+                                      <Input type="number" placeholder="數量" />
+                                    </Form.Item>
+                                    <Form.Item
+                                      {...restField}
+                                      name={[name, "unit"]}
+                                    >
+                                      <Input placeholder="單位" />
+                                    </Form.Item>
+                                    <MinusCircleOutlined
+                                      onClick={() => remove(name)}
+                                    />
+                                  </Space>
+                                ))}
+                                <Form.Item>
+                                  <Button
+                                    type="dashed"
+                                    onClick={() => add()}
+                                    block
+                                    icon={<PlusOutlined />}
+                                    style={{ maxWidth: 600 }}
+                                  >
+                                    添加食材
+                                  </Button>
+                                </Form.Item>
+                              </>
+                            )}
+                          </Form.List>
+                        </ProForm.Group>
+                        <hr />
+                        <ProForm.Group>
+                          <Form.List name="steps">
+                            {(fields, { add, remove }) => (
+                              <>
+                                {fields.map(({ key, name, ...restField }) => (
+                                  <Space
+                                    key={key}
+                                    style={{ display: "flex", marginBottom: 8 }}
+                                    align="center"
+                                  >
+                                    <Form.Item
+                                      label="說明"
+                                      {...restField}
+                                      name={[name, "stepDescription"]}
+                                    >
+                                      <TextArea
+                                        rows={4}
+                                        placeholder="步驟說明"
+                                      />
+                                    </Form.Item>
+                                    <Form.Item
+                                      label="上傳圖片"
+                                      valuePropName="fileList"
+                                      getValueFromEvent={normFile}
+                                      {...restField}
+                                      name={[name, "stepPhote"]}
+                                    >
+                                      <Upload listType="picture-card">
+                                        <div>
+                                          <PlusOutlined />
+                                          <div style={{ marginTop: 8 }}>
+                                            Upload
+                                          </div>
+                                        </div>
+                                      </Upload>
+                                    </Form.Item>
+
+                                    <MinusCircleOutlined
+                                      onClick={() => remove(name)}
+                                    />
+                                  </Space>
+                                ))}
+                                <Form.Item>
+                                  <Button
+                                    type="dashed"
+                                    onClick={() => add()}
+                                    block
+                                    icon={<PlusOutlined />}
+                                  >
+                                    添加步驟
+                                  </Button>
+                                </Form.Item>
+                              </>
+                            )}
+                          </Form.List>
+                        </ProForm.Group>
+                        <hr />
+                        <ProFormText
+                          width="lg"
+                          name="refLink"
+                          label="參考連結"
+                        />
+                        <ProFormTextArea width="lg" name="note" label="備註" />
+                      </ModalForm>
+                    </div>
+                  </div>
                   <TextContainer>
                     <div>
                       <TextLine>
@@ -358,6 +656,7 @@ const RecipeDisplay: React.FC = () => {
                       <TextLine>{item.category}</TextLine>
                     </div>
                   </TextContainer>
+
                   <div style={{ margin: 5 }}>
                     <Button type="primary" onClick={() => showDrawer(item)}>
                       查看食譜
@@ -424,7 +723,9 @@ const RecipeDisplay: React.FC = () => {
                         <TipsContainer>
                           <div>
                             <PushpinOutlined />
-                            <Tips> Tips :</Tips>
+                            <div>
+                              <Tips> Tips :</Tips>
+                            </div>
                           </div>
                           <div></div>
                           {currentItem.note}
@@ -440,265 +741,6 @@ const RecipeDisplay: React.FC = () => {
                       </>
                     )}
                   </Drawer>
-
-                  <ModalForm<Recipe>
-                    title="編輯食譜"
-                    trigger={
-                      <Button style={{ margin: 5 }} type="primary">
-                        編輯
-                      </Button>
-                    }
-                    form={form}
-                    initialValues={{
-                      name: item.name,
-                      description: item.description,
-                      searving: item.searving,
-                      cookingTime: item.cookingTime,
-                      category: item.category,
-                      refLink: item.refLink,
-                      note: item.note,
-                    }}
-                    autoFocusFirstInput
-                    modalProps={{
-                      destroyOnClose: true,
-                      onCancel: () => console.log("run"),
-                    }}
-                    submitTimeout={2000}
-                    onFinish={onFinish}
-                    submitter={{
-                      searchConfig: {
-                        submitText: "確認",
-                      },
-                    }}
-                    onValuesChange={(changedValues) => {
-                      //   // changedValues 發生變化的表單單向的值
-                      //   // allValues 所有表單內容當前的值
-                      console.log("Changed Values:", changedValues);
-                      //   console.log("All Values:", allValues);
-                    }}
-                  >
-                    <ProForm.Group>
-                      <ProFormText width="md" name="name" label="食譜名稱" />
-
-                      <ProFormTextArea
-                        width="lg"
-                        name="description"
-                        label="簡介料理"
-                      />
-                    </ProForm.Group>
-                    <ProForm.Group>
-                      <Form.Item
-                        label="上傳圖片"
-                        valuePropName="fileList"
-                        getValueFromEvent={normFile}
-                        name="mainPhoto"
-                      >
-                        <Upload
-                          customRequest={({ file, onSuccess, onError }) => {
-                            if (file) {
-                              handleUpload(file as RcFile)
-                                .then(() => onSuccess?.(true))
-                                .catch((error) => {
-                                  console.error("Custom upload error:", error);
-                                  onError?.(error);
-                                });
-                            } else {
-                              // 處理 file 為 undefined 的情況
-                              console.error("File is undefined");
-                              onError?.(new Error("File is undefined"));
-                            }
-                          }}
-                          listType="picture-card"
-                          maxCount={1}
-                        >
-                          <div>
-                            <PlusOutlined />
-                            <div style={{ marginTop: 8 }}>上傳</div>
-                          </div>
-                        </Upload>
-                      </Form.Item>
-                    </ProForm.Group>
-                    <ProForm.Group>
-                      <ProFormSelect
-                        request={async () => [
-                          {
-                            value: 1,
-                            label: "1",
-                          },
-                        ]}
-                        width="xs"
-                        name="searving"
-                        label="烹煮份量"
-                      />
-                      <ProFormSelect
-                        options={[
-                          {
-                            value: 10,
-                            label: "10分鐘",
-                          },
-                          {
-                            value: 15,
-                            label: "15分鐘",
-                          },
-                          {
-                            value: 20,
-                            label: "20分鐘",
-                          },
-                          {
-                            value: 25,
-                            label: "25分鐘",
-                          },
-                          {
-                            value: 30,
-                            label: "30分鐘",
-                          },
-                          {
-                            value: 45,
-                            label: "45分鐘",
-                          },
-                          {
-                            value: 60,
-                            label: "60分鐘",
-                          },
-                          {
-                            value: 90,
-                            label: "90分鐘",
-                          },
-                          {
-                            value: 120,
-                            label: "120分鐘",
-                          },
-                        ]}
-                        width="xs"
-                        name="cookingTime"
-                        label="烹煮時間"
-                      />
-                    </ProForm.Group>
-                    <ProFormRadio.Group
-                      label="類別"
-                      name="category"
-                      options={[
-                        "主餐",
-                        "肉類",
-                        "蔬菜類",
-                        "蛋、豆類",
-                        "海鮮",
-                        "烘焙類",
-                        "其他類",
-                      ]}
-                    />
-                    <ProForm.Group>
-                      <Form.List name="ingredients">
-                        {(fields, { add, remove }) => (
-                          <>
-                            {fields.map(({ key, name, ...restField }) => (
-                              <Space
-                                key={key}
-                                style={{ display: "flex", marginBottom: 8 }}
-                                align="baseline"
-                              >
-                                <Form.Item {...restField} name={[name, "name"]}>
-                                  <Input placeholder="食材" />
-                                </Form.Item>
-                                <Form.Item
-                                  {...restField}
-                                  name={[name, "quantity"]}
-                                  rules={[
-                                    {
-                                      type: "number",
-
-                                      message: "請輸入有效的數字",
-                                    },
-                                    {
-                                      required: true,
-                                      message: "請輸入數量",
-                                    },
-                                  ]}
-                                  normalize={(value) =>
-                                    value ? Number(value) : undefined
-                                  }
-                                >
-                                  <Input type="number" placeholder="數量" />
-                                </Form.Item>
-                                <Form.Item {...restField} name={[name, "unit"]}>
-                                  <Input placeholder="單位" />
-                                </Form.Item>
-                                <MinusCircleOutlined
-                                  onClick={() => remove(name)}
-                                />
-                              </Space>
-                            ))}
-                            <Form.Item>
-                              <Button
-                                type="dashed"
-                                onClick={() => add()}
-                                block
-                                icon={<PlusOutlined />}
-                                style={{ maxWidth: 600 }}
-                              >
-                                添加食材
-                              </Button>
-                            </Form.Item>
-                          </>
-                        )}
-                      </Form.List>
-                    </ProForm.Group>
-                    <hr />
-                    <ProForm.Group>
-                      <Form.List name="steps">
-                        {(fields, { add, remove }) => (
-                          <>
-                            {fields.map(({ key, name, ...restField }) => (
-                              <Space
-                                key={key}
-                                style={{ display: "flex", marginBottom: 8 }}
-                                align="center"
-                              >
-                                <Form.Item
-                                  label="說明"
-                                  {...restField}
-                                  name={[name, "stepDescription"]}
-                                >
-                                  <TextArea rows={4} placeholder="步驟說明" />
-                                </Form.Item>
-                                <Form.Item
-                                  label="上傳圖片"
-                                  valuePropName="fileList"
-                                  getValueFromEvent={normFile}
-                                  {...restField}
-                                  name={[name, "stepPhote"]}
-                                >
-                                  <Upload listType="picture-card">
-                                    <div>
-                                      <PlusOutlined />
-                                      <div style={{ marginTop: 8 }}>Upload</div>
-                                    </div>
-                                  </Upload>
-                                </Form.Item>
-
-                                <MinusCircleOutlined
-                                  onClick={() => remove(name)}
-                                />
-                              </Space>
-                            ))}
-                            <Form.Item>
-                              <Button
-                                type="dashed"
-                                onClick={() => add()}
-                                block
-                                icon={<PlusOutlined />}
-                              >
-                                添加步驟
-                              </Button>
-                            </Form.Item>
-                          </>
-                        )}
-                      </Form.List>
-                    </ProForm.Group>
-                    <hr />
-                    <ProFormText width="lg" name="refLink" label="參考連結" />
-                    <ProFormTextArea width="lg" name="note" label="備註" />
-                  </ModalForm>
                 </>
               </ProCard>
             </CardWrapper>
