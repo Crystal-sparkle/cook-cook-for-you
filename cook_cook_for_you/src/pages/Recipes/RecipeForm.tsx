@@ -45,6 +45,18 @@ interface Recipe {
   userId: string;
 }
 
+const StyledButton = styled(Button)`
+  background: rgba(252, 208, 57, 0.7);
+  font-size: 20px;
+  color: #000000;
+  height: 44px;
+  transition: all 0.2s;
+
+  &:hover {
+    background: rgba(252, 208, 57, 1) !important;
+  }
+`;
+
 const Wrapper = styled.div`
   margin: 10px;
   padding: 100px;
@@ -139,19 +151,10 @@ const RecipeForm: React.FC = () => {
       <ModalForm<Recipe>
         title="建立食譜"
         trigger={
-          <Button
-            type="primary"
-            style={{
-              background: "#E0AE4E",
-              fontSize: "20px",
-              color: "#000000",
-              height: "44px",
-              transition: "all 0.2s",
-            }}
-          >
+          <StyledButton type="primary">
             <PlusOutlined />
             新增食譜
-          </Button>
+          </StyledButton>
         }
         form={form}
         // initialValues={{
@@ -182,16 +185,15 @@ const RecipeForm: React.FC = () => {
             width="md"
             name="name"
             label="食譜名稱"
-            tooltip="最常為 24 位"
+            tooltip="最長為 24 位"
             placeholder="蛋沙拉三明治"
-            initialValue=""
           />
 
           <ProFormTextArea
             width="lg"
             name="description"
             label="簡介料理"
-            placeholder="冬天早上柔軟的蛋液與吐司間與熱紅茶的交織相容的三角愛情故事"
+            placeholder="暖心暖胃，冬天暖心選擇"
           />
           {/* <ProFormDateRangePicker name="contractTime" label="合同生效时间" /> */}
         </ProForm.Group>
@@ -280,12 +282,13 @@ const RecipeForm: React.FC = () => {
             width="xs"
             name="cookingTime"
             label="烹煮時間"
+            initialValue=""
           />
         </ProForm.Group>
         <ProFormRadio.Group
           label="類別"
           name="category"
-          initialValue="主餐"
+          initialValue="飲品"
           options={[
             "主餐",
             "肉類",
@@ -294,6 +297,7 @@ const RecipeForm: React.FC = () => {
             "海鮮",
             "烘焙類",
             "其他類",
+            "飲品",
           ]}
         />
         <ProForm.Group>
@@ -365,7 +369,7 @@ const RecipeForm: React.FC = () => {
                       {...restField}
                       name={[name, "stepDescription"]}
                     >
-                      <TextArea rows={4} placeholder="步驟說明" />
+                      <TextArea rows={6} placeholder="步驟說明" />
                     </Form.Item>
                     {/* <Form.Item
                       label="上傳圖片"
@@ -402,12 +406,7 @@ const RecipeForm: React.FC = () => {
         <hr />
 
         <ProFormText width="lg" name="refLink" label="參考連結" />
-        <ProFormTextArea
-          width="lg"
-          name="note"
-          label="備註"
-          initialValue="要注意的事"
-        />
+        <ProFormTextArea width="lg" name="note" label="備註" />
       </ModalForm>
     </Wrapper>
   );
