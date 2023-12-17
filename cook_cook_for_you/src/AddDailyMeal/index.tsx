@@ -1,11 +1,20 @@
 import "firebase/database";
-import { Timestamp } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  onSnapshot,
+  query,
+  Timestamp,
+  updateDoc,
+  where,
+} from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 // The default locale is en-US, if you want to use other locale, just set locale in entry file globally.
 import { Button, message, Steps, theme } from "antd";
 import dayjs from "dayjs";
 import "dayjs/locale/zh-cn";
 import styled from "styled-components";
+import { db } from "../firbase";
 import CookingSchedule from "./CookingSchedule";
 import MealCalendar from "./MealCalendar";
 import PurchasingPlan from "./PurchasingPlan";
@@ -25,6 +34,21 @@ interface CookingPlanData {
   mealsEndDate: Timestamp;
   planId: string;
   userId: string;
+}
+interface PurchasePlan {
+  cookingDate: Timestamp;
+  items: PurchaseItem[] | [];
+  mealsEndDate: Timestamp;
+  mealsStartDate: Timestamp;
+  test: string;
+  userId: string;
+}
+interface PurchaseItem {
+  isPurchased: boolean;
+  name: string;
+  quantity: number;
+  responsible: string;
+  unit: string;
 }
 // const BannerImg = styled.div`
 //   background-size: cover;
@@ -54,10 +78,74 @@ const MainContent = styled.div`
 const AddDailyMeal: React.FC = () => {
   //manage state
   const [cookingPlanId, setCookingPlanId] = useState<string>("");
-  const [activeCookingPlan, setActiveCookingPlan] = useState<CookingPlanData>();
+  const [activeCookingPlan, setActiveCookingPlan] = useState<
+    CookingPlanData | undefined
+  >();
   const { token } = theme.useToken();
   const [current, setCurrent] = useState(0);
-  console.log("activeCookingPlan", activeCookingPlan);
+  const [purchasePlanCollection, setPurchasePanCollection] = useState<
+    PurchasePlan[]
+  >([]);
+
+  useEffect(() => {
+    const getActivePlan = async () => {
+      const CookingPlanCollection = collection(db, "cookingPlan");
+      const q = query(CookingPlanCollection, where("isActive", "==", true));
+
+      try {
+        const unsubscribe = onSnapshot(q, (querySnapshot) => {
+          let results = null;
+
+          querySnapshot.forEach((doc) => {
+            results = doc.data();
+          });
+
+          if (results) {
+            setActiveCookingPlan(results);
+          } else {
+            console.log("no plan");
+          }
+        });
+
+        return () => {
+          unsubscribe();
+        };
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    getActivePlan();
+  }, []);
+
+  useEffect(() => {
+    const getPurchasePlan = async () => {
+      const purchaseCollection = collection(db, "purchasePlan");
+      const queryRef = query(purchaseCollection, where("isActive", "==", true));
+
+      const unsubscribe = onSnapshot(
+        queryRef,
+        (querySnapshot) => {
+          const results: PurchasePlan[] = [];
+          querySnapshot.forEach((doc) => {
+            const data = doc.data();
+
+            results.push(data as PurchasePlan);
+          });
+
+          setPurchasePanCollection(results);
+        },
+        (error) => {
+          console.error("取得資料時發生錯誤:", error);
+        }
+      );
+
+      return () => unsubscribe();
+    };
+
+    getPurchasePlan();
+  }, []);
+
   const steps = [
     {
       title: "規劃每日菜單",
@@ -81,6 +169,7 @@ const AddDailyMeal: React.FC = () => {
         <PurchasingPlan
           activeCookingPlan={activeCookingPlan}
           setActiveCookingPlan={setActiveCookingPlan}
+          purchasePlanCollection={purchasePlanCollection}
         />
       ),
     },
@@ -95,29 +184,76 @@ const AddDailyMeal: React.FC = () => {
   };
 
   useEffect(() => {
-    if (activeCookingPlan !== undefined) {
+    if (purchasePlanCollection.length > 0) {
       setCurrent(2);
+    } else {
+      setCurrent(0);
     }
-  }, [activeCookingPlan]);
+  }, [purchasePlanCollection]);
 
   const items = steps.map((item) => ({ key: item.title, title: item.title }));
 
   const contentStyle: React.CSSProperties = {
-    lineHeight: "220px",
-    textAlign: "center",
+    lineHeight: "120px",
+    textAlign: "start",
     color: token.colorTextTertiary,
 
     borderRadius: token.borderRadiusLG,
-    border: `2px dashed ${token.colorBorder}`,
-    marginTop: 16,
+    // border: `2px dashed ${token.colorBorder}`,
+    marginTop: "6px",
     width: "100%",
+  };
+
+  const handleProjectClose = () => {
+    const closePurchasePlan = async () => {
+      const PurchasePlanCollection = collection(db, "purchasePlan");
+      const q = query(PurchasePlanCollection, where("isActive", "==", true));
+
+      try {
+        const querySnapshot = await getDocs(q);
+        querySnapshot.forEach(async (doc) => {
+          const docRef = doc.ref;
+
+          await updateDoc(docRef, {
+            isActive: false,
+          });
+        });
+        console.log("設為false");
+      } catch (error) {
+        console.error("Error writing document: ", error);
+      }
+    };
+    const closeCookingSchedule = async () => {
+      const CookingPlanCollection = collection(db, "cookingPlan");
+      const q = query(CookingPlanCollection, where("isActive", "==", true));
+
+      try {
+        const querySnapshot = await getDocs(q);
+        querySnapshot.forEach(async (doc) => {
+          const docRef = doc.ref;
+
+          await updateDoc(docRef, {
+            isActive: false,
+          });
+        });
+        console.log("設為false");
+      } catch (error) {
+        console.error("Error writing document: ", error);
+      }
+    };
+    closeCookingSchedule();
+    closePurchasePlan();
+
+    setActiveCookingPlan(undefined);
+
+    message.info("開啟新的烹煮旅程吧");
   };
 
   return (
     <>
       {/* <BannerImg></BannerImg> */}
 
-      <Image src="./src/pages/Recipes/banner1.jpeg" />
+      <Image src="https://firebasestorage.googleapis.com/v0/b/cook-cook-for-you-test.appspot.com/o/images%2Fbanner1.jpeg?alt=media&token=25e37ec8-3cd2-49c1-ac36-cc513642360d" />
       <MainContent>
         <div style={{ width: "22%" }}>
           <Steps
@@ -127,11 +263,10 @@ const AddDailyMeal: React.FC = () => {
             style={{ width: "100%" }}
           />
           <div style={{ marginTop: 24 }}>
-            {current < steps.length - 1 && (
+            {current === 0 && (
               <Button
                 style={{
-                  backgroundColor: "#FFE57A",
-                  color: "#254F13",
+                  backgroundColor: "#FFD345",
                 }}
                 type="primary"
                 onClick={() => next()}
@@ -142,18 +277,17 @@ const AddDailyMeal: React.FC = () => {
             {current === steps.length - 1 && (
               <Button
                 type="primary"
-                style={{ backgroundColor: "#FFE57A", color: "#254F13" }}
-                onClick={() => message.success("Processing complete!")}
+                style={{ backgroundColor: "#FFD345" }}
+                onClick={handleProjectClose}
               >
-                封存計畫
+                建立新計畫
               </Button>
             )}
-            {current === 1 && (
+            {current > 0 && current === 1 && (
               <Button
+                type="primary"
                 style={{
-                  backgroundColor: "#FFE57A",
-                  color: "#254F13",
-                  margin: "8px",
+                  backgroundColor: "#FFD345",
                 }}
                 onClick={() => prev()}
               >
