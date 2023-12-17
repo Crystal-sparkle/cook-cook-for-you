@@ -1,13 +1,12 @@
 import { CarryOutOutlined } from "@ant-design/icons";
 import { ProCard } from "@ant-design/pro-components";
-import { Button, Divider, Drawer, Select, Space } from "antd";
+import { Button, Card, Drawer, Select, Space, message } from "antd";
 import "firebase/database";
 import {
   Timestamp,
   collection,
   getDoc,
   getDocs,
-  onSnapshot,
   query,
   updateDoc,
   where,
@@ -127,6 +126,7 @@ interface CookingPlanData {
 interface PurchasePlanProps {
   activeCookingPlan: CookingPlanData | undefined;
   setActiveCookingPlan: (cookingPlanData?: CookingPlanData) => void;
+  purchasePlanCollection: PurchasePlan[];
 }
 
 interface CookingPlanItem {
@@ -142,6 +142,7 @@ interface CookingPlanItem {
 const PurchasingPlan = ({
   setActiveCookingPlan,
   activeCookingPlan,
+  purchasePlanCollection,
 }: PurchasePlanProps) => {
   const { Option } = Select;
 
@@ -350,11 +351,10 @@ const PurchasingPlan = ({
         const querySnapshot = await getDocs(q);
         querySnapshot.forEach(async (doc) => {
           const docRef = doc.ref;
-          if (doc.data().items.length === 0) {
-            await updateDoc(docRef, {
-              items: purchaseItems,
-            });
-          }
+
+          await updateDoc(docRef, {
+            items: purchaseItems,
+          });
         });
         console.log("成功加入items");
       } catch (error) {
@@ -364,37 +364,6 @@ const PurchasingPlan = ({
 
     addPurchaseItems();
   }, [purchaseItems]);
-
-  const [purchasePlanCollection, setPurchasePanCollection] = useState<
-    PurchasePlan[]
-  >([]);
-
-  useEffect(() => {
-    const getPurchasePlan = async () => {
-      const purchaseCollection = collection(db, "purchasePlan");
-      const queryRef = query(purchaseCollection, where("isActive", "==", true));
-
-      const unsubscribe = onSnapshot(
-        queryRef,
-        (querySnapshot) => {
-          const results: PurchasePlan[] = [];
-          querySnapshot.forEach((doc) => {
-            const data = doc.data();
-
-            results.push(data as PurchasePlan);
-          });
-          setPurchasePanCollection(results);
-        },
-        (error) => {
-          console.error("取得資料時發生錯誤:", error);
-        }
-      );
-
-      return () => unsubscribe();
-    };
-
-    getPurchasePlan();
-  }, []);
 
   console.log(purchasePlanCollection);
   const handleClick = () => {
@@ -438,7 +407,7 @@ const PurchasingPlan = ({
     closePurchasePlan();
     setActiveCookingPlan();
 
-    alert("開啟新旅程吧");
+    message.info("再繼續下一個烹煮計畫吧");
   };
 
   const [open, setOpen] = useState(false);
@@ -469,149 +438,168 @@ const PurchasingPlan = ({
         justifyContent: "space-around",
       }}
     >
-      <div>
-        <ProCard bordered>
-          <div>
-            <div>烹煮日期：{dateForCooking}</div>
-            <Divider dashed />
-            {activeCookingPlan?.cookingItems.map((plan, index) => (
+      <Card>
+        <div>
+          <ProCard>
+            <div>
               <div
-                key={index}
                 style={{
-                  display: "flex",
-                  flexDirection: "row",
-                  alignItems: "center",
-                  marginBottom: "5px,auto",
+                  fontSize: "18px",
+                  fontWeight: "bold",
+                  marginBottom: "12px",
                 }}
               >
-                <div>
-                  品項{index + 1}: {plan.name}
-                </div>
-                <div>
-                  份量: {plan.serving} {plan.unit}
-                </div>
+                烹煮日期：{dateForCooking}
               </div>
-            ))}
-          </div>
-        </ProCard>
-      </div>
-      <div>
-        <Button
-          type="primary"
-          style={{ backgroundColor: "#b7dbdf", color: "#4b4947" }}
-          onClick={showDrawer}
-          icon={<CarryOutOutlined />}
-        >
-          購買食材細項
-        </Button>
-        <Drawer
-          title="購買清單"
-          width={600}
-          onClose={onClose}
-          open={open}
-          styles={{
-            body: {
-              paddingBottom: 70,
-            },
-          }}
-          extra={
-            <Space>
-              <Button
-                style={{ backgroundColor: "#b7dbdf", color: "#4b4947" }}
-                onClick={onClose}
-              >
-                Close
-              </Button>
-              {purchasePlanCollection.length > 0 ? (
-                <Button
-                  type="primary"
-                  style={{ backgroundColor: "#FFE57A", color: "#4b4947" }}
-                  onClick={handleClick}
+
+              {activeCookingPlan?.cookingItems.map((plan, index) => (
+                <div
+                  key={index}
+                  style={{
+                    display: "flex",
+                    flexDirection: "row",
+                    marginBottom: "5px",
+                    fontSize: "16px",
+                  }}
                 >
-                  完成計畫
+                  <div style={{ marginRight: "4px" }}>
+                    {index + 1}. {plan.name}
+                  </div>
+                  <div>
+                    {plan.serving} {plan.unit}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </ProCard>
+        </div>
+        <div>
+          <Button
+            type="primary"
+            style={{
+              // backgroundColor: "#e9c148",
+              width: "100%",
+              fontSize: "18px",
+              height: "40px",
+            }}
+            onClick={showDrawer}
+            icon={<CarryOutOutlined />}
+            block
+          >
+            購買清單
+          </Button>
+          <Drawer
+            title="購買清單"
+            width={600}
+            onClose={onClose}
+            open={open}
+            styles={{
+              body: {
+                paddingBottom: 70,
+              },
+            }}
+            extra={
+              <Space>
+                <Button
+                  // style={{ backgroundColor: "#b7dbdf", color: "#4b4947" }}
+                  onClick={onClose}
+                >
+                  Close
                 </Button>
-              ) : (
-                <div></div>
-              )}
-            </Space>
-          }
-        >
-          {purchasePlanCollection.length > 0 ? (
-            purchasePlanCollection.map((item, index) => (
-              <div key={index} style={{ padding: "10px,20px" }}>
-                <TitleContainer>
-                  <div style={{ fontSize: 18 }}>
-                    烹煮計畫日期：
-                    {item?.cookingDate?.toDate().toLocaleDateString()}
-                  </div>
-                  <div>共計 {item?.items?.length} 個</div>
-                </TitleContainer>
-                <Header>
-                  <Item></Item>
-                  <ItemOrder>項目</ItemOrder>
-                  <Item>名稱</Item>
-                  <Item>數量</Item>
-
-                  <Item>負責人</Item>
-                </Header>
-
-                {item?.items?.map((purchaseItem, itemIndex) => (
-                  <div key={itemIndex}>
-                    <div
-                      style={{
-                        marginTop: 10,
-                        marginBottom: 10,
-                        display: "flex",
-                        flexDirection: "row",
-                        alignItems: "center",
-                        justifyContent: "space-around",
-                      }}
-                    >
-                      <Item>
-                        <InputCheck
-                          type="checkbox"
-                          checked={
-                            checkedItems[index]?.[itemIndex] ||
-                            purchaseItem.isPurchased
-                          }
-                          onChange={() =>
-                            handleCheckboxChange(index, itemIndex)
-                          }
-                        />
-                      </Item>
-                      <ItemOrder>{itemIndex + 1}</ItemOrder>
-                      <Item>{purchaseItem.name}</Item>
-                      <Item>
-                        {purchaseItem.quantity}
-                        {purchaseItem.unit}
-                      </Item>
-                      <Item>
-                        <Select
-                          defaultValue={purchaseItem.responsible}
-                          style={{ width: 100 }}
-                          onChange={(value) =>
-                            handleSelectChange(value, itemIndex)
-                          }
-                        >
-                          {partners.map((partner) => (
-                            <Option key={partner.key} value={partner.label}>
-                              {partner.label}
-                            </Option>
-                          ))}
-                        </Select>
-                      </Item>
+                {purchasePlanCollection.length > 0 ? (
+                  <Button
+                    type="primary"
+                    style={{
+                      backgroundColor: "#FFE57A",
+                      color: "#4b4947",
+                    }}
+                    onClick={handleClick}
+                  >
+                    完成計畫
+                  </Button>
+                ) : (
+                  <div></div>
+                )}
+              </Space>
+            }
+          >
+            {purchasePlanCollection.length > 0 ? (
+              purchasePlanCollection.map((item, index) => (
+                <div key={index} style={{ padding: "10px,20px" }}>
+                  <TitleContainer>
+                    <div style={{ fontSize: 18 }}>
+                      烹煮計畫日期：
+                      {item?.cookingDate?.toDate().toLocaleDateString()}
                     </div>
-                    <hr />
-                  </div>
-                ))}
-              </div>
-            ))
-          ) : (
-            <div>請先建立烹煮計畫唷</div>
-          )}
-          <br />
-        </Drawer>
-      </div>
+                    <div>共計 {item?.items?.length} 個</div>
+                  </TitleContainer>
+                  <Header>
+                    <Item></Item>
+                    <ItemOrder>項目</ItemOrder>
+                    <Item>名稱</Item>
+                    <Item>數量</Item>
+
+                    <Item>負責人</Item>
+                  </Header>
+
+                  {item?.items?.map((purchaseItem, itemIndex) => (
+                    <div key={itemIndex}>
+                      <div
+                        style={{
+                          marginTop: 10,
+                          marginBottom: 10,
+                          display: "flex",
+                          flexDirection: "row",
+                          alignItems: "center",
+                          justifyContent: "space-around",
+                        }}
+                      >
+                        <Item>
+                          <InputCheck
+                            type="checkbox"
+                            checked={
+                              checkedItems[index]?.[itemIndex] ||
+                              purchaseItem.isPurchased
+                            }
+                            onChange={() =>
+                              handleCheckboxChange(index, itemIndex)
+                            }
+                          />
+                        </Item>
+                        <ItemOrder>{itemIndex + 1}</ItemOrder>
+                        <Item>{purchaseItem.name}</Item>
+                        <Item>
+                          {purchaseItem.quantity}
+                          {purchaseItem.unit}
+                        </Item>
+                        <Item>
+                          <Select
+                            defaultValue={purchaseItem.responsible}
+                            style={{ width: 100 }}
+                            onChange={(value) =>
+                              handleSelectChange(value, itemIndex)
+                            }
+                          >
+                            {partners.map((partner) => (
+                              <Option key={partner.key} value={partner.label}>
+                                {partner.label}
+                              </Option>
+                            ))}
+                          </Select>
+                        </Item>
+                      </div>
+                      <hr />
+                    </div>
+                  ))}
+                </div>
+              ))
+            ) : (
+              <div>請先建立烹煮計畫唷</div>
+            )}
+            <br />
+          </Drawer>
+        </div>
+      </Card>
     </div>
   );
 };
