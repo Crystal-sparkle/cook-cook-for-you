@@ -8,7 +8,6 @@ import {
   collection,
   doc,
   getDocs,
-  onSnapshot,
   query,
   setDoc,
   where,
@@ -71,8 +70,8 @@ type RangeValue = [Dayjs | null, Dayjs | null] | null;
 function CookingSchedule({
   setCookingPlanId,
   cookingPlanId,
-  setActiveCookingPlan,
 }: CookingScheduleProps) {
+  //選日期
   const [cookingDate, setCookingDate] = useState<Date | undefined>();
   const pickCookingDate: DatePickerProps["onChange"] = (date) => {
     if (date !== null) {
@@ -80,6 +79,7 @@ function CookingSchedule({
       setCookingDate(pickDate);
     }
   };
+  //烹煮區間
   const [dates, setDates] = useState<RangeValue>(null);
   const [value, setValue] = useState<RangeValue>(null);
 
@@ -91,7 +91,7 @@ function CookingSchedule({
     const tooEarly = dates[1] && dates[1].diff(current, "days") >= 12;
     return !!tooEarly || !!tooLate;
   };
-
+  //烹煮區間
   const onOpenChange = (open: boolean) => {
     if (open) {
       setDates([null, null]);
@@ -99,7 +99,7 @@ function CookingSchedule({
       setDates(null);
     }
   };
-
+  //烹煮區間：用state 存起來，轉成timestamp 形式
   const [selectDate, setSelectDate] = useState<(Timestamp | null)[]>([]);
   useEffect(() => {
     if (value !== null) {
@@ -113,6 +113,7 @@ function CookingSchedule({
   }, [value]);
 
   const [cookingMeals, setCookingMeals] = useState<MealPlan[]>([]);
+  console.log(cookingMeals);
 
   const combinedSearvings = cookingMeals.reduce(
     (accumulator: Accumulator, meal) => {
@@ -129,6 +130,7 @@ function CookingSchedule({
 
     {}
   );
+  // 區間選取資料庫的mealPlan
   useEffect(() => {
     const handleCookingMeals = async () => {
       const CookingMealCollection = collection(db, "DailyMealPlan");
@@ -226,6 +228,7 @@ function CookingSchedule({
   // const allMealPlans = cookingMeals.flatMap((meal) => meal.mealPlan);
 
   const combinedServingArray = Object.values(combinedSearvings);
+
   const handleClick = () => {
     handleConfirm();
   };
@@ -245,36 +248,36 @@ function CookingSchedule({
     setVisible(false);
   };
 
-  useEffect(() => {
-    const getActivePlan = async () => {
-      const CookingPlanCollection = collection(db, "cookingPlan");
-      const q = query(CookingPlanCollection, where("isActive", "==", true));
+  // useEffect(() => {
+  //   const getActivePlan = async () => {
+  //     const CookingPlanCollection = collection(db, "cookingPlan");
+  //     const q = query(CookingPlanCollection, where("isActive", "==", true));
 
-      try {
-        const unsubscribe = onSnapshot(q, (querySnapshot) => {
-          let results = null;
+  //     try {
+  //       const unsubscribe = onSnapshot(q, (querySnapshot) => {
+  //         let results = null;
 
-          querySnapshot.forEach((doc) => {
-            results = doc.data();
-          });
+  //         querySnapshot.forEach((doc) => {
+  //           results = doc.data();
+  //         });
 
-          if (results) {
-            setActiveCookingPlan(results);
-          } else {
-            console.log("no plan");
-          }
-        });
+  //         if (results) {
+  //           setActiveCookingPlan(results);
+  //         } else {
+  //           console.log("no plan");
+  //         }
+  //       });
 
-        return () => {
-          unsubscribe();
-        };
-      } catch (error) {
-        console.error(error);
-      }
-    };
+  //       return () => {
+  //         unsubscribe();
+  //       };
+  //     } catch (error) {
+  //       console.error(error);
+  //     }
+  //   };
 
-    getActivePlan();
-  }, []);
+  //   getActivePlan();
+  // }, []);
 
   // const onChange = (checked: boolean) => {
   //   setLoading(!checked);
@@ -293,8 +296,7 @@ function CookingSchedule({
       <div>
         <Card
           style={{
-            width: 250,
-            height: 300,
+            width: "100%",
             marginTop: 6,
             marginBottom: 10,
             padding: "5px",
@@ -319,15 +321,73 @@ function CookingSchedule({
               onOpenChange={onOpenChange}
               changeOnBlur
             />
+            <>
+              <Meta title="" description="" style={{ marginTop: 6 }} />
+
+              <div style={{ fontSize: "14px", marginTop: "5px" }}>
+                {combinedServingArray.length > 0 ? (
+                  <div>
+                    {" "}
+                    <h4>烹煮份量：</h4>(總共{combinedServingArray.length}道)
+                  </div>
+                ) : (
+                  <div></div>
+                )}
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  margin: "5px ,auto",
+                  fontSize: "16px",
+                  textAlign: "center",
+                }}
+              >
+                {combinedServingArray?.map((meal, index) => (
+                  <div
+                    key={index}
+                    style={{
+                      display: "flex",
+                      marginTop: "6px ",
+                      fontSize: "16px",
+                      textAlign: "center",
+                      marginRight: "5px",
+                    }}
+                  >
+                    <div>{index + 1}.</div>
+                    <div>{meal.name}</div>
+                    <div>
+                      {meal.serving}
+                      {meal.unit}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
+            {combinedServingArray.length > 0 ? (
+              <div>
+                {" "}
+                <br />
+                <Button
+                  type="primary"
+                  style={{ backgroundColor: "#b7dbdf", color: "#4b4947" }}
+                  onClick={handleClick}
+                >
+                  確認烹煮計畫
+                </Button>
+              </div>
+            ) : (
+              <div></div>
+            )}
             <br />
-            <br />
+            {/* <br />
             <Button
               type="primary"
               style={{ backgroundColor: "#b7dbdf", color: "#4b4947" }}
               onClick={handleClick}
             >
               確認烹煮計畫
-            </Button>
+            </Button> */}
           </div>
           <div>
             <Modal
@@ -342,7 +402,7 @@ function CookingSchedule({
         </Card>
       </div>
 
-      <div>
+      {/* <div>
         <Card
           style={{ width: 250, height: 300, marginTop: 16, marginBottom: 10 }}
         >
@@ -351,22 +411,23 @@ function CookingSchedule({
             style={{
               display: "flex",
               flexDirection: "column",
-              alignItems: "center",
               margin: "5px ,auto",
-              fontSize: "14px",
+              fontSize: "16px",
               textAlign: "center",
             }}
           >
-            <div>總共{combinedServingArray.length}道</div>
+            <div style={{ fontSize: "14px", marginTop: "5px" }}>
+              (總共{combinedServingArray.length}道)
+            </div>
             {combinedServingArray?.map((meal, index) => (
               <div
                 key={index}
                 style={{
                   display: "flex",
-                  alignItems: "center",
                   marginTop: "6px ",
-                  fontSize: "14px",
+                  fontSize: "16px",
                   textAlign: "center",
+                  marginRight: "5px",
                 }}
               >
                 <div>{index + 1}.</div>
@@ -379,7 +440,7 @@ function CookingSchedule({
             ))}
           </div>
         </Card>
-      </div>
+      </div> */}
 
       <div>
         <>
