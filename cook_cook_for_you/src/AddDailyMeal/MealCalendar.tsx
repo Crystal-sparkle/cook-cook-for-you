@@ -149,8 +149,8 @@ const MealCalendar: React.FC = () => {
             <Tag
               style={{
                 fontSize: "16px",
-                backgroundColor: "#f7e4ae",
-                color: "#4b4947",
+                backgroundColor: "#b7dbdf",
+                color: "#211607",
                 marginBottom: "5px",
                 padding: "3px",
               }}
