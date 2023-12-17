@@ -219,6 +219,7 @@ const RecipeForm: React.FC = () => {
                 }
               }}
               listType="picture-card"
+              accept="image/png, image/jpeg"
               maxCount={1}
             >
               <div>
