@@ -7,6 +7,7 @@ import {
   collection,
   getDoc,
   getDocs,
+  onSnapshot,
   query,
   updateDoc,
   where,
@@ -14,7 +15,7 @@ import {
 import { useEffect, useState } from "react";
 // import { styled } from "styled-components";
 import styled from "styled-components";
-import { db } from "../firbase";
+import { auth, db } from "../firbase";
 
 interface PurchaseItem {
   isPurchased: boolean;
@@ -31,6 +32,11 @@ interface PurchasePlan {
   mealsStartDate: Timestamp;
   test: string;
   userId: string;
+}
+
+interface PartnerList {
+  name: string | null;
+  email: string | null;
 }
 
 // styled
@@ -92,22 +98,12 @@ const TitleContainer = styled.div`
 `;
 
 // styled
+const currentUser = auth.currentUser;
+const currentUid: string = currentUser?.uid ?? "";
+
+//
 
 //dummy data
-const partners = [
-  {
-    label: "Crystal",
-    key: "1",
-  },
-  {
-    label: "PeiPei",
-    key: "2",
-  },
-  {
-    label: "Jenny",
-    key: "3",
-  },
-];
 
 interface CookingPlanData {
   cookingDate: Timestamp;
@@ -144,8 +140,47 @@ const PurchasingPlan = ({
   activeCookingPlan,
   purchasePlanCollection,
 }: PurchasePlanProps) => {
-  const { Option } = Select;
+  const [PartnerList, setPartnerList] = useState<PartnerList[]>([]);
 
+  useEffect(() => {
+    const getParnerData = async () => {
+      const userCollection = collection(db, "user");
+      const q = query(userCollection, where("uid", "==", currentUid));
+
+      const unsubscribe = onSnapshot(q, (querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+          if (doc.exists()) {
+            const data = doc.data();
+
+            if (data.partners) {
+              setPartnerList(data.partners);
+            }
+          }
+        });
+      });
+      return () => unsubscribe();
+    };
+
+    getParnerData();
+  }, []);
+  console.warn(PartnerList);
+
+  const partners = [
+    {
+      label: "Crystal",
+      key: "1",
+    },
+    {
+      label: PartnerList[0]?.name,
+      key: "2",
+    },
+    {
+      label: PartnerList[1]?.name,
+      key: "3",
+    },
+  ];
+
+  const { Option } = Select;
   const [checkedItems, setCheckedItems] = useState<Array<Array<boolean>>>([]);
 
   const updateCheckboxStatus = async (
@@ -292,7 +327,7 @@ const PurchasingPlan = ({
     }
   }, [activeCookingPlan]);
 
-  console.log("activePlanIngredients", activePlanIngredients);
+  // console.log("activePlanIngredients", activePlanIngredients);
 
   const [purchaseItems, setPurchaseItems] = useState<
     {
@@ -336,11 +371,9 @@ const PurchasingPlan = ({
       });
       return accumulator;
     }, []);
-    console.log("purchaseItemsArray", purchaseItemsArray);
+    // console.log("purchaseItemsArray", purchaseItemsArray);
     setPurchaseItems(purchaseItemsArray);
   }, [activePlanIngredients]);
-
-  console.log(purchaseItems);
 
   useEffect(() => {
     const addPurchaseItems = async () => {
@@ -365,7 +398,6 @@ const PurchasingPlan = ({
     addPurchaseItems();
   }, [purchaseItems]);
 
-  console.log(purchasePlanCollection);
   const handleClick = () => {
     const closePurchasePlan = async () => {
       const PurchasePlanCollection = collection(db, "purchasePlan");
@@ -407,7 +439,7 @@ const PurchasingPlan = ({
     closePurchasePlan();
     setActiveCookingPlan();
 
-    message.info("再繼續下一個烹煮計畫吧");
+    message.info("再開啟下一個烹煮計畫吧");
   };
 
   const [open, setOpen] = useState(false);
