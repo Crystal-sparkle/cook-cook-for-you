@@ -248,49 +248,6 @@ function CookingSchedule({
     setVisible(false);
   };
 
-  // useEffect(() => {
-  //   const getActivePlan = async () => {
-  //     const CookingPlanCollection = collection(db, "cookingPlan");
-  //     const q = query(CookingPlanCollection, where("isActive", "==", true));
-
-  //     try {
-  //       const unsubscribe = onSnapshot(q, (querySnapshot) => {
-  //         let results = null;
-
-  //         querySnapshot.forEach((doc) => {
-  //           results = doc.data();
-  //         });
-
-  //         if (results) {
-  //           setActiveCookingPlan(results);
-  //         } else {
-  //           console.log("no plan");
-  //         }
-  //       });
-
-  //       return () => {
-  //         unsubscribe();
-  //       };
-  //     } catch (error) {
-  //       console.error(error);
-  //     }
-  //   };
-
-  //   getActivePlan();
-  // }, []);
-
-  // const onChange = (checked: boolean) => {
-  //   setLoading(!checked);
-  // };
-
-  // const dateForCooking = activeCookingPlan?.cookingDate
-  //   ?.toDate()
-  //   .toLocaleDateString("zh-TW");
-
-  // if (activeCookingPlan === null) {
-  //   return;
-  // }
-
   return (
     <Wrapper>
       <div>
@@ -379,15 +336,6 @@ function CookingSchedule({
             ) : (
               <div></div>
             )}
-            <br />
-            {/* <br />
-            <Button
-              type="primary"
-              style={{ backgroundColor: "#b7dbdf", color: "#4b4947" }}
-              onClick={handleClick}
-            >
-              確認烹煮計畫
-            </Button> */}
           </div>
           <div>
             <Modal

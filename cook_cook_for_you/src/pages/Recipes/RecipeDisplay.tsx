@@ -165,10 +165,20 @@ const TipsContainer = styled.div`
   font-size: 16px;
 `;
 
+const TipsTitle = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  background-color: #fec740;
+  width: 75px;
+  border-radius: 5px;
+  justify-content: space-around;
+  padding-top: 2px;
+`;
+
 const Tips = styled.mark`
   display: inline-block;
-  line-height: 20px;
-  padding-bottom: 0.5em;
+
   background-color: #fec740;
   margin-bottom: 8px;
   font-size: 18px;
@@ -721,15 +731,16 @@ const RecipeDisplay: React.FC = () => {
                         ))}
 
                         <TipsContainer>
-                          <div>
-                            <PushpinOutlined />
+                          <TipsTitle>
+                            <div>
+                              <PushpinOutlined />
+                            </div>
+
                             <div>
                               <Tips> Tips :</Tips>
                             </div>
-                          </div>
-                          <div></div>
-                          {currentItem.note}
-                          <div></div>
+                          </TipsTitle>
+                          <div>{currentItem.note}</div>
                         </TipsContainer>
                         <div>
                           <LinkContainer>

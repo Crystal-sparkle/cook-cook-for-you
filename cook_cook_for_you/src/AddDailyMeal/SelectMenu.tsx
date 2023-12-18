@@ -46,7 +46,7 @@ const SelectMenu: React.FC = () => {
           key: `${index}`,
           label: doc.data().name,
         }));
-        // console.log("newOptions", newOptions);
+
         setItems(newOptions as MenuItem[]);
       });
 
