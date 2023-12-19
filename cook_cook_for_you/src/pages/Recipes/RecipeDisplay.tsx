@@ -47,11 +47,6 @@ interface FileListObject {
   fileList: any[]; // Adjust the type of fileList according to your needs
 }
 
-// const Wrapper = styled.div`
-//   margin: 10px;
-//   padding: 10px;
-//   border-radius: 20px;
-// `;
 interface RcFile extends File {
   uid: string;
 }
@@ -63,7 +58,7 @@ const waitTime = (time: number = 100) => {
     }, time);
   });
 };
-//styled
+
 const ImageContainer = styled.div`
   position: relative;
 
@@ -196,12 +191,6 @@ const StepsTag = styled.div`
   margin-bottom: 8px;
 `;
 
-// const RefTag = styled.div`
-//   font-size: 18px;
-//   line-height: 20px;
-//   margin-bottom: 8px;
-// `;
-
 const LinkContainer = styled.div`
   max-width: 600px;
   word-wrap: break-word;
@@ -235,13 +224,20 @@ const IngredientsOrder = styled.div`
   width: 20px;
   margin-right: 5px;
 `;
+const LoadingSpinner = styled.img`
+  width: 60%;
+  height: 60%;
+  margin: 0 auto;
+  background-position: center;
+`;
 
 const RecipeDisplay: React.FC = () => {
   const [userRecipe, setUserRecipe] = useState<Recipe[]>([]);
-  //D
+
   const [open, setOpen] = useState(false);
-  // const [placement, setPlacement] = useState<DrawerProps["placement"]>("right");
   const [currentItem, setCurrentItem] = useState<CurrentItem>();
+  const [loading, setLoading] = useState(true);
+
   const showDrawer = (item: CurrentItem) => {
     setOpen(true);
     setCurrentItem(item);
@@ -267,10 +263,11 @@ const RecipeDisplay: React.FC = () => {
           const results: Recipe[] = [];
           querySnapshot.forEach((doc) => {
             const data = doc.data();
-
             results.push(data as Recipe);
           });
+
           setUserRecipe(results);
+          setLoading(false);
         },
         (error) => {
           console.error("取得資料時發生錯誤:", error);
@@ -284,24 +281,18 @@ const RecipeDisplay: React.FC = () => {
   }, []);
 
   console.log(userRecipe);
-  //這是要放編輯的表格互動方式
 
-  //圖片的上傳func
   const [mainPhoto, setMainPhoto] = useState("");
   const handleUpload = async (file: RcFile) => {
     console.log(file);
     try {
-      // const storageRef = ref(storage);
       const imageRef = ref(storage, `images/${file.name + file.uid}.jpg`);
 
-      // 上傳圖片文件
       const snapshot = await uploadBytes(imageRef, file);
 
-      //獲取url
       const downloadURL = await getDownloadURL(snapshot.ref);
       console.log("Image uploaded:", downloadURL);
 
-      // 圖片的 URL 設置到表單中
       setMainPhoto(downloadURL);
     } catch (error) {
       console.error("Error uploading image:", error);
@@ -314,8 +305,6 @@ const RecipeDisplay: React.FC = () => {
     const recipesCollection = collection(db, "recipess");
     await waitTime(2000);
     try {
-      // 將圖片的 URL 添加到表單值
-      // const formValues = form.getFieldsValue();
       const valuesWithImageURL = {
         ...values,
         mainPhoto: mainPhoto,
@@ -324,7 +313,7 @@ const RecipeDisplay: React.FC = () => {
       };
       console.log(valuesWithImageURL);
       const docRef = await addDoc(recipesCollection, valuesWithImageURL);
-      // 將 docRef.id 放入recipess裡
+
       const updatedData = { id: docRef.id };
       await setDoc(doc(recipesCollection, docRef.id), updatedData, {
         merge: true,
@@ -332,7 +321,6 @@ const RecipeDisplay: React.FC = () => {
 
       console.log("Document written successfully!", docRef.id);
 
-      //將狀態清空
       setMainPhoto("");
       message.success("成功新增");
       return true;
@@ -348,11 +336,12 @@ const RecipeDisplay: React.FC = () => {
     }
     return e?.fileList || [];
   };
-  // const [modalVisit, setModalVisit] = useState(false);
-  //這是要放編輯的表格互動方式
 
   return (
     <div>
+      {loading && (
+        <LoadingSpinner src="https://firebasestorage.googleapis.com/v0/b/cook-cook-for-you-test.appspot.com/o/loadingImg.gif?alt=media&token=2a7b0ccb-b90a-4caa-b8cc-ba0fe5f1bdcd" />
+      )}
       <CardContent>
         {userRecipe.length > 0 ? (
           userRecipe?.map((item) => (
@@ -757,7 +746,7 @@ const RecipeDisplay: React.FC = () => {
             </CardWrapper>
           ))
         ) : (
-          <div>建立你的第一份食譜吧</div>
+          <div></div>
         )}
       </CardContent>
     </div>

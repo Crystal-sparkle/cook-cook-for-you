@@ -269,33 +269,17 @@ const AddDailyMeal = ({ user }: AddDailyMealProps) => {
           />
           <div style={{ marginTop: 24 }}>
             {current === 0 && (
-              <Button
-                style={{
-                  backgroundColor: "#FFD345",
-                }}
-                type="primary"
-                onClick={() => next()}
-              >
+              <Button type="primary" onClick={() => next()}>
                 下一步
               </Button>
             )}
             {current === steps.length - 1 && (
-              <Button
-                type="primary"
-                style={{ backgroundColor: "#FFD345" }}
-                onClick={handleProjectClose}
-              >
+              <Button type="primary" onClick={handleProjectClose}>
                 建立新計畫
               </Button>
             )}
             {current > 0 && current === 1 && (
-              <Button
-                type="primary"
-                style={{
-                  backgroundColor: "#FFD345",
-                }}
-                onClick={() => prev()}
-              >
+              <Button type="primary" onClick={() => prev()}>
                 上一步
               </Button>
             )}

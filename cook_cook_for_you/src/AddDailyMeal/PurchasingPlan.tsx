@@ -1,4 +1,4 @@
-import { CarryOutOutlined } from "@ant-design/icons";
+import { CarryOutOutlined, UploadOutlined } from "@ant-design/icons";
 import { ProCard } from "@ant-design/pro-components";
 import { Button, Card, Drawer, Space, message } from "antd";
 import "firebase/database";
@@ -300,7 +300,6 @@ const PurchasingPlan = ({
           <Button
             type="primary"
             style={{
-              // backgroundColor: "#e9c148",
               width: "100%",
               fontSize: "18px",
               height: "40px",
@@ -324,11 +323,16 @@ const PurchasingPlan = ({
             extra={
               <Space>
                 <Button
-                  // style={{ backgroundColor: "#b7dbdf", color: "#4b4947" }}
-                  onClick={onClose}
-                >
-                  Close
-                </Button>
+                onClick={(e)=>{console.log(123)}}
+                  type="text"
+                  icon={<UploadOutlined style={{ fontSize: "24px" }} />}
+                  style={{
+                    marginRight: "5px",
+                    color: "#f7bc0d",
+                  }}
+                ></Button>
+
+                <Button onClick={onClose}>Close</Button>
                 {purchasePlanCollection.length > 0 ? (
                   <Button type="primary" onClick={handleClick}>
                     完成計畫
