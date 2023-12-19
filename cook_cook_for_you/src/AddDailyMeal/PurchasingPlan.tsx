@@ -14,8 +14,9 @@ import {
 } from "firebase/firestore";
 import { useEffect, useState } from "react";
 // import { styled } from "styled-components";
+import { User } from "firebase/auth";
 import styled from "styled-components";
-import { auth, db } from "../firbase";
+import { db } from "../firbase";
 
 interface PurchaseItem {
   isPurchased: boolean;
@@ -64,23 +65,12 @@ const ItemOrder = styled.div`
   font-size: 16px;
   text-align: center;
 `;
-// const ItemCheckBox = styled.div`
-//   width: 60px;
-//   font-size: 16px;
-// `;
 
 const InputCheck = styled.input`
   margin: 0 3px;
   width: 16px;
   height: 16px;
 `;
-// const ItemContainer = styled.div`
-//   margin-top: 10px;
-//   margin-bottom: 10px;
-//   display: "flex";
-//   flex-direction: "row";
-//   align-items: "center";
-// `;
 
 const TitleContainer = styled.div`
   width: 100%;
@@ -97,13 +87,10 @@ const TitleContainer = styled.div`
   font-weight: bold;
 `;
 
-// styled
-const currentUser = auth.currentUser;
-const currentUid: string = currentUser?.uid ?? "";
-
-//
-
-//dummy data
+// const currentUser = auth.currentUser;
+// console.log(auth);
+// console.log(currentUser);
+// const currentUid: string = currentUser?.uid ?? "";
 
 interface CookingPlanData {
   cookingDate: Timestamp;
@@ -123,6 +110,7 @@ interface PurchasePlanProps {
   activeCookingPlan: CookingPlanData | undefined;
   setActiveCookingPlan: (cookingPlanData?: CookingPlanData) => void;
   purchasePlanCollection: PurchasePlan[];
+  user: User | null;
 }
 
 interface CookingPlanItem {
@@ -139,31 +127,33 @@ const PurchasingPlan = ({
   setActiveCookingPlan,
   activeCookingPlan,
   purchasePlanCollection,
+  user,
 }: PurchasePlanProps) => {
-  const [PartnerList, setPartnerList] = useState<PartnerList[]>([]);
+  const [partnerList, setPartnerList] = useState<PartnerList[]>([]);
 
   useEffect(() => {
     const getParnerData = async () => {
       const userCollection = collection(db, "user");
-      const q = query(userCollection, where("uid", "==", currentUid));
+      if (user !== null) {
+        const q = query(userCollection, where("uid", "==", user.uid));
+        const unsubscribe = onSnapshot(q, (querySnapshot) => {
+          querySnapshot.forEach((doc) => {
+            if (doc.exists()) {
+              const data = doc.data();
 
-      const unsubscribe = onSnapshot(q, (querySnapshot) => {
-        querySnapshot.forEach((doc) => {
-          if (doc.exists()) {
-            const data = doc.data();
-
-            if (data.partners) {
-              setPartnerList(data.partners);
+              if (data.partners) {
+                setPartnerList(data.partners);
+              }
             }
-          }
+          });
         });
-      });
-      return () => unsubscribe();
+
+        return () => unsubscribe();
+      }
     };
 
     getParnerData();
-  }, []);
-  console.warn(PartnerList);
+  }, [user]);
 
   const partners = [
     {
@@ -171,11 +161,11 @@ const PurchasingPlan = ({
       key: "1",
     },
     {
-      label: PartnerList[0]?.name,
+      label: partnerList[0]?.name,
       key: "2",
     },
     {
-      label: PartnerList[1]?.name,
+      label: partnerList[1]?.name,
       key: "3",
     },
   ];
@@ -201,16 +191,16 @@ const PurchasingPlan = ({
         if (docData && docData.items && docData.items[itemIndex]) {
           docData.items[itemIndex].isPurchased = isChecked;
 
-          console.log(planIndex, itemIndex, isChecked);
+          // console.log(planIndex, itemIndex, isChecked);
           await updateDoc(docRef, {
             items: docData.items,
           });
 
-          console.log(`成功更改 isPurchased 狀態：${isChecked}`);
+          message.success(`已採購第${itemIndex + 1}項`);
         }
       });
     } catch (error) {
-      console.error("Error writing document: ", error);
+      message.error("存取失敗");
     }
   };
 
@@ -252,11 +242,11 @@ const PurchasingPlan = ({
             items: docData.items,
           });
 
-          console.log(`成功更改採買人員：${value}`);
+          message.success(`成功更改採買人員：${value}`);
         }
       });
     } catch (error) {
-      console.error("Error writing document: ", error);
+      message.error("修改失敗");
     }
   };
 
@@ -266,7 +256,6 @@ const PurchasingPlan = ({
 
   useEffect(() => {
     const purchaseMeals = activeCookingPlan?.cookingItems;
-    console.log("purchaseMeals", purchaseMeals);
 
     if (Array.isArray(purchaseMeals) && purchaseMeals.length > 0) {
       const getRecipesIngredients = async () => {
@@ -312,7 +301,6 @@ const PurchasingPlan = ({
           const newIngredients = results.filter(
             (result) => result !== null
           ) as CookingPlanItem[];
-          console.log("test newIngredients", newIngredients);
 
           setActivePlanIngredients((prevIngredients) => [
             ...prevIngredients,
@@ -326,8 +314,6 @@ const PurchasingPlan = ({
       getRecipesIngredients();
     }
   }, [activeCookingPlan]);
-
-  // console.log("activePlanIngredients", activePlanIngredients);
 
   const [purchaseItems, setPurchaseItems] = useState<
     {
@@ -371,7 +357,7 @@ const PurchasingPlan = ({
       });
       return accumulator;
     }, []);
-    // console.log("purchaseItemsArray", purchaseItemsArray);
+
     setPurchaseItems(purchaseItemsArray);
   }, [activePlanIngredients]);
 
@@ -389,7 +375,6 @@ const PurchasingPlan = ({
             items: purchaseItems,
           });
         });
-        console.log("成功加入items");
       } catch (error) {
         console.error("Error writing document: ", error);
       }
@@ -412,7 +397,6 @@ const PurchasingPlan = ({
             isActive: false,
           });
         });
-        console.log("設為false");
       } catch (error) {
         console.error("Error writing document: ", error);
       }
@@ -430,7 +414,6 @@ const PurchasingPlan = ({
             isActive: false,
           });
         });
-        console.log("設為false");
       } catch (error) {
         console.error("Error writing document: ", error);
       }
@@ -522,7 +505,7 @@ const PurchasingPlan = ({
           </Button>
           <Drawer
             title="購買清單"
-            width={600}
+            width={700}
             onClose={onClose}
             open={open}
             styles={{
@@ -612,7 +595,7 @@ const PurchasingPlan = ({
                               handleSelectChange(value, itemIndex)
                             }
                           >
-                            {partners.map((partner) => (
+                            {partners?.map((partner) => (
                               <Option key={partner.key} value={partner.label}>
                                 {partner.label}
                               </Option>
