@@ -13,6 +13,7 @@ import React, { useEffect, useState } from "react";
 import { Button, message, Steps, theme } from "antd";
 import dayjs from "dayjs";
 import "dayjs/locale/zh-cn";
+import { User } from "firebase/auth";
 import styled from "styled-components";
 import { db } from "../firbase";
 import CookingSchedule from "./CookingSchedule";
@@ -50,6 +51,9 @@ interface PurchaseItem {
   responsible: string;
   unit: string;
 }
+interface AddDailyMealProps {
+  user: User | null;
+}
 // const BannerImg = styled.div`
 //   background-size: cover;
 //   background-image: url(${banner1});
@@ -75,7 +79,7 @@ const MainContent = styled.div`
   border-radius: 5px;
 `;
 
-const AddDailyMeal: React.FC = () => {
+const AddDailyMeal = ({ user }: AddDailyMealProps) => {
   //manage state
   const [cookingPlanId, setCookingPlanId] = useState<string>("");
   const [activeCookingPlan, setActiveCookingPlan] = useState<
@@ -167,6 +171,7 @@ const AddDailyMeal: React.FC = () => {
       title: "食材購買列表",
       content: (
         <PurchasingPlan
+          user={user}
           activeCookingPlan={activeCookingPlan}
           setActiveCookingPlan={setActiveCookingPlan}
           purchasePlanCollection={purchasePlanCollection}
