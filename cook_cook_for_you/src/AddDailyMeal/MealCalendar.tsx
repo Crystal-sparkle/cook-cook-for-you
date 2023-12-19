@@ -109,19 +109,9 @@ const MealCalendar: React.FC = () => {
                 // 份量大於1，減少 serving
 
                 const updatedMealPlan = {
-                  ...mealPlan,
-                  serving: serving - 1,
+                  mealPlan: [{ ...mealPlan, serving: serving - 1 }],
                 };
 
-                // const updatedData = {
-                //   mealPlan: [
-                //     {
-                //       serving: serving - 1,
-                //     },
-                //   ],
-                // };
-
-                // await setDoc(docRef, updatedData, { merge: true });
                 await setDoc(docRef, updatedMealPlan, { merge: true });
                 console.log("減一");
               } else {
