@@ -13,6 +13,7 @@ import Login from "./components/Login.tsx";
 import { auth } from "./firbase";
 import Profile from "./pages/Profile/index.tsx";
 import Recipes from "./pages/Recipes/index.tsx";
+import Shopping from "./pages/Shopping";
 
 const GlobalStyle = createGlobalStyle`
   * {
@@ -128,6 +129,10 @@ const App: React.FC = () => {
           <Route
             path="/login"
             element={user ? <Navigate to="/dailymealplan" /> : <Login />}
+          />
+          <Route
+            path="/shopping/:userId/:purchasePlanId"
+            element={<Shopping />}
           />
         </Routes>
       </ConfigProvider>

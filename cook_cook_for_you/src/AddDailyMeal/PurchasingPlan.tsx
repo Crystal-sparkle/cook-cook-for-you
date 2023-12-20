@@ -1,4 +1,4 @@
-import { CarryOutOutlined, UploadOutlined } from "@ant-design/icons";
+import { CarryOutOutlined, ExportOutlined } from "@ant-design/icons";
 import { ProCard } from "@ant-design/pro-components";
 import { Button, Card, Drawer, Space, message } from "antd";
 import "firebase/database";
@@ -6,16 +6,17 @@ import {
   Timestamp,
   collection,
   getDocs,
+  onSnapshot,
   query,
   updateDoc,
   where,
 } from "firebase/firestore";
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 // import { styled } from "styled-components";
 import { User } from "firebase/auth";
 import { db } from "../firbase";
 import ShoppingList, { PurchasePlan } from "./ShoppingList";
-
 // const currentUser = auth.currentUser;
 // console.log(auth);
 // console.log(currentUser);
@@ -234,7 +235,6 @@ const PurchasingPlan = ({
   };
 
   const [open, setOpen] = useState(false);
-
   const showDrawer = () => {
     setOpen(true);
   };
@@ -242,6 +242,36 @@ const PurchasingPlan = ({
   const onClose = () => {
     setOpen(false);
   };
+  const [planId, setPlanId] = useState<string>("");
+
+  useEffect(() => {
+    const getPurchasePlanId = async () => {
+      const purchaseCollection = collection(db, "purchasePlan");
+      const queryRef = query(purchaseCollection, where("isActive", "==", true));
+
+      const unsubscribe = onSnapshot(
+        queryRef,
+        (querySnapshot) => {
+          const results: PurchasePlan[] = [];
+          querySnapshot.forEach((doc) => {
+            const data = doc.data();
+
+            results.push(data as PurchasePlan);
+          });
+          const purchasePlanId = results[0].planId;
+
+          setPlanId(purchasePlanId);
+        },
+        (error) => {
+          console.error("取得資料時發生錯誤:", error);
+        }
+      );
+
+      return () => unsubscribe();
+    };
+    getPurchasePlanId();
+  }, []);
+
   const dateForCooking = activeCookingPlan?.cookingDate
     ?.toDate()
     .toLocaleDateString("zh-TW");
@@ -322,15 +352,16 @@ const PurchasingPlan = ({
             }}
             extra={
               <Space>
-                <Button
-                onClick={(e)=>{console.log(123)}}
-                  type="text"
-                  icon={<UploadOutlined style={{ fontSize: "24px" }} />}
-                  style={{
-                    marginRight: "5px",
-                    color: "#f7bc0d",
-                  }}
-                ></Button>
+                <Link to={`/shopping/${user?.uid}/${planId}`} target="_blank">
+                  <Button
+                    type="text"
+                    icon={<ExportOutlined style={{ fontSize: "24px" }} />}
+                    style={{
+                      marginRight: "5px",
+                      color: "#f7bc0d",
+                    }}
+                  ></Button>
+                </Link>
 
                 <Button onClick={onClose}>Close</Button>
                 {purchasePlanCollection.length > 0 ? (

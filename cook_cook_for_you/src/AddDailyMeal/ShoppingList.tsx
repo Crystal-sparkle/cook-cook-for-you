@@ -32,6 +32,7 @@ export interface PurchasePlan {
   mealsStartDate: Timestamp;
   test: string;
   userId: string;
+  planId: string;
 }
 
 const Header = styled.div`
@@ -159,7 +160,6 @@ const ShoppingList: FC<ShoppingListProps> = ({ purchasePlan, user, index }) => {
             items: docData.items,
           });
 
-          message.success(`已採購第${itemIndex + 1}項`);
           console.log(planIndex);
         }
       });

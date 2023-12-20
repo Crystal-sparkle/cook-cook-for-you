@@ -43,6 +43,7 @@ interface PurchasePlan {
   mealsStartDate: Timestamp;
   test: string;
   userId: string;
+  planId: string;
 }
 interface PurchaseItem {
   isPurchased: boolean;
