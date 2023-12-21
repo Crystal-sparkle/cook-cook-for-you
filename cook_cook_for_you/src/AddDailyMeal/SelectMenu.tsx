@@ -15,12 +15,7 @@ import {
 } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 import { db } from "../firbase";
-
-interface MenuItem {
-  label: string;
-  key: string;
-}
-[];
+import { MenuItem } from "../types";
 
 // ///
 const quantities: MenuProps["items"] = [
@@ -32,8 +27,6 @@ const quantities: MenuProps["items"] = [
 ];
 
 const SelectMenu: React.FC = () => {
-  ////
-
   const [items, setItems] = useState<MenuItem[]>();
 
   useEffect(() => {

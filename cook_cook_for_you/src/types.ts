@@ -153,3 +153,10 @@ export interface CookingPlanData {
   planId: string;
   userId: string;
 }
+
+//
+export interface MenuItem {
+  label: string;
+  key: string;
+}
+[];
