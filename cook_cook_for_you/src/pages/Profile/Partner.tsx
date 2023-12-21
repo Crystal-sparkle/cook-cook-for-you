@@ -9,7 +9,7 @@ import {
 } from "firebase/firestore";
 import React, { useState } from "react";
 import { auth, db } from "../../firbase";
-import { Partner } from "../../types";
+import { PartnerType } from "../../types";
 
 type SizeType = Parameters<typeof Form>[0]["size"];
 
@@ -25,7 +25,7 @@ const Partner: React.FC = () => {
   const currentUser = auth.currentUser;
   const currentUid: string = currentUser?.uid ?? "";
 
-  const handleParnerValue = async (values: Partner) => {
+  const handleParnerValue = async (values: PartnerType) => {
     if (!currentUid) {
       console.error("No current user UID found");
       return false;

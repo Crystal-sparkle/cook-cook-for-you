@@ -189,7 +189,7 @@ export interface PartnerList {
   email: string | null;
 }
 
-export interface Partner {
+export interface PartnerType {
   partner1Name: string | null;
   partner1Email: string | null;
   partner2Name: string | null;

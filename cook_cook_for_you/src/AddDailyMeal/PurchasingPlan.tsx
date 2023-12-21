@@ -14,8 +14,8 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 import { db } from "../firbase";
-import { CookingPlanItem, PurchasePlanProps } from "../types";
-import ShoppingList, { PurchasePlan } from "./ShoppingList";
+import { CookingPlanItem, PurchasePlan, PurchasePlanProps } from "../types";
+import ShoppingList from "./ShoppingList";
 
 const PurchasingPlan = ({
   setActiveCookingPlan,

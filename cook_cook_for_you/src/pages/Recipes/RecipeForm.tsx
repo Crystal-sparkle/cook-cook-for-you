@@ -21,29 +21,8 @@ import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import React from "react";
 import styled from "styled-components";
 import { db, storage } from "../../firbase";
+import { Recipe } from "../../types";
 dayjs.locale("zh-cn");
-
-interface Recipe {
-  recipeId: string;
-  time: Timestamp;
-  category: string;
-  cookingTime: number;
-  description: string;
-  name: string;
-  note: string;
-
-  ingredients: {
-    quantity: number;
-    name: string;
-    unit: string;
-  }[];
-  steps: {
-    stepDescription: string;
-    stepPhoto: string;
-  }[];
-  mainPhoto: string;
-  userId: string;
-}
 
 const StyledButton = styled(Button)`
   background: rgba(252, 208, 57, 0.7);
