@@ -9,10 +9,11 @@ import {
 } from "firebase/firestore";
 import React, { useState } from "react";
 import { auth, db } from "../../firbase";
+import { Partner } from "../../types";
 
 type SizeType = Parameters<typeof Form>[0]["size"];
 
-const Parner: React.FC = () => {
+const Partner: React.FC = () => {
   const [componentSize, setComponentSize] = useState<SizeType | "default">(
     "default"
   );
@@ -20,12 +21,6 @@ const Parner: React.FC = () => {
   const onFormLayoutChange = ({ size }: { size: SizeType }) => {
     setComponentSize(size);
   };
-  interface Partner {
-    partner1Name: string | null;
-    partner1Email: string | null;
-    partner2Name: string | null;
-    partner2Email: string | null;
-  }
 
   const currentUser = auth.currentUser;
   const currentUid: string = currentUser?.uid ?? "";
@@ -130,4 +125,4 @@ const Parner: React.FC = () => {
     </>
   );
 };
-export default Parner;
+export default Partner;

@@ -188,3 +188,10 @@ export interface PartnerList {
   name: string | null;
   email: string | null;
 }
+
+export interface Partner {
+  partner1Name: string | null;
+  partner1Email: string | null;
+  partner2Name: string | null;
+  partner2Email: string | null;
+}

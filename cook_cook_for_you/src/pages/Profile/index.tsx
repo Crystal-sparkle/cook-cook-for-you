@@ -1,11 +1,11 @@
 import "firebase/firestore";
-import Parner from "./Parner";
+import Partner from "./Partner";
 // import styled from "styled-components";
 
 function Profile() {
   return (
     <>
-      <Parner />
+      <Partner />
     </>
   );
 }
