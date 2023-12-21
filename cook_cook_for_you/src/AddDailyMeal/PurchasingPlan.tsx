@@ -3,7 +3,6 @@ import { ProCard } from "@ant-design/pro-components";
 import { Button, Card, Drawer, Space, message } from "antd";
 import "firebase/database";
 import {
-  Timestamp,
   collection,
   getDocs,
   onSnapshot,
@@ -13,45 +12,10 @@ import {
 } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-// import { styled } from "styled-components";
-import { User } from "firebase/auth";
+
 import { db } from "../firbase";
+import { CookingPlanItem, PurchasePlanProps } from "../types";
 import ShoppingList, { PurchasePlan } from "./ShoppingList";
-// const currentUser = auth.currentUser;
-// console.log(auth);
-// console.log(currentUser);
-// const currentUid: string = currentUser?.uid ?? "";
-
-interface CookingPlanData {
-  cookingDate: Timestamp;
-  cookingItems: {
-    id: string;
-    name: string;
-    serving: number;
-    unit: string;
-  }[];
-  isActive: boolean;
-  mealsStartDate: Timestamp;
-  mealsEndDate: Timestamp;
-  planId: string;
-  userId: string;
-}
-interface PurchasePlanProps {
-  activeCookingPlan: CookingPlanData | undefined;
-  setActiveCookingPlan: (cookingPlanData?: CookingPlanData) => void;
-  purchasePlanCollection: PurchasePlan[];
-  user: User | null;
-}
-
-interface CookingPlanItem {
-  ingredients: {
-    name: string;
-    quantity: number;
-    unit: string;
-  }[];
-  recipeId: string;
-  serving: number;
-}
 
 const PurchasingPlan = ({
   setActiveCookingPlan,

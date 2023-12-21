@@ -121,3 +121,35 @@ export interface DailyMealPlan {
   userId: string;
   mealId: string;
 }
+//PurchasingPlan
+export interface PurchasePlanProps {
+  activeCookingPlan: CookingPlanData | undefined;
+  setActiveCookingPlan: (cookingPlanData?: CookingPlanData) => void;
+  purchasePlanCollection: PurchasePlan[];
+  user: User | null;
+}
+
+export interface CookingPlanItem {
+  ingredients: {
+    name: string;
+    quantity: number;
+    unit: string;
+  }[];
+  recipeId: string;
+  serving: number;
+}
+
+export interface CookingPlanData {
+  cookingDate: Timestamp;
+  cookingItems: {
+    id: string;
+    name: string;
+    serving: number;
+    unit: string;
+  }[];
+  isActive: boolean;
+  mealsStartDate: Timestamp;
+  mealsEndDate: Timestamp;
+  planId: string;
+  userId: string;
+}
