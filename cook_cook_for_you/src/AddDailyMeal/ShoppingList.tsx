@@ -1,8 +1,6 @@
 import { Select, message } from "antd";
-import { User } from "firebase/auth";
 import "firebase/database";
 import {
-  Timestamp,
   collection,
   getDoc,
   getDocs,
@@ -14,26 +12,8 @@ import {
 import { FC, useEffect, useState } from "react";
 import styled from "styled-components";
 import { db } from "../firbase";
-
+import { PartnerList, ShoppingListProps } from "../types";
 const { Option } = Select;
-
-export interface PurchaseItem {
-  isPurchased: boolean;
-  name: string;
-  quantity: number;
-  responsible: string;
-  unit: string;
-}
-
-export interface PurchasePlan {
-  cookingDate: Timestamp;
-  items: PurchaseItem[] | [];
-  mealsEndDate: Timestamp;
-  mealsStartDate: Timestamp;
-  test: string;
-  userId: string;
-  planId: string;
-}
 
 const Header = styled.div`
   display: flex;
@@ -79,17 +59,6 @@ const InputCheck = styled.input`
   width: 16px;
   height: 16px;
 `;
-
-interface PartnerList {
-  name: string | null;
-  email: string | null;
-}
-
-interface ShoppingListProps {
-  purchasePlan: PurchasePlan;
-  user: User | null;
-  index: number;
-}
 
 const ShoppingList: FC<ShoppingListProps> = ({ purchasePlan, user, index }) => {
   const [partnerList, setPartnerList] = useState<PartnerList[]>([]);

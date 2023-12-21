@@ -102,7 +102,7 @@ export interface PurchasePlan {
   planId: string;
 }
 
-interface PurchaseItem {
+export interface PurchaseItem {
   isPurchased: boolean;
   name: string;
   quantity: number;
@@ -160,3 +160,31 @@ export interface MenuItem {
   key: string;
 }
 [];
+//
+export interface PurchaseItem {
+  isPurchased: boolean;
+  name: string;
+  quantity: number;
+  responsible: string;
+  unit: string;
+}
+
+export interface PurchasePlan {
+  cookingDate: Timestamp;
+  items: PurchaseItem[] | [];
+  mealsEndDate: Timestamp;
+  mealsStartDate: Timestamp;
+  test: string;
+  userId: string;
+  planId: string;
+}
+
+export interface ShoppingListProps {
+  purchasePlan: PurchasePlan;
+  user: User | null;
+  index: number;
+}
+export interface PartnerList {
+  name: string | null;
+  email: string | null;
+}
