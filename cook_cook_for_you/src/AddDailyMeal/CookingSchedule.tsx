@@ -15,40 +15,8 @@ import {
 import { useEffect, useState } from "react";
 import styled from "styled-components";
 import { db } from "../firbase";
-interface MealPlan {
-  mealPlan: {
-    name: string;
-    serving: number;
-    unit: string;
-  }[];
-  planDate: Timestamp;
-  userId: string;
-}
-interface Accumulator {
-  [key: string]: { name: string; serving: number; unit: string };
-}
+import { Accumulator, CookingScheduleProps, MealPlan } from "../types";
 
-interface CookingPlanData {
-  cookingDate: Timestamp;
-  cookingItems: {
-    id: string;
-    name: string;
-    serving: number;
-    unit: string;
-  }[];
-  isActive: boolean;
-  mealsStartDate: Timestamp;
-  mealsEndDate: Timestamp;
-  planId: string;
-  userId: string;
-}
-
-interface CookingScheduleProps {
-  setCookingPlanId: (id: string) => void;
-  cookingPlanId: string;
-  activeCookingPlan?: CookingPlanData | undefined;
-  setActiveCookingPlan: (cookingPlanData: CookingPlanData) => void;
-}
 const { Meta } = Card;
 
 const { RangePicker } = DatePicker;
