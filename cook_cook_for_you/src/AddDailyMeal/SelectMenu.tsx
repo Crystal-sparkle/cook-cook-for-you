@@ -76,7 +76,7 @@ const SelectMenu: React.FC = () => {
   const handleSelectItem = ({ key }: { key: string }) => {
     const selectedItem = items?.find((item) => item?.key === key);
     if (selectedItem) {
-      message.info(`You selected : ${selectedItem.label}`);
+      message.info(`已選取 : ${selectedItem.label}`);
       setNewMealPlan(selectedItem.label);
     }
   };
@@ -148,7 +148,7 @@ const SelectMenu: React.FC = () => {
           }}
         >
           <PlusOutlined />
-          每日餐點
+          菜單規劃
         </Button>
       </Space>
       <ModalForm

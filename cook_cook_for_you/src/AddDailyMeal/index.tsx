@@ -169,7 +169,7 @@ const AddDailyMeal = ({ user }: AddDailyMealProps) => {
       ),
     },
     {
-      title: "食材購買列表",
+      title: "確認食材列表",
       content: (
         <PurchasingPlan
           user={user}
