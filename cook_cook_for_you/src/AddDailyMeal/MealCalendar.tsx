@@ -17,26 +17,9 @@ import {
   where,
 } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
-// import styled from "styled-components";
-
 import { db } from "../firbase";
+import { DailyMealPlan } from "../types";
 dayjs.locale("zh-cn");
-interface DailyMealPlan {
-  mealPlan: {
-    name: string;
-    serving: number;
-    unit: string;
-  }[];
-  planDate: Timestamp;
-  userId: string;
-  mealId: string;
-}
-
-// const Wrapper = styled.div`
-//   margin: 40px;
-//   padding: 20px;
-//   border-radius: 20px;
-// `;
 
 const MealCalendar: React.FC = () => {
   const [thisMonthMealPlans, setThisMonthMealPlans] = useState<DailyMealPlan[]>(

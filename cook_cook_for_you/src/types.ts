@@ -1,3 +1,4 @@
+import { User } from "firebase/auth";
 import { Timestamp } from "firebase/firestore";
 export interface Recipe {
   category: string;
@@ -46,4 +47,77 @@ interface Ingredient {
 interface Step {
   stepDescription: string;
   stepPhoto: string;
+}
+
+//CookingSchedule
+
+export interface CookingScheduleProps {
+  setCookingPlanId: (id: string) => void;
+  cookingPlanId: string;
+  activeCookingPlan?: CookingPlanData | undefined;
+  setActiveCookingPlan: (cookingPlanData: CookingPlanData) => void;
+}
+
+export interface MealPlan {
+  mealPlan: {
+    name: string;
+    serving: number;
+    unit: string;
+  }[];
+  planDate: Timestamp;
+  userId: string;
+}
+
+export interface Accumulator {
+  [key: string]: { name: string; serving: number; unit: string };
+}
+
+export interface CookingPlanData {
+  cookingDate: Timestamp;
+  cookingItems: {
+    id: string;
+    name: string;
+    serving: number;
+    unit: string;
+  }[];
+  isActive: boolean;
+  mealsStartDate: Timestamp;
+  mealsEndDate: Timestamp;
+  planId: string;
+  userId: string;
+}
+
+//AddDailyMeal
+export interface AddDailyMealProps {
+  user: User | null;
+}
+
+export interface PurchasePlan {
+  cookingDate: Timestamp;
+  items: PurchaseItem[] | [];
+  mealsEndDate: Timestamp;
+  mealsStartDate: Timestamp;
+  test: string;
+  userId: string;
+  planId: string;
+}
+
+interface PurchaseItem {
+  isPurchased: boolean;
+  name: string;
+  quantity: number;
+  responsible: string;
+  unit: string;
+}
+
+//MealCalendar
+export interface DailyMealPlan {
+  mealPlan: {
+    name: string;
+    serving: number;
+    unit: string;
+  }[];
+  planDate: Timestamp;
+  userId: string;
+  mealId: string;
 }
