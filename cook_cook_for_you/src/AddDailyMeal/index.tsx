@@ -4,7 +4,6 @@ import {
   getDocs,
   onSnapshot,
   query,
-  Timestamp,
   updateDoc,
   where,
 } from "firebase/firestore";
@@ -13,57 +12,16 @@ import React, { useEffect, useState } from "react";
 import { Button, message, Steps, theme } from "antd";
 import dayjs from "dayjs";
 import "dayjs/locale/zh-cn";
-import { User } from "firebase/auth";
+
 import styled from "styled-components";
 import { db } from "../firbase";
+import { AddDailyMealProps, CookingPlanData, PurchasePlan } from "../types";
 import CookingSchedule from "./CookingSchedule";
 import MealCalendar from "./MealCalendar";
 import PurchasingPlan from "./PurchasingPlan";
 import SelectMenu from "./SelectMenu";
 
 dayjs.locale("zh-cn");
-interface CookingPlanData {
-  cookingDate: Timestamp;
-  cookingItems: {
-    id: string;
-    name: string;
-    serving: number;
-    unit: string;
-  }[];
-  isActive: boolean;
-  mealsStartDate: Timestamp;
-  mealsEndDate: Timestamp;
-  planId: string;
-  userId: string;
-}
-interface PurchasePlan {
-  cookingDate: Timestamp;
-  items: PurchaseItem[] | [];
-  mealsEndDate: Timestamp;
-  mealsStartDate: Timestamp;
-  test: string;
-  userId: string;
-  planId: string;
-}
-interface PurchaseItem {
-  isPurchased: boolean;
-  name: string;
-  quantity: number;
-  responsible: string;
-  unit: string;
-}
-interface AddDailyMealProps {
-  user: User | null;
-}
-// const BannerImg = styled.div`
-//   background-size: cover;
-//   background-image: url(${banner1});
-//   width: 100%;
-//   height: 180px;
-//   object-fit: cover;
-//   margin-bottom: 10px;
-//   object-position: calc(50% + 50px) calc(50% - 90px);
-// `;
 
 const Image = styled.img`
   width: 100%;
