@@ -6,11 +6,10 @@ import "firebase/database";
 import React, { useEffect, useState } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { createGlobalStyle } from "styled-components";
-import AddDailyMeal from "./AddDailyMeal/index.tsx";
-import Test from "./Test.tsx";
 import Header from "./components/Header";
-import Login from "./components/Login.tsx";
 import { auth } from "./firbase";
+import AddDailyMeal from "./pages/AddDailyMeal/index.tsx";
+import Login from "./pages/Login.tsx";
 import Profile from "./pages/Profile/index.tsx";
 import Recipes from "./pages/Recipes/index.tsx";
 import Shopping from "./pages/Shopping";
@@ -92,7 +91,6 @@ const App: React.FC = () => {
               <Route path="/" element={<AddDailyMeal user={user} />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/recipes" element={<Recipes />} />
-              <Route path="/test" element={<Test />} />
             </>
           ) : (
             <Route path="*" element={<Login />} />

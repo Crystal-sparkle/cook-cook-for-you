@@ -14,8 +14,8 @@ import dayjs from "dayjs";
 import "dayjs/locale/zh-cn";
 
 import styled from "styled-components";
-import { db } from "../firbase";
-import { AddDailyMealProps, CookingPlanData, PurchasePlan } from "../types";
+import { db } from "../../firbase";
+import { AddDailyMealProps, CookingPlanData, PurchasePlan } from "../../types";
 import CookingSchedule from "./CookingSchedule";
 import MealCalendar from "./MealCalendar";
 import PurchasingPlan from "./PurchasingPlan";

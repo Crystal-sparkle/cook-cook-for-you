@@ -13,8 +13,8 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 import styled from "styled-components";
-import { db } from "../firbase";
-import { CookingPlanItem, PurchasePlan, PurchasePlanProps } from "../types";
+import { db } from "../../firbase";
+import { CookingPlanItem, PurchasePlan, PurchasePlanProps } from "../../types";
 import ShoppingList from "./ShoppingList";
 
 const Wrapper = styled.div`

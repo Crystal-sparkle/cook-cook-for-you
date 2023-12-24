@@ -14,8 +14,8 @@ import {
 } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import styled from "styled-components";
-import { db } from "../firbase";
-import { Accumulator, CookingScheduleProps, MealPlan } from "../types";
+import { db } from "../../firbase";
+import { Accumulator, CookingScheduleProps, MealPlan } from "../../types";
 type RangeValue = [Dayjs | null, Dayjs | null] | null;
 const { Meta } = Card;
 const { RangePicker } = DatePicker;

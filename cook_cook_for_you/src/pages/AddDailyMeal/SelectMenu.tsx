@@ -14,8 +14,8 @@ import {
   where,
 } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
-import { db } from "../firbase";
-import { MenuItem } from "../types";
+import { db } from "../../firbase";
+import { MenuItem } from "../../types";
 
 // ///
 const quantities: MenuProps["items"] = [

@@ -11,8 +11,8 @@ import {
 } from "firebase/firestore";
 import { FC, useEffect, useState } from "react";
 import styled from "styled-components";
-import { db } from "../firbase";
-import { PartnerList, ShoppingListProps } from "../types";
+import { db } from "../../firbase";
+import { PartnerList, ShoppingListProps } from "../../types";
 const { Option } = Select;
 
 const Header = styled.div`

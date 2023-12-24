@@ -17,8 +17,8 @@ import {
   where,
 } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
-import { db } from "../firbase";
-import { DailyMealPlan } from "../types";
+import { db } from "../../firbase";
+import { DailyMealPlan } from "../../types";
 dayjs.locale("zh-cn");
 
 const MealCalendar: React.FC = () => {
