@@ -64,7 +64,7 @@ const ShoppingList: FC<ShoppingListProps> = ({ purchasePlan, user, index }) => {
   const [partnerList, setPartnerList] = useState<PartnerList[]>([]);
 
   useEffect(() => {
-    const getParnerData = async () => {
+    const getPartnerData = async () => {
       const userCollection = collection(db, "user");
       if (user !== null) {
         const q = query(userCollection, where("uid", "==", user.uid));
@@ -84,7 +84,7 @@ const ShoppingList: FC<ShoppingListProps> = ({ purchasePlan, user, index }) => {
       }
     };
 
-    getParnerData();
+    getPartnerData();
   }, [user]);
 
   const partners = [

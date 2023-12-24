@@ -46,11 +46,6 @@ body, .ant {
   }
 `;
 
-// interface UserInformation {
-//   email: string | null;
-//   uid: string | null;
-// }
-
 const App: React.FC = () => {
   const [user, setUser] = useState(() => {
     return auth.currentUser;
@@ -61,7 +56,6 @@ const App: React.FC = () => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
         setUser(user);
-
         console.log("使用者已登入:", user);
         console.log("user", user);
       } else {
@@ -69,7 +63,7 @@ const App: React.FC = () => {
         setUser(null);
       }
     });
-    // 清理操作
+
     return () => unsubscribe();
   }, []);
 
@@ -87,45 +81,23 @@ const App: React.FC = () => {
             colorPrimary: "#f7bc0d",
           },
         }}
-
-        // theme={{
-        //   components: {
-        //     Button: {
-        //       colorPrimary: "#9EC777",
-        //       colorBgBlur: "#fff",
-
-        //       algorithm: true,
-        //     },
-        // token: {
-        //   colorPrimary: "#ffbf00",
-        // },
-        //     Input: {
-        //       colorPrimary: "#9ec777",
-        //       colorBgBlur: "#fff",
-        //       algorithm: true,
-        //     },
-        //   },
-        // }}
       >
         <GlobalStyle />
         <Header />
         <Routes>
-          <Route path="/" element={<AddDailyMeal user={user} />} />
-          <Route path="/">
-            {user ? (
-              <>
-                <Route
-                  path="/dailymealplan"
-                  element={<AddDailyMeal user={user} />}
-                />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/recipes" element={<Recipes />} />
-                <Route path="/test" element={<Test />} />
-              </>
-            ) : (
-              <Route path="*" element={<Login />} />
-            )}
-          </Route>
+          {/* <Route path="/" element={<AddDailyMeal user={user} />} /> */}
+          {/* <Route path="/"> */}
+          {user ? (
+            <>
+              <Route path="/" element={<AddDailyMeal user={user} />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/recipes" element={<Recipes />} />
+              <Route path="/test" element={<Test />} />
+            </>
+          ) : (
+            <Route path="*" element={<Login />} />
+          )}
+          {/* </Route> */}
           <Route
             path="/login"
             element={user ? <Navigate to="/dailymealplan" /> : <Login />}

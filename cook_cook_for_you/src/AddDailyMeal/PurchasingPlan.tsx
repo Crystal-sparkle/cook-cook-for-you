@@ -1,7 +1,6 @@
 import { CarryOutOutlined, ExportOutlined } from "@ant-design/icons";
 import { ProCard } from "@ant-design/pro-components";
 import { Button, Card, Drawer, Space, message } from "antd";
-import "firebase/database";
 import {
   collection,
   getDocs,
@@ -13,9 +12,31 @@ import {
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
+import styled from "styled-components";
 import { db } from "../firbase";
 import { CookingPlanItem, PurchasePlan, PurchasePlanProps } from "../types";
 import ShoppingList from "./ShoppingList";
+
+const Wrapper = styled.div`
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0 auto;
+  justify-content: space-around;
+`;
+
+const CookingDate = styled.div`
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 12px;
+`;
+const ShowServing = styled.div`
+  display: flex;
+  flex-direction: row;
+  margin-bottom: 5px;
+  font-size: 16px;
+`;
 
 const PurchasingPlan = ({
   setActiveCookingPlan,
@@ -245,47 +266,22 @@ const PurchasingPlan = ({
   }
 
   return (
-    <div
-      style={{
-        width: " 100%",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        margin: "0, auto",
-        justifyContent: "space-around",
-      }}
-    >
+    <Wrapper>
       <Card>
         <div>
           <ProCard>
             <div>
-              <div
-                style={{
-                  fontSize: "18px",
-                  fontWeight: "bold",
-                  marginBottom: "12px",
-                }}
-              >
-                烹煮日期：{dateForCooking}
-              </div>
+              <CookingDate>烹煮日期：{dateForCooking}</CookingDate>
 
               {activeCookingPlan?.cookingItems.map((plan, index) => (
-                <div
-                  key={index}
-                  style={{
-                    display: "flex",
-                    flexDirection: "row",
-                    marginBottom: "5px",
-                    fontSize: "16px",
-                  }}
-                >
-                  <div style={{ marginRight: "4px" }}>
+                <ShowServing key={index}>
+                  <div>
                     {index + 1}. {plan.name}
                   </div>
                   <div>
                     {plan.serving} {plan.unit}
                   </div>
-                </div>
+                </ShowServing>
               ))}
             </div>
           </ProCard>
@@ -354,7 +350,7 @@ const PurchasingPlan = ({
           </Drawer>
         </div>
       </Card>
-    </div>
+    </Wrapper>
   );
 };
 

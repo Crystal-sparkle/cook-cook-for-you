@@ -1,5 +1,5 @@
 import type { DatePickerProps } from "antd";
-import { Button, Card, DatePicker, Modal, Space } from "antd";
+import { Button, Card, DatePicker, Modal, Space, message } from "antd";
 import type { Dayjs } from "dayjs";
 import dayjs from "dayjs";
 import {
@@ -16,14 +16,11 @@ import { useEffect, useState } from "react";
 import styled from "styled-components";
 import { db } from "../firbase";
 import { Accumulator, CookingScheduleProps, MealPlan } from "../types";
-
+type RangeValue = [Dayjs | null, Dayjs | null] | null;
 const { Meta } = Card;
-
 const { RangePicker } = DatePicker;
-const Wrapper = styled.div`
-  /* margin: 0 10px;
-  padding: 10px 20px; */
 
+const Wrapper = styled.div`
   border: 2px;
   border-radius: 10px;
   display: flex;
@@ -33,13 +30,29 @@ const Wrapper = styled.div`
   justify-content: space-between;
 `;
 
-type RangeValue = [Dayjs | null, Dayjs | null] | null;
+const TotalServingTitle = styled.div`
+  font-size: 14px;
+  margin-top: 5px;
+`;
+
+const ServingList = styled.div`
+  display: flex;
+  flex-direction: column;
+  margin: 5px auto;
+  font-size: 16px;
+  text-align: center;
+`;
+
+const ServingItem = styled.div`
+  display: flex;
+  margin-top: 6px;
+  margin-right: 5px;
+`;
 
 function CookingSchedule({
   setCookingPlanId,
   cookingPlanId,
 }: CookingScheduleProps) {
-  //選日期
   const [cookingDate, setCookingDate] = useState<Date | undefined>();
   const pickCookingDate: DatePickerProps["onChange"] = (date) => {
     if (date !== null) {
@@ -47,7 +60,7 @@ function CookingSchedule({
       setCookingDate(pickDate);
     }
   };
-  //烹煮區間
+
   const [dates, setDates] = useState<RangeValue>(null);
   const [value, setValue] = useState<RangeValue>(null);
 
@@ -59,7 +72,7 @@ function CookingSchedule({
     const tooEarly = dates[1] && dates[1].diff(current, "days") >= 12;
     return !!tooEarly || !!tooLate;
   };
-  //烹煮區間
+
   const onOpenChange = (open: boolean) => {
     if (open) {
       setDates([null, null]);
@@ -151,7 +164,6 @@ function CookingSchedule({
     };
     try {
       const docRef = await addDoc(CookingPlanCollection, newPlan);
-      console.log("Document added with ID: ", docRef.id);
 
       const updatedData = { planId: docRef.id };
       await setDoc(doc(CookingPlanCollection, docRef.id), updatedData, {
@@ -159,7 +171,7 @@ function CookingSchedule({
       });
       setCookingPlanId(docRef.id);
     } catch (error) {
-      console.error("Error writing document: ", error);
+      message.error("烹煮計畫新增失敗");
     }
   }
 
@@ -197,17 +209,12 @@ function CookingSchedule({
 
   const combinedServingArray = Object.values(combinedSearvings);
 
-  const handleClick = () => {
-    handleConfirm();
-  };
-
   const [visible, setVisible] = useState(false);
-
-  const handleConfirm = () => {
+  const handleClick = () => {
     setVisible(true);
   };
 
-  const handleOk = async () => {
+  const createPurchsingList = async () => {
     addCookingPlan();
     setVisible(false);
   };
@@ -249,49 +256,30 @@ function CookingSchedule({
             <>
               <Meta title="" description="" style={{ marginTop: 6 }} />
 
-              <div style={{ fontSize: "14px", marginTop: "5px" }}>
+              <TotalServingTitle>
                 {combinedServingArray.length > 0 ? (
                   <div>
-                    {" "}
                     <h4>烹煮份量：</h4>(總共{combinedServingArray.length}道)
                   </div>
                 ) : (
                   <div></div>
                 )}
-              </div>
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  margin: "5px ,auto",
-                  fontSize: "16px",
-                  textAlign: "center",
-                }}
-              >
+              </TotalServingTitle>
+              <ServingList>
                 {combinedServingArray?.map((meal, index) => (
-                  <div
-                    key={index}
-                    style={{
-                      display: "flex",
-                      marginTop: "6px ",
-                      fontSize: "16px",
-                      textAlign: "center",
-                      marginRight: "5px",
-                    }}
-                  >
+                  <ServingItem key={index}>
                     <div>{index + 1}.</div>
                     <div>{meal.name}</div>
                     <div>
                       {meal.serving}
                       {meal.unit}
                     </div>
-                  </div>
+                  </ServingItem>
                 ))}
-              </div>
+              </ServingList>
             </>
             {combinedServingArray.length > 0 ? (
               <div>
-                {" "}
                 <br />
                 <Button
                   type="primary"
@@ -307,79 +295,16 @@ function CookingSchedule({
           </div>
           <div>
             <Modal
-              title="已新增烹煮行程"
               open={visible}
-              onOk={handleOk}
+              onOk={createPurchsingList}
               onCancel={handleCancel}
             >
-              <p>要建立採購清單嗎？</p>
+              <h2>要建立採購清單嗎？</h2>
             </Modal>
           </div>
         </Card>
       </div>
-
-      {/* <div>
-        <Card
-          style={{ width: 250, height: 300, marginTop: 16, marginBottom: 10 }}
-        >
-          <Meta title="烹煮份量" description="" />
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              margin: "5px ,auto",
-              fontSize: "16px",
-              textAlign: "center",
-            }}
-          >
-            <div style={{ fontSize: "14px", marginTop: "5px" }}>
-              (總共{combinedServingArray.length}道)
-            </div>
-            {combinedServingArray?.map((meal, index) => (
-              <div
-                key={index}
-                style={{
-                  display: "flex",
-                  marginTop: "6px ",
-                  fontSize: "16px",
-                  textAlign: "center",
-                  marginRight: "5px",
-                }}
-              >
-                <div>{index + 1}.</div>
-                <div>{meal.name}</div>
-                <div>
-                  {meal.serving}
-                  {meal.unit}
-                </div>
-              </div>
-            ))}
-          </div>
-        </Card>
-      </div> */}
-
-      <div>
-        <>
-          {/* <ProCard bordered>
-            <div>
-              <Divider orientation="left" orientationMargin={50}>
-                烹煮日期：{dateForCooking}
-              </Divider>
-              {activeCookingPlan?.cookingItems.map((plan, index) => (
-                <div
-                  key={index}
-                  style={{ display: "flex", flexDirection: "row" }}
-                >
-                  <div>品項: {plan.name}</div>
-                  <div>
-                    份量: {plan.serving} {plan.unit}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </ProCard> */}
-        </>
-      </div>
+      <div></div>
     </Wrapper>
   );
 }

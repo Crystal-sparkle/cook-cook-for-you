@@ -52,7 +52,7 @@ const MealCalendar: React.FC = () => {
       return () => unsubscribe();
     };
 
-    handleDailyMealPlan(); // 呼叫函數以執行一次
+    handleDailyMealPlan();
   }, []);
 
   const dateCellRender = (value: Dayjs) => {
@@ -81,16 +81,13 @@ const MealCalendar: React.FC = () => {
           try {
             const querySnapshot = await getDocs(q);
             for (const doc of querySnapshot.docs) {
-              const docRef = doc.ref; // 使用 DocumentReference
+              const docRef = doc.ref;
               const data = doc.data();
 
-              const serving = data.mealPlan[0].serving;
-              console.log(docRef);
               const mealPlan = data.mealPlan[0];
+              const serving = data.mealPlan[0].serving;
 
               if (serving > 1) {
-                // 份量大於1，減少 serving
-
                 const updatedMealPlan = {
                   mealPlan: [{ ...mealPlan, serving: serving - 1 }],
                 };
@@ -98,7 +95,6 @@ const MealCalendar: React.FC = () => {
                 await setDoc(docRef, updatedMealPlan, { merge: true });
                 console.log("減一");
               } else {
-                // 份量為1或更少，直接刪除該筆資料
                 await deleteDoc(docRef);
                 console.log("刪除");
               }
@@ -111,7 +107,7 @@ const MealCalendar: React.FC = () => {
         }
 
         handleDeletDailyMeal();
-        // console.log(value.toString());
+
         console.log("content", content.name, value.toString(), id);
       };
 
@@ -144,6 +140,7 @@ const MealCalendar: React.FC = () => {
       </div>
     );
   };
+
   //current 是代表目前處理的日期，它是 cellRender 函式的一個參數。在你的情境中，dateCellRender 函式中的 value 參數即是 current，用來表示正在處理的日期。
   //info.originNode 是一個用來取得日期單元格原始節點的屬性，你可以使用它來獲取和操作原始的日期單元格內容。
   const cellRender: CalendarProps<Dayjs>["cellRender"] = (current, info) => {

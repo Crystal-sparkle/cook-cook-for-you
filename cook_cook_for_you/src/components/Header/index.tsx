@@ -115,7 +115,7 @@ function Header() {
     },
     {
       label: (
-        <Link to="/dailymealplan">
+        <Link to="/">
           <Space>
             <span style={{ fontSize: "20px" }}>料理計畫</span>
           </Space>

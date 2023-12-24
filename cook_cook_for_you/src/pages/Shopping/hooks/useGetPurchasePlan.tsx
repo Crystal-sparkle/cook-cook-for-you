@@ -1,8 +1,8 @@
 import "firebase/database";
 import { collection, onSnapshot, query, where } from "firebase/firestore";
 import { useEffect, useState } from "react";
-import { PurchasePlan } from "../../../AddDailyMeal/ShoppingList";
 import { db } from "../../../firbase";
+import { PurchasePlan } from "../../../types";
 
 const useGetPurchasePlan = (purchasePlanId: string | undefined) => {
   const [purchasePlan, setPurchasePlan] = useState<PurchasePlan>();
