@@ -13,7 +13,8 @@ import {
   setDoc,
   where,
 } from "firebase/firestore";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
+import { AuthContext } from "../../context/authContext";
 import { db } from "../../firbase";
 import { MenuItem } from "../../types";
 
@@ -27,6 +28,9 @@ const quantities: MenuProps["items"] = [
 ];
 
 const SelectMenu: React.FC = () => {
+  const userInformation = useContext(AuthContext);
+  const currentUserUid = userInformation?.user?.uid;
+
   const [items, setItems] = useState<MenuItem[]>();
 
   useEffect(() => {
@@ -113,6 +117,7 @@ const SelectMenu: React.FC = () => {
         },
       ],
       planDate: newTime,
+      userId: currentUserUid,
     };
 
     try {

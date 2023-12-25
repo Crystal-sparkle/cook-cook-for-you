@@ -9,10 +9,11 @@ import {
   updateDoc,
   where,
 } from "firebase/firestore";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 import styled from "styled-components";
+import { AuthContext } from "../../context/authContext";
 import { db } from "../../firbase";
 import { CookingPlanItem, PurchasePlan, PurchasePlanProps } from "../../types";
 import ShoppingList from "./ShoppingList";
@@ -42,8 +43,10 @@ const PurchasingPlan = ({
   setActiveCookingPlan,
   activeCookingPlan,
   purchasePlanCollection,
-  user,
 }: PurchasePlanProps) => {
+  const userInformation = useContext(AuthContext);
+  const currentUserUid = userInformation?.user?.uid;
+
   const [activePlanIngredients, setActivePlanIngredients] = useState<
     CookingPlanItem[]
   >([]);
@@ -312,7 +315,10 @@ const PurchasingPlan = ({
             }}
             extra={
               <Space>
-                <Link to={`/shopping/${user?.uid}/${planId}`} target="_blank">
+                <Link
+                  to={`/shopping/${currentUserUid}/${planId}`}
+                  target="_blank"
+                >
                   <Button
                     type="text"
                     icon={<ExportOutlined style={{ fontSize: "24px" }} />}
@@ -336,12 +342,7 @@ const PurchasingPlan = ({
           >
             {purchasePlanCollection.length > 0 ? (
               purchasePlanCollection.map((item, index) => (
-                <ShoppingList
-                  key={index}
-                  purchasePlan={item}
-                  user={user}
-                  index={index}
-                />
+                <ShoppingList key={index} purchasePlan={item} index={index} />
               ))
             ) : (
               <div>請先建立烹煮計畫唷</div>

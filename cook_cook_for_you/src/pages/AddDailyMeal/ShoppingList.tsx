@@ -9,8 +9,9 @@ import {
   updateDoc,
   where,
 } from "firebase/firestore";
-import { FC, useEffect, useState } from "react";
+import { FC, useContext, useEffect, useState } from "react";
 import styled from "styled-components";
+import { AuthContext } from "../../context/authContext";
 import { db } from "../../firbase";
 import { PartnerList, ShoppingListProps } from "../../types";
 const { Option } = Select;
@@ -61,13 +62,18 @@ const InputCheck = styled.input`
 `;
 
 const ShoppingList: FC<ShoppingListProps> = ({ purchasePlan, user, index }) => {
+const ShoppingList: FC<ShoppingListProps> = ({ purchasePlan, index }) => {
+  const userInformation = useContext(AuthContext);
+
+  const currentUserUid = userInformation?.user?.uid;
+
   const [partnerList, setPartnerList] = useState<PartnerList[]>([]);
 
   useEffect(() => {
     const getPartnerData = async () => {
       const userCollection = collection(db, "user");
-      if (user !== null) {
-        const q = query(userCollection, where("uid", "==", user.uid));
+      if (currentUserUid !== null) {
+        const q = query(userCollection, where("uid", "==", currentUserUid));
         const unsubscribe = onSnapshot(q, (querySnapshot) => {
           querySnapshot.forEach((doc) => {
             if (doc.exists()) {
@@ -85,7 +91,7 @@ const ShoppingList: FC<ShoppingListProps> = ({ purchasePlan, user, index }) => {
     };
 
     getPartnerData();
-  }, [user]);
+  }, [currentUserUid]);
 
   const partners = [
     {

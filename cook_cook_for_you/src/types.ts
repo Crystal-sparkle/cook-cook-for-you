@@ -181,7 +181,6 @@ export interface PurchasePlan {
 
 export interface ShoppingListProps {
   purchasePlan: PurchasePlan;
-  user: User | null;
   index: number;
 }
 export interface PartnerList {

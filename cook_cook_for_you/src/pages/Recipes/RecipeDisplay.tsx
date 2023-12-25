@@ -36,9 +36,10 @@ import {
   where,
 } from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
+import { AuthContext } from "../../context/authContext";
 import { db, storage } from "../../firbase";
 import { CurrentItem, Recipe } from "../../types";
 const { Title } = Typography;
@@ -225,13 +226,15 @@ const IngredientsOrder = styled.div`
   margin-right: 5px;
 `;
 const LoadingSpinner = styled.img`
-  width: 60%;
-  height: 60%;
+  width: 80%;
+  height: 80%;
   margin: 0 auto;
   background-position: center;
 `;
 
 const RecipeDisplay: React.FC = () => {
+  const userInformation = useContext(AuthContext);
+  const currentUserUid = userInformation?.user?.uid;
   const [userRecipe, setUserRecipe] = useState<Recipe[]>([]);
 
   const [open, setOpen] = useState(false);
@@ -254,7 +257,7 @@ const RecipeDisplay: React.FC = () => {
       const recipesCollection = collection(db, "recipess");
       const queryRef = query(
         recipesCollection,
-        where("userId", "==", "crystal")
+        where("userId", "==", currentUserUid)
       );
 
       const unsubscribe = onSnapshot(
@@ -308,7 +311,7 @@ const RecipeDisplay: React.FC = () => {
       const valuesWithImageURL = {
         ...values,
         mainPhoto: mainPhoto,
-        userId: "crystal",
+        userId: currentUserUid,
         time: Timestamp.now(),
       };
       console.log(valuesWithImageURL);
@@ -325,7 +328,6 @@ const RecipeDisplay: React.FC = () => {
       message.success("成功新增");
       return true;
     } catch (error) {
-      console.error("新增失败", error);
       message.error("新增失败");
     }
   };
