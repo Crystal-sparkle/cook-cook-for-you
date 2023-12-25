@@ -1,18 +1,20 @@
 import { ConfigProvider } from "antd";
-
 import zhTW from "antd/es/locale/zh_TW";
+import dayjs from "dayjs";
 import "dayjs/locale/zh-cn";
 import "firebase/database";
 import React, { useEffect, useState } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { createGlobalStyle } from "styled-components";
 import Header from "./components/Header";
+import { AuthContextProvider } from "./context/authContext.tsx";
 import { auth } from "./firbase";
 import AddDailyMeal from "./pages/AddDailyMeal/index.tsx";
 import Login from "./pages/Login.tsx";
 import Profile from "./pages/Profile/index.tsx";
 import Recipes from "./pages/Recipes/index.tsx";
 import Shopping from "./pages/Shopping";
+dayjs.locale("zh-cn");
 
 const GlobalStyle = createGlobalStyle`
   * {
@@ -49,7 +51,6 @@ const App: React.FC = () => {
   const [user, setUser] = useState(() => {
     return auth.currentUser;
   });
-  // const [userInformation, setUserInformation] = useState<UserInformation>();
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
@@ -82,29 +83,32 @@ const App: React.FC = () => {
         }}
       >
         <GlobalStyle />
-        <Header />
-        <Routes>
-          {/* <Route path="/" element={<AddDailyMeal user={user} />} /> */}
-          {/* <Route path="/"> */}
-          {user ? (
-            <>
-              <Route path="/" element={<AddDailyMeal user={user} />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/recipes" element={<Recipes />} />
-            </>
-          ) : (
-            <Route path="*" element={<Login />} />
-          )}
-          {/* </Route> */}
-          <Route
-            path="/login"
-            element={user ? <Navigate to="/dailymealplan" /> : <Login />}
-          />
-          <Route
-            path="/shopping/:userId/:purchasePlanId"
-            element={<Shopping />}
-          />
-        </Routes>
+        {/* <AuthContext.Provider value={{ user }}></AuthContext.Provider> */}
+        <AuthContextProvider>
+          <Header />
+          <Routes>
+            {/* <Route path="/" element={<AddDailyMeal user={user} />} /> */}
+            {/* <Route path="/"> */}
+            {user ? (
+              <>
+                <Route path="/" element={<AddDailyMeal user={user} />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/recipes" element={<Recipes />} />
+              </>
+            ) : (
+              <Route path="*" element={<Login />} />
+            )}
+            {/* </Route> */}
+            <Route
+              path="/login"
+              element={user ? <Navigate to="/dailymealplan" /> : <Login />}
+            />
+            <Route
+              path="/shopping/:userId/:purchasePlanId"
+              element={<Shopping />}
+            />
+          </Routes>
+        </AuthContextProvider>
       </ConfigProvider>
     </>
   );
