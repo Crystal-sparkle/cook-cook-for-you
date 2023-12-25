@@ -12,8 +12,9 @@ import {
   setDoc,
   where,
 } from "firebase/firestore";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
+import { AuthContext } from "../../context/authContext";
 import { db } from "../../firbase";
 import { Accumulator, CookingScheduleProps, MealPlan } from "../../types";
 type RangeValue = [Dayjs | null, Dayjs | null] | null;
@@ -53,6 +54,9 @@ function CookingSchedule({
   setCookingPlanId,
   cookingPlanId,
 }: CookingScheduleProps) {
+  const userInformation = useContext(AuthContext);
+  const currentUserUid = userInformation?.user?.uid;
+
   const [cookingDate, setCookingDate] = useState<Date | undefined>();
   const pickCookingDate: DatePickerProps["onChange"] = (date) => {
     if (date !== null) {
@@ -80,7 +84,7 @@ function CookingSchedule({
       setDates(null);
     }
   };
-  //烹煮區間：用state 存起來，轉成timestamp 形式
+
   const [selectDate, setSelectDate] = useState<(Timestamp | null)[]>([]);
   useEffect(() => {
     if (value !== null) {
@@ -111,7 +115,7 @@ function CookingSchedule({
 
     {}
   );
-  // 區間選取資料庫的mealPlan
+
   useEffect(() => {
     const handleCookingMeals = async () => {
       const CookingMealCollection = collection(db, "DailyMealPlan");
@@ -157,7 +161,7 @@ function CookingSchedule({
     const newPlan = {
       cookingDate: cookingDate,
       cookingItems: combinedServingArray,
-      userId: "crystal",
+      userId: currentUserUid,
       mealsStartDate: startDate,
       mealsEndDate: endDate,
       isActive: true,
@@ -186,7 +190,7 @@ function CookingSchedule({
         const newPlan = {
           cookingDate: cookingDate,
           items: [],
-          userId: "crystal",
+          userId: currentUserUid,
           mealsStartDate: startDate,
           mealsEndDate: endDate,
           planId: cookingPlanId,
