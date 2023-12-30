@@ -1,3 +1,4 @@
+import { Button, Steps, message, theme } from "antd";
 import "firebase/database";
 import {
   collection,
@@ -8,11 +9,6 @@ import {
   where,
 } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
-// The default locale is en-US, if you want to use other locale, just set locale in entry file globally.
-import { Button, message, Steps, theme } from "antd";
-import dayjs from "dayjs";
-import "dayjs/locale/zh-cn";
-
 import styled from "styled-components";
 import { db } from "../../firbase";
 import { AddDailyMealProps, CookingPlanData, PurchasePlan } from "../../types";
@@ -20,8 +16,6 @@ import CookingSchedule from "./CookingSchedule";
 import MealCalendar from "./MealCalendar";
 import PurchasingPlan from "./PurchasingPlan";
 import SelectMenu from "./SelectMenu";
-
-dayjs.locale("zh-cn");
 
 const Image = styled.img`
   width: 100%;
@@ -39,7 +33,6 @@ const MainContent = styled.div`
 `;
 
 const AddDailyMeal = ({ user }: AddDailyMealProps) => {
-  //manage state
   const [cookingPlanId, setCookingPlanId] = useState<string>("");
   const [activeCookingPlan, setActiveCookingPlan] = useState<
     CookingPlanData | undefined
@@ -163,7 +156,7 @@ const AddDailyMeal = ({ user }: AddDailyMealProps) => {
     color: token.colorTextTertiary,
 
     borderRadius: token.borderRadiusLG,
-    // border: `2px dashed ${token.colorBorder}`,
+
     marginTop: "6px",
     width: "100%",
   };

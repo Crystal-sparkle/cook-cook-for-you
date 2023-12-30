@@ -8,7 +8,6 @@ import {
 } from "firebase/auth";
 import "firebase/firestore";
 import { useState } from "react";
-// import styled from "styled-components";
 import styled from "styled-components";
 import { auth } from "../firbase";
 
@@ -237,5 +236,3 @@ function Login() {
 }
 
 export default Login;
-
-// export  authState;

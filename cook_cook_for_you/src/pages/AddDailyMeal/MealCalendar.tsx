@@ -1,10 +1,10 @@
-// import { PlusOutlined } from "@ant-design/icons";
 import type { CalendarProps } from "antd";
-//Button
+
 import { Calendar, Tag } from "antd";
 import type { Dayjs } from "dayjs";
 import dayjs from "dayjs";
-import "dayjs/locale/zh-cn";
+dayjs.locale("zh-cn");
+
 import "firebase/database";
 import {
   Timestamp,
@@ -19,7 +19,6 @@ import {
 import React, { useEffect, useState } from "react";
 import { db } from "../../firbase";
 import { DailyMealPlan } from "../../types";
-dayjs.locale("zh-cn");
 
 const MealCalendar: React.FC = () => {
   const [thisMonthMealPlans, setThisMonthMealPlans] = useState<DailyMealPlan[]>(
