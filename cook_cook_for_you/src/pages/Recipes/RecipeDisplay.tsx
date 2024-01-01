@@ -24,13 +24,14 @@ import {
   Upload,
   message,
 } from "antd";
+import type { RcFile, UploadFile } from "antd/es/upload";
 import "firebase/database";
 import {
   Timestamp,
-  addDoc,
   collection,
   doc,
   onSnapshot,
+  orderBy,
   query,
   setDoc,
   where,
@@ -134,14 +135,13 @@ const RecipeDisplay: React.FC = () => {
     setOpen(false);
   };
 
-  console.log(currentItem);
-
   useEffect(() => {
     const getRecipes = async () => {
       const recipesCollection = collection(db, "recipess");
       const queryRef = query(
         recipesCollection,
-        where("userId", "==", currentUserUid)
+        where("userId", "==", currentUserUid),
+        orderBy("time", "desc")
       );
 
       const unsubscribe = onSnapshot(
@@ -181,36 +181,6 @@ const RecipeDisplay: React.FC = () => {
       setMainPhoto(downloadURL);
     } catch (error) {
       console.error("Error uploading image:", error);
-    }
-  };
-
-  const [form] = Form.useForm();
-
-  const onFinish = async (values: Recipe) => {
-    const recipesCollection = collection(db, "recipess");
-    await waitTime(2000);
-    try {
-      const valuesWithImageURL = {
-        ...values,
-        mainPhoto: mainPhoto,
-        userId: currentUserUid,
-        time: Timestamp.now(),
-      };
-      console.log(valuesWithImageURL);
-      const docRef = await addDoc(recipesCollection, valuesWithImageURL);
-
-      const updatedData = { id: docRef.id };
-      await setDoc(doc(recipesCollection, docRef.id), updatedData, {
-        merge: true,
-      });
-
-      console.log("Document written successfully!", docRef.id);
-
-      setMainPhoto("");
-      message.success("成功新增");
-      return true;
-    } catch (error) {
-      message.error("新增失败");
     }
   };
 
