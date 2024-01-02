@@ -13,9 +13,7 @@ export const AuthContextProvider = ({ children }: { children: ReactNode }) => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         setUser(user);
-        console.log("使用者已登入:", user);
       } else {
-        console.log("使用者未登入");
         setUser(null);
       }
     });
