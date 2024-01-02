@@ -37,16 +37,21 @@ const SelectMenu: React.FC = () => {
     const getRecipesName = async () => {
       const recipesCollection = collection(db, "recipess");
 
+      const queryRef = query(
+        recipesCollection,
+        where("userId", "==", currentUserUid)
+      );
+      const unsubscribe = onSnapshot(queryRef, (snapshot) => {
         const newOptions = snapshot.docs.map((doc, index) => ({
           key: `${index}`,
           label: doc.data().name,
         }));
-
         setItems(newOptions as MenuItem[]);
       });
 
       return () => unsubscribe();
     };
+
     getRecipesName();
   }, []);
 
