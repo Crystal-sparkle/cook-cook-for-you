@@ -28,7 +28,6 @@ const Partner: React.FC = () => {
 
   const handleParnerValue = async (values: PartnerType) => {
     if (!currentUid) {
-      console.error("No current user UID found");
       return false;
     }
     const userCollection = collection(db, "user");
@@ -41,7 +40,6 @@ const Partner: React.FC = () => {
         !values.partner2Name ||
         !values.partner2Email
       ) {
-        console.error("Missing partner details");
         message.error("Missing partner details");
         return false;
       }
@@ -52,8 +50,7 @@ const Partner: React.FC = () => {
 
       const querySnapshot = await getDocs(q);
       if (querySnapshot.empty) {
-        console.error("No matching user document found");
-        message.error("No matching user document found");
+        message.error("找不到資料");
         return false;
       }
       querySnapshot.forEach(async (doc: { ref: any }) => {
@@ -63,7 +60,6 @@ const Partner: React.FC = () => {
         });
       });
 
-      console.log("Partners updated:", partners);
       message.success("成功加入夥伴");
       return true;
     } catch (error) {

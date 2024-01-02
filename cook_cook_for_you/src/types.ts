@@ -6,7 +6,7 @@ export interface Recipe {
   description: string;
   name: string;
   note: string;
-  searving: number;
+  serving: number;
   ingredients: {
     quantity: number;
     name: string;
@@ -27,7 +27,7 @@ export interface Recipe {
 export interface CurrentItem {
   name: string;
   mainPhoto: string;
-  searving: number;
+  serving: number;
   description: string;
   ingredients?: Ingredient[];
   steps?: Step[];
@@ -120,6 +120,11 @@ export interface DailyMealPlan {
   planDate: Timestamp;
   userId: string;
   mealId: string;
+}
+
+export interface CalerdarContent {
+  name: string;
+  serving: number;
 }
 //PurchasingPlan
 export interface PurchasePlanProps {

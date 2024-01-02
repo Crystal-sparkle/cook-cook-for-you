@@ -70,7 +70,7 @@ const PurchasingPlan = ({
 
               if (!querySnapshot.empty) {
                 const ingredients = querySnapshot.docs[0].data().ingredients;
-                const serving = meal.serving;
+                // const serving = meal.serving;
 
                 const newIngredients = {
                   recipeId: meal.id,
@@ -78,17 +78,12 @@ const PurchasingPlan = ({
                   ingredients: ingredients,
                 };
 
-                console.log(
-                  `Ingredients for meal ${meal.id} with serving ${serving}:`,
-                  ingredients
-                );
                 return newIngredients;
               } else {
-                console.log(`No matching documents found for meal ${meal.id}.`);
                 return null;
               }
             } catch (error) {
-              console.error(`Error fetching data for meal ${meal.id}:`, error);
+              message.error("取得資料失敗");
               return null;
             }
           });
@@ -104,7 +99,7 @@ const PurchasingPlan = ({
             ...newIngredients,
           ]);
         } catch (error) {
-          console.error("Error processing promises:", error);
+          message.error("取得資料失敗");
         }
       };
 
@@ -173,7 +168,7 @@ const PurchasingPlan = ({
           });
         });
       } catch (error) {
-        console.error("Error writing document: ", error);
+        message.error("取得資料失敗");
       }
     };
 
@@ -195,7 +190,7 @@ const PurchasingPlan = ({
           });
         });
       } catch (error) {
-        console.error("Error writing document: ", error);
+        message.error("取得資料失敗");
       }
     };
     const closeCookingSchedule = async () => {
@@ -212,7 +207,7 @@ const PurchasingPlan = ({
           });
         });
       } catch (error) {
-        console.error("Error writing document: ", error);
+        message.error("取得資料失敗");
       }
     };
     closeCookingSchedule();
@@ -250,8 +245,8 @@ const PurchasingPlan = ({
 
           setPlanId(purchasePlanId);
         },
-        (error) => {
-          console.error("取得資料時發生錯誤:", error);
+        () => {
+          message.error("取得資料時發生錯誤");
         }
       );
 

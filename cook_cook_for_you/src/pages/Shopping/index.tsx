@@ -12,7 +12,7 @@ const Shopping = () => {
 
   if (!purchasePlan || !user) return null;
 
-  return <ShoppingList purchasePlan={purchasePlan} user={user} index={0} />;
+  return <ShoppingList purchasePlan={purchasePlan} index={0} />;
 };
 
 export default Shopping;

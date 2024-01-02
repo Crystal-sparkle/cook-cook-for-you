@@ -1,3 +1,4 @@
+import { message } from "antd";
 import "firebase/database";
 import { collection, onSnapshot, query, where } from "firebase/firestore";
 import { useEffect, useState } from "react";
@@ -27,8 +28,8 @@ const useGetPurchasePlan = (purchasePlanId: string | undefined) => {
 
           setPurchasePlan(results[0]);
         },
-        (error) => {
-          console.error("取得資料時發生錯誤:", error);
+        () => {
+          message.error("取得資料時發生錯誤");
         }
       );
 

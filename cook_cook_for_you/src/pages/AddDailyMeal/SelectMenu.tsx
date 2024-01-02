@@ -37,8 +37,6 @@ const SelectMenu: React.FC = () => {
     const getRecipesName = async () => {
       const recipesCollection = collection(db, "recipess");
 
-      // 監聽 'recipe' collection 中 'name' 欄位的資料變化
-      const unsubscribe = onSnapshot(recipesCollection, (snapshot) => {
         const newOptions = snapshot.docs.map((doc, index) => ({
           key: `${index}`,
           label: doc.data().name,
@@ -95,10 +93,9 @@ const SelectMenu: React.FC = () => {
           const recipeId = docSnap.id;
 
           setNewMealId(recipeId);
-          console.log(recipeId);
         }
-      } catch (error) {
-        console.error("Error fetching data:", error);
+      } catch {
+        message.error("獲取資料失敗");
       }
     };
     handleMealId();
@@ -127,9 +124,8 @@ const SelectMenu: React.FC = () => {
       await setDoc(doc(DailymealPlanCollection, docRef.id), updatedData, {
         merge: true,
       });
-      console.log("MealPlan docRef.id, successfully!", docRef.id);
     } catch (error) {
-      console.error("Error writing document: ", error);
+      message.error("取得資料失敗");
     }
   }
 

@@ -98,7 +98,6 @@ function CookingSchedule({
   }, [value]);
 
   const [cookingMeals, setCookingMeals] = useState<MealPlan[]>([]);
-  console.log(cookingMeals);
 
   const combinedSearvings = cookingMeals.reduce(
     (accumulator: Accumulator, meal) => {
@@ -144,7 +143,7 @@ function CookingSchedule({
 
         setCookingMeals(results);
       } catch (error) {
-        console.error("Error fetching data:", error);
+        message.error("取的資料失敗");
       }
     };
     if (cookingDate !== undefined && selectDate !== null) {
@@ -197,10 +196,10 @@ function CookingSchedule({
           isActive: true,
         };
         try {
-          const docRef = await addDoc(purchasePlanCollection, newPlan);
-          console.log("Document written successfully!", docRef.id);
+          await addDoc(purchasePlanCollection, newPlan);
+          message.success("新增成功!");
         } catch (error) {
-          console.error("Error writing document: ", error);
+          message.error("新增失敗");
         }
       }
     }

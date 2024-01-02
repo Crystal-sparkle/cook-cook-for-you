@@ -58,8 +58,6 @@ const AddDailyMeal = ({ user }: AddDailyMealProps) => {
 
           if (results) {
             setActiveCookingPlan(results);
-          } else {
-            console.log("no plan");
           }
         });
 
@@ -67,7 +65,7 @@ const AddDailyMeal = ({ user }: AddDailyMealProps) => {
           unsubscribe();
         };
       } catch (error) {
-        console.error(error);
+        message.error("查無計劃");
       }
     };
 
@@ -92,7 +90,7 @@ const AddDailyMeal = ({ user }: AddDailyMealProps) => {
           setPurchasePanCollection(results);
         },
         (error) => {
-          console.error("取得資料時發生錯誤:", error);
+          message.error("取得資料時發生錯誤", error);
         }
       );
 
@@ -175,9 +173,8 @@ const AddDailyMeal = ({ user }: AddDailyMealProps) => {
             isActive: false,
           });
         });
-        console.log("設為false");
       } catch (error) {
-        console.error("Error writing document: ", error);
+        message.error("存取失敗");
       }
     };
     const closeCookingSchedule = async () => {
@@ -193,9 +190,8 @@ const AddDailyMeal = ({ user }: AddDailyMealProps) => {
             isActive: false,
           });
         });
-        console.log("設為false");
       } catch (error) {
-        console.error("Error writing document: ", error);
+        message.error("存取失敗");
       }
     };
     closeCookingSchedule();

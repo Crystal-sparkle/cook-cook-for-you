@@ -56,10 +56,7 @@ const App: React.FC = () => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
         setUser(user);
-        console.log("使用者已登入:", user);
-        console.log("user", user);
       } else {
-        console.log("使用者未登入");
         setUser(null);
       }
     });

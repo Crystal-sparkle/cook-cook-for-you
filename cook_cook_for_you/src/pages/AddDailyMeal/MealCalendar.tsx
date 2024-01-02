@@ -3,11 +3,8 @@ import type { CalendarProps } from "antd";
 import { Calendar, Tag } from "antd";
 import type { Dayjs } from "dayjs";
 import dayjs from "dayjs";
-dayjs.locale("zh-cn");
-
 import "firebase/database";
 import {
-  Timestamp,
   collection,
   deleteDoc,
   getDocs,
@@ -50,8 +47,8 @@ const MealCalendar: React.FC = () => {
 
           setThisMonthMealPlans(results);
         },
-        (error) => {
-          console.error("取得資料時發生錯誤:", error);
+        () => {
+          message.error("發生錯誤");
         }
       );
       return () => unsubscribe();
@@ -75,11 +72,11 @@ const MealCalendar: React.FC = () => {
       }));
 
     const preventDefault =
-      (value: Dayjs, content: any, id: string) =>
+      (content: CalerdarContent, id: string) =>
       (e: React.MouseEvent<HTMLElement>) => {
         e.preventDefault();
 
-        async function handleDeletDailyMeal() {
+        async function updateDailyMealQty() {
           const DailyMealPlanCollection = collection(db, "DailyMealPlan");
           const q = query(DailyMealPlanCollection, where("mealId", "==", id));
 
@@ -98,22 +95,18 @@ const MealCalendar: React.FC = () => {
                 };
 
                 await setDoc(docRef, updatedMealPlan, { merge: true });
-                console.log("減一");
               } else {
                 await deleteDoc(docRef);
-                console.log("刪除");
               }
             }
 
-            console.log(`成功刪除：${content.name}`);
+            message.success(`成功刪除：${content.name}`);
           } catch (error) {
-            console.error("刪除計畫菜單失敗 ", error);
+            message.error("刪除失敗");
           }
         }
 
-        handleDeletDailyMeal();
-
-        console.log("content", content.name, value.toString(), id);
+        updateDailyMealQty();
       };
 
     const eventTags = dynamicListData.map((item, index) => (

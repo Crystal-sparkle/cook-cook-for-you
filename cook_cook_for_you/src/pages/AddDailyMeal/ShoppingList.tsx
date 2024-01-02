@@ -146,12 +146,9 @@ const ShoppingList: FC<ShoppingListProps> = ({ purchasePlan, index }) => {
         if (docData && docData.items && docData.items[itemIndex]) {
           docData.items[itemIndex].isPurchased = isChecked;
 
-          // console.log(planIndex, itemIndex, isChecked);
           await updateDoc(docRef, {
             items: docData.items,
           });
-
-          console.log(planIndex);
         }
       });
     } catch (error) {
@@ -175,11 +172,7 @@ const ShoppingList: FC<ShoppingListProps> = ({ purchasePlan, index }) => {
     });
   };
 
-  const handleSelectChange = async (
-    value: string,
-    // index: number,
-    itemIndex: number
-  ) => {
+  const handleSelectChange = async (value: string, itemIndex: number) => {
     const purchaseCollection = collection(db, "purchasePlan");
     const q = query(purchaseCollection, where("isActive", "==", true));
 
