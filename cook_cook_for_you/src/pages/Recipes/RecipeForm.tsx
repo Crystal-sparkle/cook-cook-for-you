@@ -7,21 +7,20 @@ import {
   ProFormText,
   ProFormTextArea,
 } from "@ant-design/pro-components";
-import { useState } from "react";
+import { useContext, useState } from "react";
+import { AuthContext } from "../../context/authContext";
 
 import { Button, Form, Input, Space, Upload, message } from "antd";
-import "firebase/database";
-import { Timestamp, addDoc, collection, doc, setDoc } from "firebase/firestore";
-const { TextArea } = Input;
-// const { TextArea } = Input;
-// import { Timestamp } from "firebase/firestore";
 import dayjs from "dayjs";
 import "dayjs/locale/zh-cn";
+import "firebase/database";
+import { Timestamp, addDoc, collection, doc, setDoc } from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import React from "react";
 import styled from "styled-components";
 import { db, storage } from "../../firbase";
 import { Recipe } from "../../types";
+const { TextArea } = Input;
 dayjs.locale("zh-cn");
 
 const StyledButton = styled(Button)`
@@ -54,69 +53,93 @@ interface RcFile extends File {
   uid: string;
 }
 
+const cookingTimeOption = [
+  {
+    value: 10,
+    label: "10分鐘",
+  },
+  {
+    value: 15,
+    label: "15分鐘",
+  },
+  {
+    value: 20,
+    label: "20分鐘",
+  },
+  {
+    value: 25,
+    label: "25分鐘",
+  },
+  {
+    value: 30,
+    label: "30分鐘",
+  },
+  {
+    value: 45,
+    label: "45分鐘",
+  },
+  {
+    value: 60,
+    label: "60分鐘",
+  },
+  {
+    value: 90,
+    label: "90分鐘",
+  },
+  {
+    value: 120,
+    label: "120分鐘",
+  },
+];
+
 const RecipeForm: React.FC = () => {
-  //  上傳圖片
+  const userInformation = useContext(AuthContext);
+  const currentUserUid = userInformation?.user?.uid;
 
   const handleUpload = async (file: RcFile) => {
-    console.log(file);
     try {
       // const storageRef = ref(storage);
       const imageRef = ref(storage, `images/${file.name + file.uid}.jpg`);
-
-      // 上傳圖片文件
       const snapshot = await uploadBytes(imageRef, file);
 
-      //獲取url
       const downloadURL = await getDownloadURL(snapshot.ref);
-      console.log("Image uploaded:", downloadURL);
-
-      // 圖片的 URL 設置到表單中
       setMainPhoto(downloadURL);
     } catch (error) {
-      console.error("Error uploading image:", error);
+      message.error("新增照片失敗");
     }
   };
 
   const [mainPhoto, setMainPhoto] = useState("");
-
-  //上傳圖片
-
   const [form] = Form.useForm();
 
   const onFinish = async (values: Recipe) => {
     const recipesCollection = collection(db, "recipess");
     await waitTime(2000);
     try {
-      // 將圖片的 URL 添加到表單值
-      // const formValues = form.getFieldsValue();
       const valuesWithImageURL = {
         ...values,
         mainPhoto: mainPhoto,
-        userId: "crystal",
+        userId: currentUserUid,
         time: Timestamp.now(),
       };
-      console.log(valuesWithImageURL);
+
       const docRef = await addDoc(recipesCollection, valuesWithImageURL);
-      // 將 docRef.id 放入recipess裡
+
       const updatedData = { id: docRef.id };
       await setDoc(doc(recipesCollection, docRef.id), updatedData, {
         merge: true,
       });
 
-      console.log("Document written successfully!", docRef.id);
-
-      //將狀態清空
       setMainPhoto("");
       message.success("成功新增");
       return true;
     } catch (error) {
-      console.error("新增失败", error);
       message.error("新增失败");
     }
   };
 
   interface FileListObject {
-    fileList: any[]; // Adjust the type of fileList according to your needs
+    fileList: any[];
   }
   const normFile = (e: any[] | FileListObject): any[] => {
     if (Array.isArray(e)) {
@@ -136,14 +159,9 @@ const RecipeForm: React.FC = () => {
           </StyledButton>
         }
         form={form}
-        // initialValues={{
-        //   name: "12",
-        //   description: "good",
-        // }}
         autoFocusFirstInput
         modalProps={{
           destroyOnClose: true,
-          onCancel: () => console.log("run"),
         }}
         submitTimeout={2000}
         onFinish={onFinish}
@@ -152,12 +170,6 @@ const RecipeForm: React.FC = () => {
             submitText: "確認",
           },
         }}
-        onValuesChange={(changedValues) => {
-          //   // changedValues 發生變化的表單單向的值
-          //   // allValues 所有表單內容當前的值
-          console.log("Changed Values:", changedValues);
-          //   console.log("All Values:", allValues);
-        }}
       >
         <ProForm.Group>
           <ProFormText
@@ -165,16 +177,15 @@ const RecipeForm: React.FC = () => {
             name="name"
             label="食譜名稱"
             tooltip="最長為 24 位"
-            placeholder="蛋沙拉三明治"
+            placeholder="食譜名稱"
           />
 
           <ProFormTextArea
             width="lg"
             name="description"
             label="簡介料理"
-            placeholder="暖心暖胃，冬天暖心選擇"
+            placeholder="料理簡介"
           />
-          {/* <ProFormDateRangePicker name="contractTime" label="合同生效时间" /> */}
         </ProForm.Group>
         <ProForm.Group>
           <Form.Item
@@ -188,12 +199,10 @@ const RecipeForm: React.FC = () => {
                   handleUpload(file as RcFile)
                     .then(() => onSuccess?.(true))
                     .catch((error) => {
-                      console.error("Custom upload error:", error);
+                      message.error("Custom upload error");
                       onError?.(error);
                     });
                 } else {
-                  // 處理 file 為 undefined 的情況
-                  console.error("File is undefined");
                   onError?.(new Error("File is undefined"));
                 }
               }}
@@ -210,65 +219,30 @@ const RecipeForm: React.FC = () => {
         </ProForm.Group>
         <ProForm.Group>
           <ProFormSelect
-            request={async () => [
+            options={[
               {
                 value: 1,
                 label: "1",
               },
             ]}
             width="xs"
-            name="searving"
+            name="serving"
             label="烹煮份量"
+            initialValue={1}
+            fieldProps={{
+              disabled: true,
+            }}
           />
           <ProFormSelect
-            options={[
-              {
-                value: 10,
-                label: "10分鐘",
-              },
-              {
-                value: 15,
-                label: "15分鐘",
-              },
-              {
-                value: 20,
-                label: "20分鐘",
-              },
-              {
-                value: 25,
-                label: "25分鐘",
-              },
-              {
-                value: 30,
-                label: "30分鐘",
-              },
-              {
-                value: 45,
-                label: "45分鐘",
-              },
-              {
-                value: 60,
-                label: "60分鐘",
-              },
-              {
-                value: 90,
-                label: "90分鐘",
-              },
-              {
-                value: 120,
-                label: "120分鐘",
-              },
-            ]}
+            options={cookingTimeOption}
             width="xs"
             name="cookingTime"
             label="烹煮時間"
-            initialValue=""
           />
         </ProForm.Group>
         <ProFormRadio.Group
           label="類別"
           name="category"
-          initialValue="飲品"
           options={[
             "主餐",
             "肉類",
@@ -299,8 +273,6 @@ const RecipeForm: React.FC = () => {
                       rules={[
                         {
                           type: "number",
-                          /*transform: (value) =>
-                              value ? Number(value) : undefined,*/
                           message: "請輸入有效的數字",
                         },
                         {
@@ -351,21 +323,6 @@ const RecipeForm: React.FC = () => {
                     >
                       <TextArea rows={6} placeholder="步驟說明" />
                     </Form.Item>
-                    {/* <Form.Item
-                      label="上傳圖片"
-                      valuePropName="fileList"
-                      getValueFromEvent={normFile}
-                      {...restField}
-                      name={[name, "stepPhote"]}
-                    >
-                      <Upload listType="picture-card">
-                        <div>
-                          <PlusOutlined />
-                          <div style={{ marginTop: 8 }}>Upload</div>
-                        </div>
-                      </Upload>
-                    </Form.Item> */}
-
                     <MinusCircleOutlined onClick={() => remove(name)} />
                   </Space>
                 ))}
