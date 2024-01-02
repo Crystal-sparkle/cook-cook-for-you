@@ -48,6 +48,7 @@ body, .ant {
 `;
 
 const App: React.FC = () => {
+  const [loading, setLoading] = useState<boolean>(true);
   const [user, setUser] = useState(() => {
     return auth.currentUser;
   });
@@ -56,8 +57,11 @@ const App: React.FC = () => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
         setUser(user);
+        setLoading(false);
+        console.log("auth.currentUser", auth.currentUser);
       } else {
         setUser(null);
+        setLoading(false);
       }
     });
 
@@ -80,26 +84,26 @@ const App: React.FC = () => {
         }}
       >
         <GlobalStyle />
-        {/* <AuthContext.Provider value={{ user }}></AuthContext.Provider> */}
         <AuthContextProvider>
           <Header />
           <Routes>
-            {/* <Route path="/" element={<AddDailyMeal user={user} />} /> */}
-            {/* <Route path="/"> */}
-            {user ? (
+            {!loading && (
               <>
-                <Route path="/" element={<AddDailyMeal user={user} />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/recipes" element={<Recipes />} />
+                {user ? (
+                  <>
+                    <Route path="/" element={<AddDailyMeal user={user} />} />
+                    <Route path="/profile" element={<Profile />} />
+                    <Route path="/recipes" element={<Recipes />} />
+                  </>
+                ) : (
+                  <Route path="*" element={<Login />} />
+                )}
+                <Route
+                  path="/login"
+                  element={user ? <Navigate to="/dailymealplan" /> : <Login />}
+                />
               </>
-            ) : (
-              <Route path="*" element={<Login />} />
             )}
-            {/* </Route> */}
-            <Route
-              path="/login"
-              element={user ? <Navigate to="/dailymealplan" /> : <Login />}
-            />
             <Route
               path="/shopping/:userId/:purchasePlanId"
               element={<Shopping />}
