@@ -54,8 +54,8 @@ const LoginFormContainer = styled.div`
   z-index: 3;
 `;
 function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("test@gmail.com");
+  const [password, setPassword] = useState("111111");
   const [userName, SetUserName] = useState("");
 
   const handleRegister = async () => {
@@ -151,7 +151,7 @@ function Login() {
                   <Button
                     type="primary"
                     onClick={handleLogin}
-                    style={{ fontSize: "18px", height: "36px" }}
+                    style={{ fontSize: "16px", height: "36px" }}
                   >
                     Login
                   </Button>
@@ -160,7 +160,7 @@ function Login() {
                   <Button
                     type="primary"
                     onClick={handleLogout}
-                    style={{ fontSize: "18px", height: "36px" }}
+                    style={{ fontSize: "16px", height: "36px" }}
                   >
                     Logout
                   </Button>
@@ -180,7 +180,7 @@ function Login() {
               <ProCard
                 title="註冊帳號"
                 tooltip="請輸入有效帳號"
-                style={{ maxWidth: 400, margin: 100 }}
+                style={{ maxWidth: 440, padding: "10px", fontSize: "20px" }}
                 boxShadow
               >
                 <Space
