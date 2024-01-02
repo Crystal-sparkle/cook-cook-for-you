@@ -8,6 +8,7 @@ import {
   where,
 } from "firebase/firestore";
 import React, { useState } from "react";
+import styled from "styled-components";
 import { auth, db } from "../../firbase";
 import { PartnerType } from "../../types";
 
@@ -71,11 +72,15 @@ const Partner: React.FC = () => {
     }
   };
 
+  const PartnerContainer = styled.div`
+    margin: 10 auto;
+    width: 70%;
+  `;
+
   return (
-    <>
+    <PartnerContainer>
       <ProCard style={{ maxWidth: 500, margin: 0 }} boxShadow>
         <Space></Space>
-
         <ProForm
           labelCol={{ span: 4 }}
           wrapperCol={{ span: 14 }}
@@ -96,9 +101,8 @@ const Partner: React.FC = () => {
               width="md"
               label="夥伴 1 信箱 "
               name="partner1Email"
-              labelCol={{ span: 8 }} // 設置 label 的寬度
+              labelCol={{ span: 8 }}
             />
-
             <ProFormText
               width="md"
               label="夥伴 1 名字 "
@@ -112,7 +116,6 @@ const Partner: React.FC = () => {
               name="partner2Email"
               labelCol={{ span: 8 }}
             />
-
             <ProFormText
               width="md"
               label="夥伴 2 名字 "
@@ -122,7 +125,7 @@ const Partner: React.FC = () => {
           </ProForm.Group>
         </ProForm>
       </ProCard>
-    </>
+    </PartnerContainer>
   );
 };
 export default Partner;

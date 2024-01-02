@@ -18,14 +18,17 @@ const BannerImg = styled.div`
   display: flex;
   align-items: center;
 `;
+const RecipeFormWrapper = styled.div`
+  margin: 0 auto;
+`;
 
 const Recipes: React.FC = () => {
   return (
     <div>
       <BannerImg>
-        <div style={{ margin: "0 auto" }}>
+        <RecipeFormWrapper>
           <RecipeForm />
-        </div>
+        </RecipeFormWrapper>
       </BannerImg>
       <Wrapper>
         <div>

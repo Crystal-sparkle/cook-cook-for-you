@@ -61,7 +61,23 @@ const InputCheck = styled.input`
   height: 16px;
 `;
 
-const ShoppingList: FC<ShoppingListProps> = ({ purchasePlan, user, index }) => {
+const Wrapper = styled.div`
+  padding: 10px 20px;
+`;
+
+const ShoppingListTitle = styled.div`
+  font-size: 18px;
+`;
+
+const ShoppingItems = styled.div`
+  margin-top: 10px;
+  margin-bottom: 10px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-around;
+`;
+
 const ShoppingList: FC<ShoppingListProps> = ({ purchasePlan, index }) => {
   const userInformation = useContext(AuthContext);
 
@@ -190,12 +206,12 @@ const ShoppingList: FC<ShoppingListProps> = ({ purchasePlan, index }) => {
   };
 
   return (
-    <div style={{ padding: "10px,20px" }}>
+    <Wrapper>
       <TitleContainer>
-        <div style={{ fontSize: 18 }}>
+        <ShoppingListTitle>
           烹煮計畫日期：
           {cookingDate?.toDate().toLocaleDateString()}
-        </div>
+        </ShoppingListTitle>
         <div>共計 {items?.length} 個</div>
       </TitleContainer>
       <Header>
@@ -209,16 +225,7 @@ const ShoppingList: FC<ShoppingListProps> = ({ purchasePlan, index }) => {
 
       {items?.map((purchaseItem, itemIndex) => (
         <div key={itemIndex}>
-          <div
-            style={{
-              marginTop: 10,
-              marginBottom: 10,
-              display: "flex",
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "space-around",
-            }}
-          >
+          <ShoppingItems>
             <Item>
               <InputCheck
                 type="checkbox"
@@ -247,11 +254,11 @@ const ShoppingList: FC<ShoppingListProps> = ({ purchasePlan, index }) => {
                 ))}
               </Select>
             </Item>
-          </div>
+          </ShoppingItems>
           <hr />
         </div>
       ))}
-    </div>
+    </Wrapper>
   );
 };
 

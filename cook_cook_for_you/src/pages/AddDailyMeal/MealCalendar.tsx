@@ -19,6 +19,12 @@ import {
 import React, { useEffect, useState } from "react";
 import { db } from "../../firbase";
 import { DailyMealPlan } from "../../types";
+const CalerdarWrapper = styled.div`
+  margin: 5px;
+  border-radius: 5px;
+  background-color: #b7dbdf;
+  height: 794px;
+`;
 
 const MealCalendar: React.FC = () => {
   const [thisMonthMealPlans, setThisMonthMealPlans] = useState<DailyMealPlan[]>(
@@ -148,14 +154,7 @@ const MealCalendar: React.FC = () => {
   };
 
   return (
-    <div
-      style={{
-        margin: "5px",
-        borderRadius: "5px",
-        backgroundColor: "#b7dbdf",
-        height: "794px",
-      }}
-    >
+    <CalerdarWrapper>
       <Calendar
         style={{
           borderRadius: "5px",
@@ -168,7 +167,7 @@ const MealCalendar: React.FC = () => {
           console.log("點擊的日期是" + date.toDate());
         }}
       />
-    </div>
+    </CalerdarWrapper>
   );
 };
 

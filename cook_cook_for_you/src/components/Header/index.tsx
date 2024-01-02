@@ -65,21 +65,21 @@ const ImageWrapper = styled.div`
   bottom: -22px;
   left: 50%;
 `;
-const dripAnimation = keyframes`
-  0% { opacity: 0; transform: translateY(0); }
-  50% { opacity: 1; }
-  100% { opacity: 0; transform: translateY(50px); }
+// const dripAnimation = keyframes`
+//   0% { opacity: 0; transform: translateY(0); }
+//   50% { opacity: 1; }
+//   100% { opacity: 0; transform: translateY(50px); }
 `;
-const LemonJuice = styled.div`
-  width: 7px;
-  height: 16px;
-  background-color: #eed73e;
-  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
-  position: absolute;
-  top: 100px;
-  left: 50px;
-  animation: ${dripAnimation} 3s ease-out infinite;
-`;
+// const LemonJuice = styled.div`;
+//   width: 7px;
+//   height: 16px;
+//   background-color: #eed73e;
+//   border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+//   position: absolute;
+//   top: 100px;
+//   left: 50px;
+//   animation: ${dripAnimation} 3s ease-out infinite;
+// `;
 
 function Header() {
   const handleLogout = async () => {
@@ -194,10 +194,10 @@ function Header() {
       <div style={{ position: "absolute", width: "100%" }}>
         <ImageWrapper>
           <RotatingImage src={lemonCircle} alt="Rotating Image" />
-          <LemonJuice
+          {/* <LemonJuice
             style={{ animationDelay: "5s", left: "40px", top: "30px" }}
           />
-          <LemonJuice style={{ animationDelay: "7s", left: "50px" }} />
+          <LemonJuice style={{ animationDelay: "7s", left: "50px" }} /> */}
         </ImageWrapper>
       </div>
     </div>

@@ -167,7 +167,7 @@ export const IngredientsOrder = styled.div`
   line-height: 24px;
 `;
 export const LoadingSpinner = styled.img`
-  width: 80%;
+  width: 100%;
   height: 80%;
   margin: 0 auto;
   background-position: center;
