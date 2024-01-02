@@ -156,8 +156,8 @@ const RecipeDisplay: React.FC = () => {
           setUserRecipe(results);
           setLoading(false);
         },
-        (error) => {
-          console.error(error);
+        () => {
+          message.error("發生錯誤");
         }
       );
 
@@ -169,18 +169,16 @@ const RecipeDisplay: React.FC = () => {
 
   const [mainPhoto, setMainPhoto] = useState("");
   const handleUpload = async (file: RcFile) => {
-    console.log(file);
     try {
       const imageRef = ref(storage, `images/${file.name + file.uid}.jpg`);
 
       const snapshot = await uploadBytes(imageRef, file);
 
       const downloadURL = await getDownloadURL(snapshot.ref);
-      console.log("Image uploaded:", downloadURL);
 
       setMainPhoto(downloadURL);
-    } catch (error) {
-      console.error("Error uploading image:", error);
+    } catch {
+      message.error("Error uploading image");
     }
   };
 
@@ -305,14 +303,11 @@ const RecipeDisplay: React.FC = () => {
                                     handleUpload(file as RcFile)
                                       .then(() => onSuccess?.(true))
                                       .catch((error) => {
-                                        console.error(
-                                          "Custom upload error:",
-                                          error
-                                        );
+                                        message.error("上傳失敗", error);
                                         onError?.(error);
                                       });
                                   } else {
-                                    console.error("File is undefined");
+                                    message.error("File is undefined");
                                     onError?.(new Error("File is undefined"));
                                   }
                                 }}
