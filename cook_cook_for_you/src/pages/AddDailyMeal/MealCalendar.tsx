@@ -1,6 +1,6 @@
 import type { CalendarProps } from "antd";
 
-import { Calendar, Tag } from "antd";
+import { Calendar, Popover, Tag, message } from "antd";
 import type { Dayjs } from "dayjs";
 import dayjs from "dayjs";
 import "firebase/database";
@@ -13,9 +13,13 @@ import {
   setDoc,
   where,
 } from "firebase/firestore";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
+import styled from "styled-components";
+import { AuthContext } from "../../context/authContext";
 import { db } from "../../firbase";
-import { DailyMealPlan } from "../../types";
+import { CalerdarContent, DailyMealPlan } from "../../types";
+dayjs.locale("zh-cn");
+
 const CalerdarWrapper = styled.div`
   margin: 5px;
   border-radius: 5px;
@@ -27,14 +31,14 @@ const MealCalendar: React.FC = () => {
   const [thisMonthMealPlans, setThisMonthMealPlans] = useState<DailyMealPlan[]>(
     []
   );
-
+  const userInformation = useContext(AuthContext);
+  const currentUserUid = userInformation?.user?.uid;
   useEffect(() => {
     const handleDailyMealPlan = () => {
       const DailyMealPlanCollection = collection(db, "DailyMealPlan");
       const queryRef = query(
         DailyMealPlanCollection,
-        where("planDate", ">", Timestamp.fromDate(new Date(2023, 9, 1))),
-        where("planDate", "<", Timestamp.fromDate(new Date(2024, 11, 1)))
+        where("userId", "==", currentUserUid)
       );
 
       const unsubscribe = onSnapshot(
@@ -113,20 +117,22 @@ const MealCalendar: React.FC = () => {
       <li key={index}>
         {item.content.map((menu, subIndex) =>
           Array.from({ length: menu.serving }).map((_, servingIndex) => (
-            <Tag
-              style={{
-                fontSize: "16px",
-                backgroundColor: "#b7dbdf",
-                color: "#211607",
-                marginBottom: "5px",
-                padding: "3px",
-              }}
-              key={subIndex + servingIndex}
-              closable
-              onClose={preventDefault(value, menu, item.id)}
-            >
-              {menu.name}
-            </Tag>
+            <Popover trigger="hover" content={menu.name}>
+              <Tag
+                style={{
+                  fontSize: "16px",
+                  backgroundColor: "#b7dbdf",
+                  color: "#211607",
+                  marginBottom: "5px",
+                  padding: "3px",
+                }}
+                key={subIndex + servingIndex}
+                closable
+                onClose={preventDefault(menu, item.id)}
+              >
+                {menu.name}
+              </Tag>
+            </Popover>
           ))
         )}
       </li>
