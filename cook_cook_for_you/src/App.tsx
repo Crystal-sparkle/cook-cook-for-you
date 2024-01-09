@@ -100,7 +100,7 @@ const App: React.FC = () => {
                 )}
                 <Route
                   path="/login"
-                  element={user ? <Navigate to="/dailymealplan" /> : <Login />}
+                  element={user ? <Navigate to="/" /> : <Login />}
                 />
               </>
             )}

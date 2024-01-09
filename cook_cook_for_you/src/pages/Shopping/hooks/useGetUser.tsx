@@ -1,3 +1,4 @@
+import { message } from "antd";
 import { User } from "firebase/auth";
 import "firebase/database";
 import { collection, onSnapshot, query, where } from "firebase/firestore";
@@ -24,8 +25,8 @@ const useGetUser = (userId: string | undefined) => {
 
           setUser(results[0]);
         },
-        (error) => {
-          console.error("取得資料時發生錯誤:", error);
+        () => {
+          message.error("取得資料時發生錯誤");
         }
       );
 

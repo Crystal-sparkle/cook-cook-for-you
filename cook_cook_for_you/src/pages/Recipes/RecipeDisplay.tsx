@@ -220,7 +220,7 @@ const RecipeDisplay: React.FC = () => {
                 message.success("新增成功");
                 return true;
               } catch (error) {
-                message.error("新增失败");
+                message.error("新增失敗");
               }
             };
 

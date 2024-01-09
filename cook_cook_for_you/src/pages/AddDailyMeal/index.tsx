@@ -89,8 +89,8 @@ const AddDailyMeal = ({ user }: AddDailyMealProps) => {
 
           setPurchasePanCollection(results);
         },
-        (error) => {
-          message.error("取得資料時發生錯誤", error);
+        () => {
+          message.error("取得資料時發生錯誤");
         }
       );
 

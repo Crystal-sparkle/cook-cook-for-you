@@ -140,6 +140,7 @@ const ShoppingList: FC<ShoppingListProps> = ({ purchasePlan, index }) => {
       const querySnapshot = await getDocs(q);
       querySnapshot.forEach(async (doc) => {
         const docRef = doc.ref;
+        console.log(planIndex);
 
         const docData = (await getDoc(docRef)).data();
 
