@@ -10,12 +10,13 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@ant-design/pro-components": "^2.6.43",
     "antd": "^5.11.2",
     "dayjs": "^1.11.10",
     "firebase": "^10.6.0",
     "react": "^18.2.0",
-    "react-big-calendar": "^1.8.5",
     "react-dom": "^18.2.0",
+    "react-router-dom": "^6.19.0",
     "styled-components": "^6.1.1"
   },
   "devDependencies": {
@@ -28,6 +29,7 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.4",
     "typescript": "^5.2.2",
-    "vite": "^5.0.0"
+    "vite": "^5.0.0",
+    "vite-plugin-style-import": "^2.0.0"
   }
 }
