@@ -6,14 +6,14 @@ import "firebase/database";
 import React, { useEffect, useState } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { createGlobalStyle } from "styled-components";
-import Header from "./components/Header";
+import Header from "./components/Header/index.tsx";
 import { AuthContextProvider } from "./context/authContext.tsx";
-import { auth } from "./firbase";
+import { auth } from "./firbase.ts";
 import AddDailyMeal from "./pages/AddDailyMeal/index.tsx";
 import Login from "./pages/Login.tsx";
 import Profile from "./pages/Profile/index.tsx";
 import Recipes from "./pages/Recipes/index.tsx";
-import Shopping from "./pages/Shopping";
+import Shopping from "./pages/Shopping/index.tsx";
 dayjs.locale("zh-cn");
 
 const GlobalStyle = createGlobalStyle`

@@ -64,7 +64,7 @@ import {
   TipsContainer,
   TipsTitle,
   TitleContent,
-} from "../Recipes/recipes.style";
+} from "./recipes.style";
 const { Title } = Typography;
 interface FileListObject {
   fileList: UploadFile[];
