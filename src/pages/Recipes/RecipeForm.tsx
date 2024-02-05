@@ -35,12 +35,6 @@ const StyledButton = styled(Button)`
   }
 `;
 
-const Wrapper = styled.div`
-  margin: 10px;
-  padding: 100px;
-  border-radius: 20px;
-`;
-
 const waitTime = (time: number = 100) => {
   return new Promise((resolve) => {
     setTimeout(() => {
@@ -149,7 +143,7 @@ const RecipeForm: React.FC = () => {
   };
 
   return (
-    <Wrapper>
+    <div>
       <ModalForm<Recipe>
         title="建立食譜"
         trigger={
@@ -345,7 +339,7 @@ const RecipeForm: React.FC = () => {
         <ProFormText width="lg" name="refLink" label="參考連結" />
         <ProFormTextArea width="lg" name="note" label="備註" />
       </ModalForm>
-    </Wrapper>
+    </div>
   );
 };
 export default RecipeForm;

@@ -14,16 +14,7 @@ import {
   ProFormText,
   ProFormTextArea,
 } from "@ant-design/pro-components";
-import {
-  Button,
-  Drawer,
-  Form,
-  Input,
-  Space,
-  Typography,
-  Upload,
-  message,
-} from "antd";
+import { Button, Drawer, Form, Input, Space, Upload, message } from "antd";
 import type { RcFile, UploadFile } from "antd/es/upload";
 import "firebase/database";
 import {
@@ -63,9 +54,10 @@ import {
   Tips,
   TipsContainer,
   TipsTitle,
+  Title,
   TitleContent,
 } from "./recipes.style";
-const { Title } = Typography;
+
 interface FileListObject {
   fileList: UploadFile[];
 }
@@ -238,7 +230,7 @@ const RecipeDisplay: React.FC = () => {
                     </ImageContainer>
                     <div style={{ display: "flex", alignItems: "center" }}>
                       <TitleContent>
-                        <Title level={4}>{item.name}</Title>
+                        <Title>{item.name}</Title>
                       </TitleContent>
                       <div>
                         <ModalForm<Recipe>
@@ -518,7 +510,7 @@ const RecipeDisplay: React.FC = () => {
                     >
                       {currentItem && (
                         <>
-                          <Title level={3}>{currentItem.name}</Title>
+                          <Title>{currentItem.name}</Title>
                           <ImageDisplay>
                             <img
                               src={currentItem.mainPhoto}

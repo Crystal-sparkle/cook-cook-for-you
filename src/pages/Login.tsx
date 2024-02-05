@@ -54,7 +54,7 @@ const LoginFormContainer = styled.div`
   z-index: 3;
 `;
 function Login() {
-  const [email, setEmail] = useState("test@gmail.com");
+  const [email, setEmail] = useState("jing@gmail.com");
   const [password, setPassword] = useState("111111");
   const [userName, SetUserName] = useState("");
 

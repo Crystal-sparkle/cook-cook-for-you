@@ -45,6 +45,13 @@ export const TitleContent = styled.div`
   margin-bottom: 3px;
 `;
 
+export const Title = styled.div`
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 16px;
+  margin-top: 12px;
+`;
+
 export const CardContent = styled.div`
   display: flex;
   flex-direction: row;
