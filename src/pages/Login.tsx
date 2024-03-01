@@ -1,58 +1,25 @@
 import { UserOutlined } from "@ant-design/icons";
-import { ProCard } from "@ant-design/pro-components";
-import { Button, Flex, Input, Space, message } from "antd";
+import { Button, Flex, Space, message } from "antd";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
-  signOut,
 } from "firebase/auth";
 import "firebase/firestore";
 import { useState } from "react";
-import styled from "styled-components";
 import { auth } from "../firbase";
 
-const VideoContainer = styled.div`
-  position: relative;
-  width: 100%;
-  height: 100vh;
-  overflow: hidden;
-`;
+import {
+  Background,
+  InputStyle,
+  LoginButtonStyle,
+  LoginFormContainer,
+  Overlay,
+  ProCardStyle,
+  SigninButtonStyle,
+  SpaceStyle,
+  VideoContainer,
+} from "./login.style";
 
-const BackgroundVideo = styled.video`
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 100%;
-  height: auto;
-
-  transform: translate(-50%, -50%);
-  z-index: 1;
-
-  @media (min-aspect-ratio: 16/9) {
-    width: 100%;
-    height: auto;
-  }
-`;
-
-const Overlay = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.7);
-  z-index: 2;
-`;
-
-const LoginFormContainer = styled.div`
-  position: absolute;
-  top: 30%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 40%;
-
-  z-index: 3;
-`;
 function Login() {
   const [email, setEmail] = useState("jing@gmail.com");
   const [password, setPassword] = useState("111111");
@@ -84,14 +51,6 @@ function Login() {
       message.error("登入失敗");
     }
   };
-  const handleLogout = async () => {
-    try {
-      await signOut(auth);
-      message.success("登出成功!");
-    } catch (error) {
-      message.error("登出失敗");
-    }
-  };
 
   const [showLogin, setShowLogin] = useState(true);
 
@@ -102,131 +61,88 @@ function Login() {
   return (
     <>
       <VideoContainer>
-        <BackgroundVideo autoPlay loop muted playsInline>
+        {/* <BackgroundVideo autoPlay loop muted playsInline>
           <source
-            src="https://firebasestorage.googleapis.com/v0/b/cook-cook-for-you-test.appspot.com/o/baking-cut.mp4?alt=media&token=6f6d9fdc-1d05-4f51-9f8b-7d30b213e1de"
-            type="video/mp4"
+          // src="https://firebasestorage.googleapis.com/v0/b/cook-cook-for-you-test.appspot.com/o/baking-cut.mp4?alt=media&token=6f6d9fdc-1d05-4f51-9f8b-7d30b213e1de"
+          // type="video/mp4"
           />
-        </BackgroundVideo>
+        </BackgroundVideo> */}
+        <Background src="https://firebasestorage.googleapis.com/v0/b/cook-cook-for-you-test.appspot.com/o/%E8%8D%89%E8%8E%93%E6%B2%99%E6%8B%89.jpeg?alt=media&token=4d731914-153f-4001-b7cb-bd451c343968" />
         <Overlay />
         <LoginFormContainer>
           {showLogin ? (
             <Flex wrap="wrap" gap="small" justify="center" align="middle">
-              <ProCard
-                title="登入"
-                style={{
-                  maxWidth: 440,
-                  padding: "10px",
-                  fontSize: "20px",
-                  backgroundColor: " rgba(255, 255, 255, 0.9)",
-                }}
-                boxShadow
-              >
-                <Space
-                  direction="vertical"
-                  size="middle"
-                  style={{ display: "flex" }}
-                >
-                  <Input
+              <ProCardStyle title="登入" boxShadow>
+                <SpaceStyle direction="vertical" size="middle">
+                  <InputStyle
                     size="large"
                     placeholder="E-mail"
                     prefix={<UserOutlined />}
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    style={{ height: "40px" }}
                   />
-                  <Input
+                  <InputStyle
                     size="large"
                     type="password"
                     placeholder="Password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    style={{ height: "40px" }}
                   />
                   <br />
-                </Space>
-
+                </SpaceStyle>
                 <Space>
-                  <Button
-                    type="primary"
-                    onClick={handleLogin}
-                    style={{ fontSize: "16px", height: "36px" }}
-                  >
+                  <Button type="primary" onClick={handleLogin}>
                     Login
                   </Button>
                   <br />
                   <br />
-                  <Button
-                    type="primary"
-                    onClick={handleLogout}
-                    style={{ fontSize: "16px", height: "36px" }}
-                  >
+                  {/* <SigninButtonStyle type="primary" onClick={handleLogout}>
                     Logout
-                  </Button>
-                  <br />
-                  <Button
-                    type="link"
-                    onClick={handleToggle}
-                    style={{ fontSize: "16px" }}
-                  >
-                    還沒有帳號嗎？ 點選註冊
-                  </Button>
+                  </SigninButtonStyle>
+                  <br /> */}
+                  <SigninButtonStyle type="link" onClick={handleToggle}>
+                    新帳號註冊
+                  </SigninButtonStyle>
                 </Space>
-              </ProCard>
+              </ProCardStyle>
             </Flex>
           ) : (
             <Flex wrap="wrap" gap="small" justify="center" align="middle">
-              <ProCard
-                title="註冊帳號"
-                tooltip="請輸入有效帳號"
-                style={{ maxWidth: 440, padding: "10px", fontSize: "20px" }}
-                boxShadow
-              >
-                <Space
-                  direction="vertical"
-                  size="middle"
-                  style={{ display: "flex" }}
-                >
-                  <Input
+              <ProCardStyle title="註冊帳號" tooltip="請輸入有效帳號" boxShadow>
+                <Space direction="vertical" size="middle">
+                  <InputStyle
                     size="large"
                     type="name"
                     placeholder="Crystal"
                     value={userName}
                     onChange={(e) => SetUserName(e.target.value)}
-                    style={{ height: "40px" }}
                   />
 
-                  <Input
+                  <InputStyle
                     size="large"
                     placeholder="E-mail"
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    style={{ height: "40px" }}
                   />
-                  <Input
+                  <InputStyle
                     size="large"
                     type="password"
                     placeholder="Password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    style={{ height: "40px" }}
                   />
-                  <br />
+                  <div>
+                    <Button type="primary" onClick={handleRegister}>
+                      Register
+                    </Button>
+                    <LoginButtonStyle type="link" onClick={handleToggle}>
+                      已有帳號囉
+                    </LoginButtonStyle>
+                  </div>
                 </Space>
-
-                <Button type="primary" onClick={handleRegister}>
-                  Register
-                </Button>
-                <Button
-                  style={{ marginLeft: "5px" }}
-                  type="link"
-                  onClick={handleToggle}
-                >
-                  已有帳號囉 點選登入
-                </Button>
-              </ProCard>
+              </ProCardStyle>
             </Flex>
           )}
         </LoginFormContainer>
