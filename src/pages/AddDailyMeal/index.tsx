@@ -1,4 +1,4 @@
-import { Button, Steps, message, theme } from "antd";
+import { Button, Steps, message } from "antd";
 import "firebase/database";
 import {
   collection,
@@ -8,36 +8,28 @@ import {
   updateDoc,
   where,
 } from "firebase/firestore";
-import React, { useEffect, useState } from "react";
-import styled from "styled-components";
+import { useEffect, useState } from "react";
 import { db } from "../../firbase";
 import { AddDailyMealProps, CookingPlanData, PurchasePlan } from "../../types";
 import CookingSchedule from "./CookingSchedule";
 import MealCalendar from "./MealCalendar";
 import PurchasingPlan from "./PurchasingPlan";
 import SelectMenu from "./SelectMenu";
-
-const Image = styled.img`
-  width: 100%;
-  height: 150px;
-  object-fit: cover;
-  object-position: 50% -110px;
-`;
-const MainContent = styled.div`
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  padding: 5px;
-  border-radius: 5px;
-`;
+import {
+  Cotent,
+  Image,
+  MainContent,
+  MealCalenderWrapper,
+  StepsButton,
+  StepsWrapper,
+} from "./addDailyMeal.style";
 
 const AddDailyMeal = ({ user }: AddDailyMealProps) => {
   const [cookingPlanId, setCookingPlanId] = useState<string>("");
   const [activeCookingPlan, setActiveCookingPlan] = useState<
     CookingPlanData | undefined
   >();
-  const { token } = theme.useToken();
+  // const { token } = theme.useToken();
   const [current, setCurrent] = useState(0);
   const [purchasePlanCollection, setPurchasePanCollection] = useState<
     PurchasePlan[]
@@ -118,7 +110,7 @@ const AddDailyMeal = ({ user }: AddDailyMealProps) => {
       ),
     },
     {
-      title: "確認食材列表",
+      title: "生成購買清單",
       content: (
         <PurchasingPlan
           user={user}
@@ -148,16 +140,14 @@ const AddDailyMeal = ({ user }: AddDailyMealProps) => {
 
   const items = steps.map((item) => ({ key: item.title, title: item.title }));
 
-  const contentStyle: React.CSSProperties = {
-    lineHeight: "120px",
-    textAlign: "start",
-    color: token.colorTextTertiary,
-
-    borderRadius: token.borderRadiusLG,
-
-    marginTop: "6px",
-    width: "100%",
-  };
+  // const contentStyle: React.CSSProperties = {
+  //   lineHeight: "120px",
+  //   textAlign: "start",
+  //   color: token.colorTextTertiary,
+  //   borderRadius: token.borderRadiusLG,
+  //   marginTop: "6px",
+  //   width: "100%",
+  // };
 
   const handleProjectClose = () => {
     const closePurchasePlan = async () => {
@@ -208,14 +198,9 @@ const AddDailyMeal = ({ user }: AddDailyMealProps) => {
 
       <Image src="https://firebasestorage.googleapis.com/v0/b/cook-cook-for-you-test.appspot.com/o/images%2Fbanner1.jpeg?alt=media&token=25e37ec8-3cd2-49c1-ac36-cc513642360d" />
       <MainContent>
-        <div style={{ width: "22%" }}>
-          <Steps
-            direction="vertical"
-            current={current}
-            items={items}
-            style={{ width: "100%" }}
-          />
-          <div style={{ marginTop: 24 }}>
+        <StepsWrapper>
+          <Steps direction="vertical" current={current} items={items} />
+          <StepsButton>
             {current === 0 && (
               <Button type="primary" onClick={() => next()}>
                 下一步
@@ -231,13 +216,13 @@ const AddDailyMeal = ({ user }: AddDailyMealProps) => {
                 上一步
               </Button>
             )}
-          </div>
-          <div style={contentStyle}>{steps[current].content}</div>
-        </div>
+          </StepsButton>
+          <Cotent>{steps[current].content}</Cotent>
+        </StepsWrapper>
 
-        <div style={{ width: "77%" }}>
+        <MealCalenderWrapper>
           <MealCalendar />
-        </div>
+        </MealCalenderWrapper>
       </MainContent>
     </>
   );
