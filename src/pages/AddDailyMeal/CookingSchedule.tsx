@@ -1,5 +1,5 @@
 import type { DatePickerProps } from "antd";
-import { Button, Card, DatePicker, Modal, Space, message } from "antd";
+import { Card, DatePicker, Modal, Space, message } from "antd";
 import type { Dayjs } from "dayjs";
 import dayjs from "dayjs";
 import {
@@ -13,42 +13,23 @@ import {
   where,
 } from "firebase/firestore";
 import { useContext, useEffect, useState } from "react";
-import styled from "styled-components";
 import { AuthContext } from "../../context/authContext";
 import { db } from "../../firbase";
 import { Accumulator, CookingScheduleProps, MealPlan } from "../../types";
+import {
+  CardStyle,
+  CookingScheduleButton,
+  ModleText,
+  PhotoWrapper,
+  ServingItem,
+  ServingList,
+  ShoppingListPhoto,
+  TotalServingTitle,
+  Wrapper,
+} from "./CookingSchedule.style";
 type RangeValue = [Dayjs | null, Dayjs | null] | null;
 const { Meta } = Card;
 const { RangePicker } = DatePicker;
-
-const Wrapper = styled.div`
-  border: 2px;
-  border-radius: 10px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin: 0 auto;
-  justify-content: space-between;
-`;
-
-const TotalServingTitle = styled.div`
-  font-size: 14px;
-  margin-top: 5px;
-`;
-
-const ServingList = styled.div`
-  display: flex;
-  flex-direction: column;
-  margin: 5px auto;
-  font-size: 16px;
-  text-align: center;
-`;
-
-const ServingItem = styled.div`
-  display: flex;
-  margin-top: 6px;
-  margin-right: 5px;
-`;
 
 function CookingSchedule({
   setCookingPlanId,
@@ -143,7 +124,7 @@ function CookingSchedule({
 
         setCookingMeals(results);
       } catch (error) {
-        message.error("取的資料失敗");
+        message.error("取得資料失敗");
       }
     };
     if (cookingDate !== undefined && selectDate !== null) {
@@ -228,46 +209,44 @@ function CookingSchedule({
 
   return (
     <Wrapper>
-      <div>
-        <Card
-          style={{
-            width: "100%",
-            marginTop: 6,
-            marginBottom: 10,
-            padding: "5px",
-          }}
-        >
-          <Meta title="烹煮計畫" description="" />
-          <h4>烹煮日期：</h4>
-          <Space direction="vertical">
-            <DatePicker onChange={pickCookingDate} />
-          </Space>
-          <div>
-            <h4>烹飪區間：</h4>
-            <RangePicker
-              value={dates || value}
-              disabledDate={disabledDate}
-              onCalendarChange={(val) => {
-                setDates(val);
-              }}
-              onChange={(val) => {
-                setValue(val);
-              }}
-              onOpenChange={onOpenChange}
-              changeOnBlur
-            />
-            <>
-              <Meta title="" description="" style={{ marginTop: 6 }} />
-
-              <TotalServingTitle>
-                {combinedServingArray.length > 0 ? (
-                  <div>
-                    <h4>烹煮份量：</h4>(總共{combinedServingArray.length}道)
-                  </div>
-                ) : (
-                  <div></div>
-                )}
-              </TotalServingTitle>
+      <CardStyle>
+        <Meta title="烹煮計畫" description="" />
+        <h4>烹煮日期：</h4>
+        <Space direction="vertical">
+          <DatePicker onChange={pickCookingDate} size={"small"} />
+        </Space>
+        <div>
+          <h4>烹飪區間：</h4>
+          <RangePicker
+            value={dates || value}
+            disabledDate={disabledDate}
+            onCalendarChange={(val) => {
+              setDates(val);
+            }}
+            onChange={(val) => {
+              setValue(val);
+            }}
+            onOpenChange={onOpenChange}
+            changeOnBlur
+            placement={"bottomRight"}
+            size={"small"}
+          />
+          <>
+            <Meta title="" description="" />
+            <TotalServingTitle>
+              <h4>烹煮份量統計：</h4>
+              {combinedServingArray.length < 1 && value !== null ? (
+                <div>選取區間無已規劃菜單</div>
+              ) : (
+                <div></div>
+              )}
+              {value === null ? (
+                <ServingItem>尚未選取料理日期</ServingItem>
+              ) : (
+                <div></div>
+              )}
+            </TotalServingTitle>
+            {cookingMeals.length > 0 && value !== null ? (
               <ServingList>
                 {combinedServingArray?.map((meal, index) => (
                   <ServingItem key={index}>
@@ -280,34 +259,37 @@ function CookingSchedule({
                   </ServingItem>
                 ))}
               </ServingList>
-            </>
-            {combinedServingArray.length > 0 ? (
-              <div>
-                <br />
-                <Button
-                  type="primary"
-                  style={{ backgroundColor: "#b7dbdf", color: "#4b4947" }}
-                  onClick={handleClick}
-                >
-                  確認烹煮計畫
-                </Button>
-              </div>
             ) : (
               <div></div>
             )}
-          </div>
-          <div>
-            <Modal
-              open={visible}
-              onOk={createPurchsingList}
-              onCancel={handleCancel}
-            >
-              <h2>要建立採購清單嗎？</h2>
-            </Modal>
-          </div>
-        </Card>
-      </div>
-      <div></div>
+          </>
+          {combinedServingArray.length > 0 ? (
+            <div>
+              <br />
+              <CookingScheduleButton type="primary" onClick={handleClick}>
+                確認烹煮計畫
+              </CookingScheduleButton>
+            </div>
+          ) : (
+            <div></div>
+          )}
+        </div>
+        <div>
+          <Modal
+            open={visible}
+            onOk={createPurchsingList}
+            onCancel={handleCancel}
+          >
+            <ModleText>要建立採購清單嗎？</ModleText>
+            <PhotoWrapper>
+              <ShoppingListPhoto
+                src="https://firebasestorage.googleapis.com/v0/b/cook-cook-for-you-test.appspot.com/o/shoppingList.jpeg?alt=media&token=c7fe0a6f-e59c-44a1-9725-6bfe30b477f9"
+                alt="shoppingList picture "
+              />
+            </PhotoWrapper>
+          </Modal>
+        </div>
+      </CardStyle>
     </Wrapper>
   );
 }
