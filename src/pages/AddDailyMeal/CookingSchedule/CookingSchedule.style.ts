@@ -1,6 +1,6 @@
 import { Button, Card } from "antd";
 import styled from "styled-components";
-import { device } from "../../utils/breakpoints";
+import { device } from "../../../utils/breakpoints";
 
 export const CardStyle = styled(Card)`
   width: 100%;

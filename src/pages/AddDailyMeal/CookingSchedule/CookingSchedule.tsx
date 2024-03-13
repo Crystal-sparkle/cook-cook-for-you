@@ -1,5 +1,4 @@
-import type { DatePickerProps } from "antd";
-import { Card, DatePicker, Modal, Space, message } from "antd";
+import { Card, Modal, message } from "antd";
 import type { Dayjs } from "dayjs";
 import dayjs from "dayjs";
 import {
@@ -13,9 +12,11 @@ import {
   where,
 } from "firebase/firestore";
 import { useContext, useEffect, useState } from "react";
-import { AuthContext } from "../../context/authContext";
-import { db } from "../../firbase";
-import { Accumulator, CookingScheduleProps, MealPlan } from "../../types";
+import { AuthContext } from "../../../context/authContext";
+import { db } from "../../../firbase";
+import { Accumulator, CookingScheduleProps, MealPlan } from "../../../types";
+import CookingDatePicker from "./CookingDatePicker";
+import CookingRangePicker from "./CookingRangePicker";
 import {
   CardStyle,
   CookingScheduleButton,
@@ -29,7 +30,6 @@ import {
 } from "./CookingSchedule.style";
 type RangeValue = [Dayjs | null, Dayjs | null] | null;
 const { Meta } = Card;
-const { RangePicker } = DatePicker;
 
 function CookingSchedule({
   setCookingPlanId,
@@ -39,33 +39,8 @@ function CookingSchedule({
   const currentUserUid = userInformation?.user?.uid;
 
   const [cookingDate, setCookingDate] = useState<Date | undefined>();
-  const pickCookingDate: DatePickerProps["onChange"] = (date) => {
-    if (date !== null) {
-      const pickDate: Date = date?.toDate();
-      setCookingDate(pickDate);
-    }
-  };
 
-  const [dates, setDates] = useState<RangeValue>(null);
   const [value, setValue] = useState<RangeValue>(null);
-
-  const disabledDate = (current: Dayjs) => {
-    if (!dates) {
-      return false;
-    }
-    const tooLate = dates[0] && current.diff(dates[0], "days") >= 12;
-    const tooEarly = dates[1] && dates[1].diff(current, "days") >= 12;
-    return !!tooEarly || !!tooLate;
-  };
-
-  const onOpenChange = (open: boolean) => {
-    if (open) {
-      setDates([null, null]);
-    } else {
-      setDates(null);
-    }
-  };
-
   const [selectDate, setSelectDate] = useState<(Timestamp | null)[]>([]);
   useEffect(() => {
     if (value !== null) {
@@ -210,33 +185,16 @@ function CookingSchedule({
   return (
     <Wrapper>
       <CardStyle>
-        <Meta title="烹煮計畫" description="" />
-        <h4>烹煮日期：</h4>
-        <Space direction="vertical">
-          <DatePicker onChange={pickCookingDate} size={"small"} />
-        </Space>
+        <Meta title="烹煮計畫" />
+        <CookingDatePicker setCookingDate={setCookingDate} />
         <div>
-          <h4>烹飪區間：</h4>
-          <RangePicker
-            value={dates || value}
-            disabledDate={disabledDate}
-            onCalendarChange={(val) => {
-              setDates(val);
-            }}
-            onChange={(val) => {
-              setValue(val);
-            }}
-            onOpenChange={onOpenChange}
-            changeOnBlur
-            placement={"bottomRight"}
-            size={"small"}
-          />
+          <CookingRangePicker setValue={setValue} value={value} />
           <>
-            <Meta title="" description="" />
+            <Meta />
             <TotalServingTitle>
               <h4>烹煮份量統計：</h4>
               {combinedServingArray.length < 1 && value !== null ? (
-                <div>選取區間無已規劃菜單</div>
+                <div>選取區間無已規劃菜單，請回到上一步規劃每日菜單</div>
               ) : (
                 <div></div>
               )}
