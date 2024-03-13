@@ -1,5 +1,5 @@
-import { ProCard, ProForm, ProFormText } from "@ant-design/pro-components";
-import { Form, Space, message } from "antd";
+import { ModalForm, ProFormText } from "@ant-design/pro-components";
+import { Button, message } from "antd";
 import {
   collection,
   getDocs,
@@ -7,26 +7,17 @@ import {
   updateDoc,
   where,
 } from "firebase/firestore";
-import React, { useState } from "react";
-import styled from "styled-components";
+import React from "react";
 import { auth, db } from "../../firbase";
 import { PartnerType } from "../../types";
-
-type SizeType = Parameters<typeof Form>[0]["size"];
+import { UserOutlinedIconStyle } from "../AddDailyMeal/PurchasingPlan/PurchasingPlan.style";
+import { PartnerContainer, PartnerProCard } from "./partner.style";
 
 const Partner: React.FC = () => {
-  const [componentSize, setComponentSize] = useState<SizeType | "default">(
-    "default"
-  );
-
-  const onFormLayoutChange = ({ size }: { size: SizeType }) => {
-    setComponentSize(size);
-  };
-
   const currentUser = auth.currentUser;
   const currentUid: string = currentUser?.uid ?? "";
 
-  const handleParnerValue = async (values: PartnerType) => {
+  const handleParnerList = async (values: PartnerType) => {
     if (!currentUid) {
       return false;
     }
@@ -34,19 +25,11 @@ const Partner: React.FC = () => {
     const q = query(userCollection, where("uid", "==", currentUid));
 
     try {
-      if (
-        !values.partner1Name ||
-        !values.partner1Email ||
-        !values.partner2Name ||
-        !values.partner2Email
-      ) {
+      if (!values.partner1Name) {
         message.error("Missing partner details");
         return false;
       }
-      const partners = [
-        { name: values.partner1Name, email: values.partner1Email },
-        { name: values.partner2Name, email: values.partner2Email },
-      ];
+      const partners = [values.partner1Name, values.partner2Name];
 
       const querySnapshot = await getDocs(q);
       if (querySnapshot.empty) {
@@ -55,6 +38,7 @@ const Partner: React.FC = () => {
       }
       querySnapshot.forEach(async (doc: { ref: any }) => {
         const docRef = doc.ref;
+
         await updateDoc(docRef, {
           partners,
         });
@@ -68,37 +52,23 @@ const Partner: React.FC = () => {
     }
   };
 
-  const PartnerContainer = styled.div`
-    margin: 10 auto;
-    width: 70%;
-  `;
-
   return (
-    <PartnerContainer>
-      <ProCard style={{ maxWidth: 500, margin: 0 }} boxShadow>
-        <Space></Space>
-        <ProForm
-          labelCol={{ span: 4 }}
-          wrapperCol={{ span: 14 }}
-          layout="horizontal"
-          initialValues={{ size: componentSize }}
-          onValuesChange={onFormLayoutChange}
-          size={componentSize as SizeType}
-          style={{ maxWidth: 600 }}
-          onFinish={handleParnerValue}
-          submitter={{
-            searchConfig: {
-              submitText: "確認",
-            },
-          }}
-        >
-          <ProForm.Group>
-            <ProFormText
-              width="md"
-              label="夥伴 1 信箱 "
-              name="partner1Email"
-              labelCol={{ span: 8 }}
-            />
+    <>
+      <ModalForm
+        title="編輯夥伴清單"
+        trigger={
+          <Button type="text">
+            <UserOutlinedIconStyle />
+          </Button>
+        }
+        autoFocusFirstInput
+        modalProps={{
+          destroyOnClose: true,
+        }}
+        onFinish={handleParnerList}
+      >
+        <PartnerContainer>
+          <PartnerProCard>
             <ProFormText
               width="md"
               label="夥伴 1 名字 "
@@ -108,20 +78,14 @@ const Partner: React.FC = () => {
 
             <ProFormText
               width="md"
-              label="夥伴 2 信箱 "
-              name="partner2Email"
-              labelCol={{ span: 8 }}
-            />
-            <ProFormText
-              width="md"
               label="夥伴 2 名字 "
               name="partner2Name"
               labelCol={{ span: 8 }}
             />
-          </ProForm.Group>
-        </ProForm>
-      </ProCard>
-    </PartnerContainer>
+          </PartnerProCard>
+        </PartnerContainer>
+      </ModalForm>
+    </>
   );
 };
 export default Partner;
