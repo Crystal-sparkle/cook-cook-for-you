@@ -1,6 +1,5 @@
-import { CarryOutOutlined, ExportOutlined } from "@ant-design/icons";
 import { ProCard } from "@ant-design/pro-components";
-import { Button, Card, Drawer, Space, message } from "antd";
+import { Card, message } from "antd";
 import {
   collection,
   getDocs,
@@ -9,43 +8,33 @@ import {
   updateDoc,
   where,
 } from "firebase/firestore";
-import { useContext, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-
-import styled from "styled-components";
-import { AuthContext } from "../../context/authContext";
-import { db } from "../../firbase";
-import { CookingPlanItem, PurchasePlan, PurchasePlanProps } from "../../types";
-import ShoppingList from "./ShoppingList";
-
-const Wrapper = styled.div`
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin: 0 auto;
-  justify-content: space-around;
-`;
-
-const CookingDate = styled.div`
-  font-size: 18px;
-  font-weight: bold;
-  margin-bottom: 12px;
-`;
-const ShowServing = styled.div`
-  display: flex;
-  flex-direction: row;
-  margin-bottom: 5px;
-  font-size: 16px;
-`;
+import { useEffect, useState } from "react";
+import { db } from "../../../firbase";
+import {
+  CookingPlanItem,
+  PartnerList,
+  PurchaseList,
+  PurchasePlan,
+  PurchasePlanProps,
+} from "../../../types";
+import Partner from "../../Profile/Partner";
+import useGetPartnerList from "../../Shopping/hooks/useGetPartnerList";
+import PurchasingDrawer from "./PurchasingDrawer";
+import {
+  CookingDate,
+  GroupPartner,
+  Serving,
+  ShowMembers,
+  ShowServing,
+  Wrapper,
+} from "./PurchasingPlan.style";
 
 const PurchasingPlan = ({
   setActiveCookingPlan,
   activeCookingPlan,
   purchasePlanCollection,
 }: PurchasePlanProps) => {
-  const userInformation = useContext(AuthContext);
-  const currentUserUid = userInformation?.user?.uid;
+  const partners: PartnerList[] = useGetPartnerList();
 
   const [activePlanIngredients, setActivePlanIngredients] = useState<
     CookingPlanItem[]
@@ -55,7 +44,7 @@ const PurchasingPlan = ({
     const purchaseMeals = activeCookingPlan?.cookingItems;
 
     if (Array.isArray(purchaseMeals) && purchaseMeals.length > 0) {
-      const getRecipesIngredients = async () => {
+      const getSelectRecipesIngredients = async () => {
         const recipesCollection = collection(db, "recipess");
 
         try {
@@ -70,14 +59,12 @@ const PurchasingPlan = ({
 
               if (!querySnapshot.empty) {
                 const ingredients = querySnapshot.docs[0].data().ingredients;
-                // const serving = meal.serving;
 
                 const newIngredients = {
                   recipeId: meal.id,
                   serving: meal.serving,
                   ingredients: ingredients,
                 };
-
                 return newIngredients;
               } else {
                 return null;
@@ -87,7 +74,6 @@ const PurchasingPlan = ({
               return null;
             }
           });
-
           const results = await Promise.all(promises);
 
           const newIngredients = results.filter(
@@ -103,19 +89,11 @@ const PurchasingPlan = ({
         }
       };
 
-      getRecipesIngredients();
+      getSelectRecipesIngredients();
     }
   }, [activeCookingPlan]);
 
-  const [purchaseItems, setPurchaseItems] = useState<
-    {
-      name: string;
-      quantity: number;
-      unit: string;
-      isPurchased: boolean;
-      responsible: string;
-    }[]
-  >([]);
+  const [purchaseItems, setPurchaseItems] = useState<PurchaseList[]>([]);
 
   useEffect(() => {
     const purchaseItemsArray = activePlanIngredients.reduce<
@@ -162,7 +140,6 @@ const PurchasingPlan = ({
         const querySnapshot = await getDocs(q);
         querySnapshot.forEach(async (doc) => {
           const docRef = doc.ref;
-
           await updateDoc(docRef, {
             items: purchaseItems,
           });
@@ -171,60 +148,9 @@ const PurchasingPlan = ({
         message.error("取得資料失敗");
       }
     };
-
     addPurchaseItems();
   }, [purchaseItems]);
 
-  const handleClick = () => {
-    const closePurchasePlan = async () => {
-      const PurchasePlanCollection = collection(db, "purchasePlan");
-      const q = query(PurchasePlanCollection, where("isActive", "==", true));
-
-      try {
-        const querySnapshot = await getDocs(q);
-        querySnapshot.forEach(async (doc) => {
-          const docRef = doc.ref;
-
-          await updateDoc(docRef, {
-            isActive: false,
-          });
-        });
-      } catch (error) {
-        message.error("取得資料失敗");
-      }
-    };
-    const closeCookingSchedule = async () => {
-      const CookingPlanCollection = collection(db, "cookingPlan");
-      const q = query(CookingPlanCollection, where("isActive", "==", true));
-
-      try {
-        const querySnapshot = await getDocs(q);
-        querySnapshot.forEach(async (doc) => {
-          const docRef = doc.ref;
-
-          await updateDoc(docRef, {
-            isActive: false,
-          });
-        });
-      } catch (error) {
-        message.error("取得資料失敗");
-      }
-    };
-    closeCookingSchedule();
-    closePurchasePlan();
-    setActiveCookingPlan();
-
-    message.info("再開啟下一個烹煮計畫吧");
-  };
-
-  const [open, setOpen] = useState(false);
-  const showDrawer = () => {
-    setOpen(true);
-  };
-
-  const onClose = () => {
-    setOpen(false);
-  };
   const [planId, setPlanId] = useState<string>("");
 
   useEffect(() => {
@@ -249,7 +175,6 @@ const PurchasingPlan = ({
           message.error("取得資料時發生錯誤");
         }
       );
-
       return () => unsubscribe();
     };
     getPurchasePlanId();
@@ -258,7 +183,6 @@ const PurchasingPlan = ({
   const dateForCooking = activeCookingPlan?.cookingDate
     ?.toDate()
     .toLocaleDateString("zh-TW");
-
   if (activeCookingPlan === undefined) {
     return <div>請先建立烹煮計畫</div>;
   }
@@ -270,84 +194,50 @@ const PurchasingPlan = ({
           <ProCard>
             <div>
               <CookingDate>烹煮日期：{dateForCooking}</CookingDate>
-
+              <GroupPartner>
+                <ShowServing> 夥伴：</ShowServing>
+                <div style={{ height: "27px" }}>
+                  {" "}
+                  <Partner />
+                </div>
+              </GroupPartner>
+              <ShowMembers>
+                <div></div>
+                {partners.map(
+                  (partner, index) =>
+                    index !== 0 && (
+                      <Serving
+                        key={`${partner.key}-${partner.label}`}
+                        style={{ marginLeft: 6 }}
+                      >
+                        {partner.label}
+                      </Serving>
+                    )
+                )}
+              </ShowMembers>
+              <ShowServing>料理份量：</ShowServing>
               {activeCookingPlan?.cookingItems.map((plan, index) => (
-                <ShowServing key={index}>
+                <Serving key={index}>
                   <div>
                     {index + 1}. {plan.name}
                   </div>
                   <div>
                     {plan.serving} {plan.unit}
                   </div>
-                </ShowServing>
+                </Serving>
               ))}
             </div>
           </ProCard>
         </div>
         <div>
-          <Button
-            type="primary"
-            style={{
-              width: "100%",
-              fontSize: "18px",
-              height: "40px",
-            }}
-            onClick={showDrawer}
-            icon={<CarryOutOutlined />}
-            block
-          >
-            購買清單
-          </Button>
-          <Drawer
-            title="購買清單"
-            width={700}
-            onClose={onClose}
-            open={open}
-            styles={{
-              body: {
-                paddingBottom: 70,
-              },
-            }}
-            extra={
-              <Space>
-                <Link
-                  to={`/shopping/${currentUserUid}/${planId}`}
-                  target="_blank"
-                >
-                  <Button
-                    type="text"
-                    icon={<ExportOutlined style={{ fontSize: "24px" }} />}
-                    style={{
-                      marginRight: "5px",
-                      color: "#f7bc0d",
-                    }}
-                  ></Button>
-                </Link>
-
-                <Button onClick={onClose}>Close</Button>
-                {purchasePlanCollection.length > 0 ? (
-                  <Button type="primary" onClick={handleClick}>
-                    完成計畫
-                  </Button>
-                ) : (
-                  <div></div>
-                )}
-              </Space>
-            }
-          >
-            {purchasePlanCollection.length > 0 ? (
-              purchasePlanCollection.map((item, index) => (
-                <ShoppingList key={index} purchasePlan={item} index={index} />
-              ))
-            ) : (
-              <div>請先建立烹煮計畫唷</div>
-            )}
-            <br />
-          </Drawer>
+          <PurchasingDrawer
+            purchasePlanCollection={purchasePlanCollection}
+            planId={planId}
+            setActiveCookingPlan={setActiveCookingPlan}
+          />
         </div>
       </Card>
     </Wrapper>
   );
 };
-
 export default PurchasingPlan;
