@@ -208,7 +208,7 @@ const RecipeForm: React.FC = () => {
               <>
                 {fields.map(({ key, name, ...restField }) => (
                   <Space
-                    key={key}
+                    key={`${key}-${name}`}
                     style={{ display: "flex", marginBottom: 8 }}
                     align="baseline"
                   >
@@ -260,7 +260,7 @@ const RecipeForm: React.FC = () => {
               <>
                 {fields.map(({ key, name, ...restField }) => (
                   <Space
-                    key={key}
+                    key={`${key}-${name}`}
                     style={{ display: "flex", marginBottom: 8 }}
                     align="center"
                   >

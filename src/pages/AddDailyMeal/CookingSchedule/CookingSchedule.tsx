@@ -207,7 +207,7 @@ function CookingSchedule({
             {cookingMeals.length > 0 && value !== null ? (
               <ServingList>
                 {combinedServingArray?.map((meal, index) => (
-                  <ServingItem key={index}>
+                  <ServingItem key={`${index}-${meal}`}>
                     <div>{index + 1}.</div>
                     <div>{meal.name}</div>
                     <div>

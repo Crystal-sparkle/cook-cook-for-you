@@ -1,6 +1,5 @@
 import { useParams } from "react-router-dom";
 import ShoppingList from "../AddDailyMeal/ShoppingList";
-
 import useGetPurchasePlan from "./hooks/useGetPurchasePlan";
 import useGetUser from "./hooks/useGetUser";
 

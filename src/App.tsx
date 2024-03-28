@@ -58,7 +58,6 @@ const App: React.FC = () => {
       if (user) {
         setUser(user);
         setLoading(false);
-        console.log("auth.currentUser", auth.currentUser);
       } else {
         setUser(null);
         setLoading(false);

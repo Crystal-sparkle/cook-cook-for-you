@@ -8,7 +8,8 @@ import {
   updateDoc,
   where,
 } from "firebase/firestore";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { AuthContext } from "../../../context/authContext";
 import { db } from "../../../firbase";
 import {
   CookingPlanItem,
@@ -34,8 +35,9 @@ const PurchasingPlan = ({
   activeCookingPlan,
   purchasePlanCollection,
 }: PurchasePlanProps) => {
-  const partners: PartnerList[] = useGetPartnerList();
-
+  const userInformation = useContext(AuthContext);
+  const userId = userInformation?.user?.uid;
+  const partners: PartnerList[] = useGetPartnerList(userId);
   const [activePlanIngredients, setActivePlanIngredients] = useState<
     CookingPlanItem[]
   >([]);
@@ -179,6 +181,7 @@ const PurchasingPlan = ({
     };
     getPurchasePlanId();
   }, []);
+  console.log(partners);
 
   const dateForCooking = activeCookingPlan?.cookingDate
     ?.toDate()
@@ -217,7 +220,7 @@ const PurchasingPlan = ({
               </ShowMembers>
               <ShowServing>料理份量：</ShowServing>
               {activeCookingPlan?.cookingItems.map((plan, index) => (
-                <Serving key={index}>
+                <Serving key={`${index}-${plan}`}>
                   <div>
                     {index + 1}. {plan.name}
                   </div>

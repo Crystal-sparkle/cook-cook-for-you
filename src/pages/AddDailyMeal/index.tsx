@@ -11,9 +11,9 @@ import {
 import { useEffect, useState } from "react";
 import { db } from "../../firbase";
 import { AddDailyMealProps, CookingPlanData, PurchasePlan } from "../../types";
-import CookingSchedule from "./CookingSchedule";
+import CookingSchedule from "./CookingSchedule/CookingSchedule";
 import MealCalendar from "./MealCalendar";
-import PurchasingPlan from "./PurchasingPlan";
+import PurchasingPlan from "./PurchasingPlan/PurchasingPlan";
 import SelectMenu from "./SelectMenu";
 import {
   Cotent,
@@ -102,6 +102,7 @@ const AddDailyMeal = ({ user }: AddDailyMealProps) => {
       content: (
         <CookingSchedule
           cookingPlanId={cookingPlanId}
+          activeCookingPlan={activeCookingPlan}
           setCookingPlanId={setCookingPlanId}
           setActiveCookingPlan={(cookingPlanData: CookingPlanData) =>
             setActiveCookingPlan(cookingPlanData)
@@ -194,8 +195,6 @@ const AddDailyMeal = ({ user }: AddDailyMealProps) => {
 
   return (
     <>
-      {/* <BannerImg></BannerImg> */}
-
       <Image src="https://firebasestorage.googleapis.com/v0/b/cook-cook-for-you-test.appspot.com/o/images%2Fbanner1.jpeg?alt=media&token=25e37ec8-3cd2-49c1-ac36-cc513642360d" />
       <MainContent>
         <StepsWrapper>
