@@ -11,7 +11,6 @@ import { AuthContextProvider } from "./context/authContext.tsx";
 import { auth } from "./firbase.ts";
 import AddDailyMeal from "./pages/AddDailyMeal/index.tsx";
 import Login from "./pages/Login.tsx";
-import Profile from "./pages/Profile/index.tsx";
 import Recipes from "./pages/Recipes/index.tsx";
 import Shopping from "./pages/Shopping/index.tsx";
 dayjs.locale("zh-cn");
@@ -34,8 +33,6 @@ body, .ant {
     
   }
   
-
-
   #root {
     min-height: 100vh;
     padding: 75px 0 115px;
@@ -91,7 +88,6 @@ const App: React.FC = () => {
                 {user ? (
                   <>
                     <Route path="/" element={<AddDailyMeal user={user} />} />
-                    <Route path="/profile" element={<Profile />} />
                     <Route path="/recipes" element={<Recipes />} />
                   </>
                 ) : (

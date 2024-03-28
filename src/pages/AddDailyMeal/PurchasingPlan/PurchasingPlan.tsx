@@ -18,8 +18,8 @@ import {
   PurchasePlan,
   PurchasePlanProps,
 } from "../../../types";
-import Partner from "../../Profile/Partner";
 import useGetPartnerList from "../../Shopping/hooks/useGetPartnerList";
+import Partner from "./Partner";
 import PurchasingDrawer from "./PurchasingDrawer";
 import {
   CookingDate,

@@ -8,9 +8,9 @@ import {
   where,
 } from "firebase/firestore";
 import React from "react";
-import { auth, db } from "../../firbase";
-import { PartnerType } from "../../types";
-import { UserOutlinedIconStyle } from "../AddDailyMeal/PurchasingPlan/PurchasingPlan.style";
+import { auth, db } from "../../../../firbase";
+import { PartnerType } from "../../../../types";
+import { UserOutlinedIconStyle } from "../PurchasingPlan.style";
 import { PartnerContainer, PartnerProCard } from "./partner.style";
 
 const Partner: React.FC = () => {

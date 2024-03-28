@@ -1,6 +1,6 @@
 import { ProCard } from "@ant-design/pro-components";
 import styled from "styled-components";
-import { device } from "../../utils/breakpoints";
+import { device } from "../../../../utils/breakpoints";
 
 export const PartnerContainer = styled.div`
   display: flex;
