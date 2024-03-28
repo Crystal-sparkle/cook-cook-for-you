@@ -363,7 +363,7 @@ const RecipeDisplay: React.FC = () => {
                                     {fields.map(
                                       ({ key, name, ...restField }) => (
                                         <Space
-                                          key={key}
+                                          key={`${key}-${name}`}
                                           style={{
                                             display: "flex",
                                             marginBottom: 8,
@@ -433,7 +433,7 @@ const RecipeDisplay: React.FC = () => {
                                     {fields.map(
                                       ({ key, name, ...restField }) => (
                                         <Space
-                                          key={key}
+                                          key={`${key}-${name}`}
                                           style={{
                                             display: "flex",
                                             marginBottom: 8,
@@ -536,7 +536,9 @@ const RecipeDisplay: React.FC = () => {
                           <IngredientsWrapper>
                             {currentItem?.ingredients?.map(
                               (ingredient, index) => (
-                                <IngredientsContainer key={index}>
+                                <IngredientsContainer
+                                  key={`${index}-${ingredient}`}
+                                >
                                   <IngredientsOrder>
                                     {index + 1}.
                                   </IngredientsOrder>
@@ -555,7 +557,7 @@ const RecipeDisplay: React.FC = () => {
                           <hr />
                           <h3>步驟</h3>
                           {currentItem?.steps?.map((step, index) => (
-                            <StepsContainer key={index}>
+                            <StepsContainer key={`${index}-${step}`}>
                               <StepsTag>第{index + 1}步：</StepsTag>
                               <div>{step?.stepDescription}</div>
                               <hr />

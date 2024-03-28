@@ -31,17 +31,18 @@ export const ImageContainer = styled.div`
 
 export const ImageDisplay = styled.div`
   position: relative;
-  width: 340px;
-  height: 250px;
+  width: 400px;
+  height: 320px;
   overflow: hidden;
   border-radius: 15px;
   margin: 0 auto;
 
   img {
-    width: 100%;
-    height: 100%;
+    width: 80%;
+    height: 80%;
     object-fit: cover;
     border: 2px solid white;
+    border-radius: 5px;
   }
 `;
 
@@ -58,7 +59,7 @@ export const ContainerText = styled.div`
 
 export const TitleWrapper = styled.div`
   display: flex;
-  align-items: center;
+  align-items: baseline;
   height: 50px;
 `;
 
@@ -197,6 +198,12 @@ export const IngredientsWrapper = styled.div`
   justify-content: space-between;
   flex-wrap: wrap;
   margin: 0 auto;
+
+  @media ${device.mobile} {
+    width: 380px;
+    margin: 0;
+    display: block;
+  }
 `;
 
 export const IngredientsContainer = styled.div`
@@ -206,6 +213,10 @@ export const IngredientsContainer = styled.div`
   margin: 5px 0;
   flex-wrap: nowrap;
   font-size: 16px;
+  @media ${device.mobile} {
+    width: 100%;
+    font-size: 14px;
+  }
 `;
 
 export const IngredientsItem = styled.div`
