@@ -3,7 +3,6 @@ import {
   EditOutlined,
   MinusCircleOutlined,
   PlusOutlined,
-  PushpinOutlined,
 } from "@ant-design/icons";
 import {
   ModalForm,
@@ -13,7 +12,7 @@ import {
   ProFormText,
   ProFormTextArea,
 } from "@ant-design/pro-components";
-import { Button, Drawer, Form, Input, Space, Upload, message } from "antd";
+import { Button, Form, Input, Space, Upload, message } from "antd";
 import type { RcFile, UploadFile } from "antd/es/upload";
 import "firebase/database";
 import {
@@ -28,38 +27,23 @@ import {
 } from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { useContext, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import { AuthContext } from "../../context/authContext";
 import { db, storage } from "../../firbase";
 import { CurrentItem, Recipe } from "../../types";
+import RecipeDrawer from "./RecipeDrawer";
 import {
   CardContent,
   CardWrapper,
   ContainerText,
-  Description,
-  DescriptionText,
-  Detail,
   ImageContainer,
-  ImageDisplay,
-  IngredientsContainer,
-  IngredientsItem,
-  IngredientsOrder,
-  IngredientsWrapper,
-  LinkContainer,
   LoadingSpinner,
   RecipeButton,
   RecipeCard,
-  StepsContainer,
-  StepsTag,
   TextContainer,
   TextLine,
-  Tips,
-  TipsContainer,
-  TipsTitle,
   Title,
   TitleWrapper,
 } from "./recipeDisplay.style";
-
 interface FileListObject {
   fileList: UploadFile[];
 }
@@ -123,10 +107,6 @@ const RecipeDisplay: React.FC = () => {
   const showDrawer = (item: CurrentItem) => {
     setOpen(true);
     setCurrentItem(item);
-  };
-
-  const onClose = () => {
-    setOpen(false);
   };
 
   useEffect(() => {
@@ -505,87 +485,12 @@ const RecipeDisplay: React.FC = () => {
                       </div>
                     </ContainerText>
                     <Space />
-                    <Drawer
-                      title="食譜"
-                      width={700}
-                      onClose={onClose}
+
+                    <RecipeDrawer
+                      currentItem={currentItem}
+                      setOpen={setOpen}
                       open={open}
-                      maskStyle={{ backgroundColor: "rgba(0,0,0,.06)" }}
-                      maskClosable={true}
-                      contentWrapperStyle={{ boxShadow: "none" }}
-                    >
-                      {currentItem && (
-                        <>
-                          <Title>{currentItem.name}</Title>
-                          <ImageDisplay>
-                            <img
-                              src={currentItem.mainPhoto}
-                              alt={currentItem.name}
-                            />
-                          </ImageDisplay>
-                          <Detail>
-                            <div>份量：{currentItem.serving}人份</div>
-                            <div>分類：{currentItem.category}</div>
-                            <div>烹煮時間：{currentItem.cookingTime}</div>
-                          </Detail>
-                          <DescriptionText>簡介</DescriptionText>
-                          <Description>{currentItem.description}</Description>
-
-                          <hr />
-                          <h3>食材</h3>
-                          <IngredientsWrapper>
-                            {currentItem?.ingredients?.map(
-                              (ingredient, index) => (
-                                <IngredientsContainer
-                                  key={`${index}-${ingredient}`}
-                                >
-                                  <IngredientsOrder>
-                                    {index + 1}.
-                                  </IngredientsOrder>
-                                  <IngredientsItem>
-                                    {ingredient.name}
-                                  </IngredientsItem>
-                                  <br />
-                                  <IngredientsItem>
-                                    {ingredient.quantity}
-                                    {ingredient.unit}
-                                  </IngredientsItem>
-                                </IngredientsContainer>
-                              )
-                            )}
-                          </IngredientsWrapper>
-                          <hr />
-                          <h3>步驟</h3>
-                          {currentItem?.steps?.map((step, index) => (
-                            <StepsContainer key={`${index}-${step}`}>
-                              <StepsTag>第{index + 1}步：</StepsTag>
-                              <div>{step?.stepDescription}</div>
-                              <hr />
-                            </StepsContainer>
-                          ))}
-
-                          <TipsContainer>
-                            <TipsTitle>
-                              <div>
-                                <PushpinOutlined />
-                              </div>
-
-                              <div>
-                                <Tips> Tips :</Tips>
-                              </div>
-                            </TipsTitle>
-                            <div>{currentItem.note}</div>
-                          </TipsContainer>
-                          <div>
-                            <LinkContainer>
-                              <Link to={currentItem.refLink} target="_blank">
-                                參考食譜連結
-                              </Link>
-                            </LinkContainer>
-                          </div>
-                        </>
-                      )}
-                    </Drawer>
+                    />
                   </>
                 </RecipeCard>
               </CardWrapper>

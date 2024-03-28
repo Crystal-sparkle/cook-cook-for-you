@@ -216,3 +216,11 @@ export interface PartnerList {
   label: string;
   key: string;
 }
+
+//RecipeDawer
+
+export interface RecipeDawerPrps {
+  currentItem: CurrentItem | undefined;
+  setOpen: (arg0: boolean) => void;
+  open: boolean;
+}
