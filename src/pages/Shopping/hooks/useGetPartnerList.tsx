@@ -1,24 +1,22 @@
 import "firebase/database";
 import { collection, onSnapshot, query, where } from "firebase/firestore";
-import { useContext, useEffect, useState } from "react";
-import { AuthContext } from "../../../context/authContext";
+import { useEffect, useState } from "react";
+// import { useParams } from "react-router-dom";
 import { db } from "../../../firbase";
 
-const useGetPartnerList = () => {
-  const userInformation = useContext(AuthContext);
-  const currentUserUid = userInformation?.user?.uid;
+const useGetPartnerList = (userId: string | undefined) => {
+  // const { userId } = useParams();
   const [partnerList, setPartnerList] = useState<string[]>([]);
 
   useEffect(() => {
     const getPartnerData = async () => {
       const userCollection = collection(db, "user");
-      if (currentUserUid !== null) {
-        const q = query(userCollection, where("uid", "==", currentUserUid));
+      if (userId !== null) {
+        const q = query(userCollection, where("uid", "==", userId));
         const unsubscribe = onSnapshot(q, (querySnapshot) => {
           querySnapshot.forEach((doc) => {
             if (doc.exists()) {
               const data = doc.data();
-
               if (data.partners) {
                 setPartnerList(data.partners);
               }
@@ -31,15 +29,15 @@ const useGetPartnerList = () => {
     };
 
     getPartnerData();
-  }, [currentUserUid]);
+  }, [userId]);
 
   const [userName, setUserName] = useState<string>("");
 
   useEffect(() => {
     const getUserData = async () => {
       const userCollection = collection(db, "user");
-      if (currentUserUid !== null) {
-        const q = query(userCollection, where("uid", "==", currentUserUid));
+      if (userId !== null) {
+        const q = query(userCollection, where("uid", "==", userId));
         const unsubscribe = onSnapshot(q, (querySnapshot) => {
           querySnapshot.forEach((doc) => {
             if (doc.exists()) {
@@ -57,7 +55,7 @@ const useGetPartnerList = () => {
     };
 
     getUserData();
-  }, [currentUserUid]);
+  }, [userId]);
 
   const partners = [
     {
