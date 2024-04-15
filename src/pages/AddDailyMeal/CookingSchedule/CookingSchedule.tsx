@@ -163,9 +163,6 @@ function CookingSchedule({
     addPurchasingPlan();
   }, [cookingPlanId]);
 
-  // 所有的烹煮行程表中的料理
-  // const allMealPlans = cookingMeals.flatMap((meal) => meal.mealPlan);
-
   const combinedServingArray = Object.values(combinedSearvings);
 
   const [visible, setVisible] = useState(false);

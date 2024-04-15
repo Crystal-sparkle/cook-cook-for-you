@@ -18,7 +18,6 @@ import {
   PurchasePlan,
   PurchasePlanProps,
 } from "../../../types";
-import useGetPartnerList from "../../Shopping/hooks/useGetPartnerList";
 import Partner from "./Partner";
 import PurchasingDrawer from "./PurchasingDrawer";
 import {
@@ -29,6 +28,7 @@ import {
   ShowServing,
   Wrapper,
 } from "./PurchasingPlan.style";
+import useGetPartnerList from "./Shopping/hooks/useGetPartnerList";
 
 const PurchasingPlan = ({
   setActiveCookingPlan,

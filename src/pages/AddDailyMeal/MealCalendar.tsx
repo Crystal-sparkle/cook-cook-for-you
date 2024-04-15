@@ -42,21 +42,6 @@ const StyledCalendar = styled(Calendar)`
 `;
 
 const MealCalendar: React.FC = () => {
-  console.log("iamhere");
-  // const [fullscreen, setFullscreen] = useState(window.innerWidth >= 700);
-
-  // useEffect(() => {
-  //   const handleResize = () => {
-  //     setFullscreen(window.innerWidth >= 1280);
-  //   };
-  //   window.addEventListener("resize", handleResize);
-
-  //   return () => {
-  //     window.removeEventListener("resize", handleResize);
-  //   };
-  // }, []);
-  // ///
-
   const [thisMonthMealPlans, setThisMonthMealPlans] = useState<DailyMealPlan[]>(
     []
   );

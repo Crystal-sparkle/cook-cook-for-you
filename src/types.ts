@@ -224,3 +224,8 @@ export interface RecipeDawerPrps {
   setOpen: (arg0: boolean) => void;
   open: boolean;
 }
+
+export interface RecipeModalPrps {
+  currentItem: CurrentItem | undefined;
+  setMainPhoto: (arg0: string) => void;
+}

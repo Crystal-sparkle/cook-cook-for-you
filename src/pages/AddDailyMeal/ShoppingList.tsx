@@ -14,7 +14,7 @@ import { useParams } from "react-router-dom";
 import { AuthContext } from "../../context/authContext";
 import { db } from "../../firbase";
 import { PartnerList, ShoppingListProps } from "../../types";
-import useGetPartnerList from "../Shopping/hooks/useGetPartnerList";
+import useGetPartnerList from "./PurchasingPlan/Shopping/hooks/useGetPartnerList";
 import {
   Header,
   InputCheck,
