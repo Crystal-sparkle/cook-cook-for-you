@@ -3,7 +3,7 @@ import { User } from "firebase/auth";
 import "firebase/database";
 import { collection, onSnapshot, query, where } from "firebase/firestore";
 import { useEffect, useState } from "react";
-import { db } from "../../../firbase";
+import { db } from "../../../../../firbase";
 
 const useGetUser = (userId: string | undefined) => {
   const [user, setUser] = useState<User>();

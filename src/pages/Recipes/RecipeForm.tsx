@@ -7,33 +7,19 @@ import {
   ProFormText,
   ProFormTextArea,
 } from "@ant-design/pro-components";
-import { useContext, useState } from "react";
-import { AuthContext } from "../../context/authContext";
-
 import { Button, Form, Input, Space, Upload, message } from "antd";
 import dayjs from "dayjs";
 import "dayjs/locale/zh-cn";
 import "firebase/database";
 import { Timestamp, addDoc, collection, doc, setDoc } from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
-import React from "react";
-import styled from "styled-components";
+import React, { useContext, useState } from "react";
+import { AuthContext } from "../../context/authContext";
 import { db, storage } from "../../firbase";
 import { Recipe } from "../../types";
+import { AddRecipeButton, UploadText } from "./recipeForm.style";
 const { TextArea } = Input;
 dayjs.locale("zh-cn");
-
-const StyledButton = styled(Button)`
-  background: rgba(252, 208, 57, 0.7);
-  font-size: 20px;
-  color: #000000;
-  height: 44px;
-  transition: all 0.2s;
-
-  &:hover {
-    background: rgba(252, 208, 57, 1) !important;
-  }
-`;
 
 const waitTime = (time: number = 100) => {
   return new Promise((resolve) => {
@@ -47,44 +33,12 @@ interface RcFile extends File {
   uid: string;
 }
 
-const cookingTimeOption = [
-  {
-    value: 10,
-    label: "10分鐘",
-  },
-  {
-    value: 15,
-    label: "15分鐘",
-  },
-  {
-    value: 20,
-    label: "20分鐘",
-  },
-  {
-    value: 25,
-    label: "25分鐘",
-  },
-  {
-    value: 30,
-    label: "30分鐘",
-  },
-  {
-    value: 45,
-    label: "45分鐘",
-  },
-  {
-    value: 60,
-    label: "60分鐘",
-  },
-  {
-    value: 90,
-    label: "90分鐘",
-  },
-  {
-    value: 120,
-    label: "120分鐘",
-  },
-];
+const cookingTimeOption = [5, 10, 15, 20, 25, 30, 45, 60, 90, 120].map(
+  (minutes) => ({
+    value: minutes,
+    label: `${minutes}分鐘`,
+  })
+);
 
 const RecipeForm: React.FC = () => {
   const userInformation = useContext(AuthContext);
@@ -147,17 +101,17 @@ const RecipeForm: React.FC = () => {
       <ModalForm<Recipe>
         title="建立食譜"
         trigger={
-          <StyledButton type="primary">
+          <AddRecipeButton type="primary">
             <PlusOutlined />
             新增食譜
-          </StyledButton>
+          </AddRecipeButton>
         }
         form={form}
         autoFocusFirstInput
         modalProps={{
           destroyOnClose: true,
         }}
-        submitTimeout={2000}
+        submitTimeout={1000}
         onFinish={onFinish}
         submitter={{
           searchConfig: {
@@ -206,7 +160,7 @@ const RecipeForm: React.FC = () => {
             >
               <div>
                 <PlusOutlined />
-                <div style={{ marginTop: 8 }}>上傳</div>
+                <UploadText>上傳</UploadText>
               </div>
             </Upload>
           </Form.Item>
@@ -254,7 +208,7 @@ const RecipeForm: React.FC = () => {
               <>
                 {fields.map(({ key, name, ...restField }) => (
                   <Space
-                    key={key}
+                    key={`${key}-${name}`}
                     style={{ display: "flex", marginBottom: 8 }}
                     align="baseline"
                   >
@@ -306,7 +260,7 @@ const RecipeForm: React.FC = () => {
               <>
                 {fields.map(({ key, name, ...restField }) => (
                   <Space
-                    key={key}
+                    key={`${key}-${name}`}
                     style={{ display: "flex", marginBottom: 8 }}
                     align="center"
                   >

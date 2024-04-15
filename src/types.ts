@@ -144,6 +144,14 @@ export interface CookingPlanItem {
   serving: number;
 }
 
+export interface PurchaseList {
+  name: string;
+  quantity: number;
+  unit: string;
+  isPurchased: boolean;
+  responsible: string;
+}
+
 export interface CookingPlanData {
   cookingDate: Timestamp;
   cookingItems: {
@@ -165,6 +173,13 @@ export interface MenuItem {
   key: string;
 }
 [];
+
+//
+export interface PurchaseDrawerProps {
+  setActiveCookingPlan: (cookingPlanData?: CookingPlanData) => void;
+  purchasePlanCollection: PurchasePlan[];
+  planId: string;
+}
 //
 export interface PurchaseItem {
   isPurchased: boolean;
@@ -188,14 +203,24 @@ export interface ShoppingListProps {
   purchasePlan: PurchasePlan;
   index: number;
 }
-export interface PartnerList {
-  name: string | null;
-  email: string | null;
-}
 
 export interface PartnerType {
   partner1Name: string | null;
   partner1Email: string | null;
   partner2Name: string | null;
   partner2Email: string | null;
+}
+
+//ShoppingList
+export interface PartnerList {
+  label: string;
+  key: string;
+}
+
+//RecipeDawer
+
+export interface RecipeDawerPrps {
+  currentItem: CurrentItem | undefined;
+  setOpen: (arg0: boolean) => void;
+  open: boolean;
 }

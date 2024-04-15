@@ -4,128 +4,40 @@ import {
   collection,
   getDoc,
   getDocs,
-  onSnapshot,
   query,
   updateDoc,
   where,
 } from "firebase/firestore";
-import { FC, useContext, useEffect, useState } from "react";
-import styled from "styled-components";
+import { FC, useContext, useState } from "react";
+
+import { useParams } from "react-router-dom";
 import { AuthContext } from "../../context/authContext";
 import { db } from "../../firbase";
 import { PartnerList, ShoppingListProps } from "../../types";
+import useGetPartnerList from "../Shopping/hooks/useGetPartnerList";
+import {
+  Header,
+  InputCheck,
+  Item,
+  ItemOrder,
+  ShoppingItems,
+  ShoppingListTitle,
+  TitleContainer,
+  Wrapper,
+} from "./ShoppingList.style";
+
 const { Option } = Select;
 
-const Header = styled.div`
-  display: flex;
-  justify-content: space-around;
-
-  @media screen and (max-width: 1279px) {
-    border-bottom: 1px solid #3f3a3a;
-    padding: 10px 0;
-  }
-`;
-
-const TitleContainer = styled.div`
-  width: 100%;
-  margin-bottom: 20px;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-around;
-  flex-wrap: nowrap;
-  align-items: center;
-
-  border: 2px dashed #33cfe0;
-  font-size: 18px;
-  line-height: 30px;
-  font-weight: bold;
-`;
-
-const Item = styled.div`
-  width: 100px;
-  font-size: 16px;
-  text-align: center;
-
-  @media screen and (max-width: 1279px) {
-  }
-`;
-const ItemOrder = styled.div`
-  width: 70px;
-  font-size: 16px;
-  text-align: center;
-`;
-
-const InputCheck = styled.input`
-  margin: 0 3px;
-  width: 16px;
-  height: 16px;
-`;
-
-const Wrapper = styled.div`
-  padding: 10px 20px;
-`;
-
-const ShoppingListTitle = styled.div`
-  font-size: 18px;
-`;
-
-const ShoppingItems = styled.div`
-  margin-top: 10px;
-  margin-bottom: 10px;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-around;
-`;
-
 const ShoppingList: FC<ShoppingListProps> = ({ purchasePlan, index }) => {
+  const params = useParams();
+  const userIdFromURL = params.userId;
   const userInformation = useContext(AuthContext);
-
   const currentUserUid = userInformation?.user?.uid;
+  const userId = userIdFromURL || currentUserUid;
 
-  const [partnerList, setPartnerList] = useState<PartnerList[]>([]);
-
-  useEffect(() => {
-    const getPartnerData = async () => {
-      const userCollection = collection(db, "user");
-      if (currentUserUid !== null) {
-        const q = query(userCollection, where("uid", "==", currentUserUid));
-        const unsubscribe = onSnapshot(q, (querySnapshot) => {
-          querySnapshot.forEach((doc) => {
-            if (doc.exists()) {
-              const data = doc.data();
-
-              if (data.partners) {
-                setPartnerList(data.partners);
-              }
-            }
-          });
-        });
-
-        return () => unsubscribe();
-      }
-    };
-
-    getPartnerData();
-  }, [currentUserUid]);
-
-  const partners = [
-    {
-      label: "Crystal",
-      key: "1",
-    },
-    {
-      label: partnerList[0]?.name,
-      key: "2",
-    },
-    {
-      label: partnerList[1]?.name,
-      key: "3",
-    },
-  ];
+  const partners: PartnerList[] = useGetPartnerList(userId);
 
   const { cookingDate, items } = purchasePlan;
-
   const [checkedItems, setCheckedItems] = useState<Array<Array<boolean>>>([]);
 
   const updateCheckboxStatus = async (
@@ -138,9 +50,8 @@ const ShoppingList: FC<ShoppingListProps> = ({ purchasePlan, index }) => {
 
     try {
       const querySnapshot = await getDocs(q);
-      querySnapshot.forEach(async (doc) => {
+      for (const doc of querySnapshot.docs) {
         const docRef = doc.ref;
-        console.log(planIndex);
 
         const docData = (await getDoc(docRef)).data();
 
@@ -151,9 +62,9 @@ const ShoppingList: FC<ShoppingListProps> = ({ purchasePlan, index }) => {
             items: docData.items,
           });
         }
-      });
+      }
     } catch (error) {
-      message.error("存取失敗");
+      message.error("存取失敗", planIndex);
     }
   };
 
@@ -213,12 +124,11 @@ const ShoppingList: FC<ShoppingListProps> = ({ purchasePlan, index }) => {
         <ItemOrder>項目</ItemOrder>
         <Item>名稱</Item>
         <Item>數量</Item>
-
         <Item>負責人</Item>
       </Header>
 
       {items?.map((purchaseItem, itemIndex) => (
-        <div key={itemIndex}>
+        <div key={`${itemIndex}-${purchaseItem}`}>
           <ShoppingItems>
             <Item>
               <InputCheck
@@ -238,7 +148,7 @@ const ShoppingList: FC<ShoppingListProps> = ({ purchasePlan, index }) => {
             <Item>
               <Select
                 defaultValue={purchaseItem.responsible}
-                style={{ width: 100 }}
+                style={{ maxWidth: "100px" }}
                 onChange={(value) => handleSelectChange(value, itemIndex)}
               >
                 {partners?.map((partner) => (

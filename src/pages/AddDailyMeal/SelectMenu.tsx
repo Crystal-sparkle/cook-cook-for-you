@@ -124,7 +124,6 @@ const SelectMenu: React.FC = () => {
 
     try {
       await setDoc(docRef, newPlan);
-
       const updatedData = { mealId: docRef.id };
       await setDoc(doc(DailymealPlanCollection, docRef.id), updatedData, {
         merge: true,
@@ -152,9 +151,13 @@ const SelectMenu: React.FC = () => {
       </Space>
       <ModalForm
         title="開啟你的每日菜單"
+        modalProps={{
+          destroyOnClose: true,
+        }}
         onFinish={async () => {
           await addMealPlan();
           message.success("提交成功");
+          setNewMealPlan("");
           return true;
         }}
         open={modalVisit}

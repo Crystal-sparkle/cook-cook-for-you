@@ -24,10 +24,39 @@ const CalerdarWrapper = styled.div`
   margin: 5px;
   border-radius: 5px;
   background-color: #b7dbdf;
-  height: 794px;
+  /* height: 794px; */
+`;
+const StyledCalendar = styled(Calendar)`
+  border-radius: 5px;
+  margin: 5px;
+  font-size: 14px;
+  background-color: #b7dbdf;
+  padding: 0;
+
+  .ant-picker-calendar-date {
+    padding: 0;
+  }
+  .ant-picker-cell-inner {
+    padding: 0;
+  }
 `;
 
 const MealCalendar: React.FC = () => {
+  console.log("iamhere");
+  // const [fullscreen, setFullscreen] = useState(window.innerWidth >= 700);
+
+  // useEffect(() => {
+  //   const handleResize = () => {
+  //     setFullscreen(window.innerWidth >= 1280);
+  //   };
+  //   window.addEventListener("resize", handleResize);
+
+  //   return () => {
+  //     window.removeEventListener("resize", handleResize);
+  //   };
+  // }, []);
+  // ///
+
   const [thisMonthMealPlans, setThisMonthMealPlans] = useState<DailyMealPlan[]>(
     []
   );
@@ -114,13 +143,31 @@ const MealCalendar: React.FC = () => {
       };
 
     const eventTags = dynamicListData.map((item, index) => (
-      <li key={index}>
+      <li key={`${index}-${item}`}>
         {item.content.map((menu, subIndex) =>
           Array.from({ length: menu.serving }).map((_, servingIndex) => (
-            <Popover trigger="hover" content={menu.name}>
+            <Popover
+              trigger="hover"
+              content={
+                <Tag
+                  style={{
+                    fontSize: "16px",
+                    border: "none",
+                    color: "#211607",
+                    marginBottom: "5px",
+                    padding: "3px",
+                  }}
+                  key={subIndex + servingIndex}
+                  closable
+                  onClose={preventDefault(menu, item.id)}
+                >
+                  {menu.name}
+                </Tag>
+              }
+            >
               <Tag
                 style={{
-                  fontSize: "16px",
+                  fontSize: "14px",
                   backgroundColor: "#b7dbdf",
                   color: "#211607",
                   marginBottom: "5px",
@@ -154,18 +201,7 @@ const MealCalendar: React.FC = () => {
 
   return (
     <CalerdarWrapper>
-      <Calendar
-        style={{
-          borderRadius: "5px",
-          margin: "5px",
-          fontSize: "14px",
-          backgroundColor: "#b7dbdf",
-        }}
-        cellRender={cellRender}
-        onChange={(date) => {
-          console.log("點擊的日期是" + date.toDate());
-        }}
-      />
+      <StyledCalendar cellRender={cellRender} />
     </CalerdarWrapper>
   );
 };
