@@ -1,88 +1,24 @@
 import type { MenuProps } from "antd";
 import { Menu, Space, message } from "antd";
 import { signOut } from "firebase/auth";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { Link } from "react-router-dom";
-import { keyframes, styled } from "styled-components";
+import { AuthContext } from "../../context/authContext";
 import { auth } from "../../firbase";
-import { device } from "../../utils/breakpoints";
+import {
+  HeaderSpan,
+  ImageWrapper,
+  Logo,
+  MenuContainer,
+  RotatingImage,
+  Wrapper,
+} from "./Header.style";
 import logoFirst from "./LogoFirst.png";
 import lemonCircle from "./lemonCircle.png";
-const Wrapper = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 75px;
-  width: 100%;
-  padding: 10px 24px 0px 20px;
-  z-index: 99;
-  background-color: white;
-  justify-content: space-between;
-  display: flex;
-  align-items: center;
 
-  @media ${device.mobile} {
-    height: 70px;
-    border: none;
-    padding: 5px;
-    flex-direction: column;
-  }
-`;
-
-const Logo = styled.img`
-  height: 60px;
-  background-repeat: none;
-  @media ${device.mobile} {
-    height: 40px;
-  }
-`;
-
-const MenuContainer = styled.div`
-  display: flex;
-
-  @media ${device.mobile} {
-    width: 100%;
-    justify-content: center;
-  }
-`;
-
-const rotateClockwise = keyframes`
-  0%, 50% { transform: rotate(0deg); }
-  25% { transform: rotate(360deg); }
-`;
-
-const rotateCounterClockwise = keyframes`
-  50%, 100% { transform: rotate(0deg); }
-  75% { transform: rotate(-360deg); }
-`;
-
-const RotatingImage = styled.img`
-  width: 44px;
-  height: auto;
-  border-radius: 100%;
-  animation:
-    ${rotateClockwise} 7s linear infinite,
-    ${rotateCounterClockwise} 7s linear infinite;
-`;
-
-const ImageWrapper = styled.div`
-  position: absolute;
-  z-index: 80;
-  bottom: -22px;
-  left: 50%;
-  transform: translateX(-50%);
-`;
-
-const HeaderSpan = styled.span`
-  font-size: 20px;
-  @media ${device.mobile} {
-    font-size: 14px;
-  }
-`;
-
-const LogoWrapper = styled.div``;
-
-function Header() {
+export default function Header() {
+  const userInformation = useContext(AuthContext);
+  const userId = userInformation?.user?.uid;
   const handleLogout = async () => {
     try {
       await signOut(auth);
@@ -90,11 +26,11 @@ function Header() {
       message.error("登出失敗");
     }
   };
-  //
-  const [current, setCurrent] = useState("");
+
+  const [currentPage, setCurrentPage] = useState("");
 
   const onClick: MenuProps["onClick"] = (e) => {
-    setCurrent(e.key);
+    setCurrentPage(e.key);
 
     if (e.key === "logout") {
       handleLogout();
@@ -123,27 +59,30 @@ function Header() {
       key: "dailymealplan",
       disabled: false,
     },
-
-    {
-      label: <HeaderSpan onClick={() => handleLogout()}>登出</HeaderSpan>,
-      key: "logout",
-    },
+    ...(userId
+      ? [
+          {
+            label: <HeaderSpan onClick={() => handleLogout()}>登出</HeaderSpan>,
+            key: "logout",
+          },
+        ]
+      : []),
   ];
-  //
+
   return (
     <div>
       <Wrapper>
         <Link to="/" style={{ textDecoration: "none" }}>
-          <LogoWrapper>
+          <div>
             <Logo src={logoFirst} />
-          </LogoWrapper>
+          </div>
         </Link>
 
         <MenuContainer>
           <div>
             <Menu
               onClick={onClick}
-              selectedKeys={[current]}
+              selectedKeys={[currentPage]}
               mode="horizontal"
               items={items}
             />
@@ -158,5 +97,3 @@ function Header() {
     </div>
   );
 }
-
-export default Header;
