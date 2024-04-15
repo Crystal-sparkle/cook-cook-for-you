@@ -1,5 +1,5 @@
 import { ProCard } from "@ant-design/pro-components";
-import { Button } from "antd";
+import { Button, Space } from "antd";
 import styled from "styled-components";
 import { device } from "../../utils/breakpoints";
 
@@ -104,6 +104,11 @@ export const RecipeCard = styled(ProCard)`
       padding-inline: 10px;
     }
   }
+`;
+
+export const SpaceStyle = styled(Space)`
+  display: flex;
+  margin-bottom: 8px;
 `;
 export const TextLine = styled.span`
   text-align: center;

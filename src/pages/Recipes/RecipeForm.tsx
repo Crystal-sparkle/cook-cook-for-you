@@ -1,68 +1,57 @@
-import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
-import {
-  ModalForm,
-  ProForm,
-  ProFormRadio,
-  ProFormSelect,
-  ProFormText,
-  ProFormTextArea,
-} from "@ant-design/pro-components";
-import { Button, Form, Input, Space, Upload, message } from "antd";
+import { PlusOutlined } from "@ant-design/icons";
+import { ModalForm } from "@ant-design/pro-components";
+import { Form, message } from "antd";
 import dayjs from "dayjs";
 import "dayjs/locale/zh-cn";
 import "firebase/database";
 import { Timestamp, addDoc, collection, doc, setDoc } from "firebase/firestore";
-import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import React, { useContext, useState } from "react";
 import { AuthContext } from "../../context/authContext";
-import { db, storage } from "../../firbase";
+import { db } from "../../firbase";
 import { Recipe } from "../../types";
-import { AddRecipeButton, UploadText } from "./recipeForm.style";
-const { TextArea } = Input;
+import RecipeModalContent from "./RecipeModalContent";
+import { AddRecipeButton } from "./recipeForm.style";
+
 dayjs.locale("zh-cn");
 
-const waitTime = (time: number = 100) => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(true);
-    }, time);
-  });
-};
+// interface FileListObject {
+//   fileList: UploadFile[];
+// }
 
-interface RcFile extends File {
-  uid: string;
-}
-
-const cookingTimeOption = [5, 10, 15, 20, 25, 30, 45, 60, 90, 120].map(
-  (minutes) => ({
-    value: minutes,
-    label: `${minutes}分鐘`,
-  })
-);
+// const cookingTimeOption = [5, 10, 15, 20, 25, 30, 45, 60, 90, 120].map(
+//   (minutes) => ({
+//     value: minutes,
+//     label: `${minutes}分鐘`,
+//   })
+// );
 
 const RecipeForm: React.FC = () => {
   const userInformation = useContext(AuthContext);
   const currentUserUid = userInformation?.user?.uid;
 
-  const handleUpload = async (file: RcFile) => {
-    try {
-      // const storageRef = ref(storage);
-      const imageRef = ref(storage, `images/${file.name + file.uid}.jpg`);
-      const snapshot = await uploadBytes(imageRef, file);
-
-      const downloadURL = await getDownloadURL(snapshot.ref);
-      setMainPhoto(downloadURL);
-    } catch (error) {
-      message.error("新增照片失敗");
-    }
-  };
-
   const [mainPhoto, setMainPhoto] = useState("");
+  const [currentItem, setCurrentItem] = useState(undefined);
   const [form] = Form.useForm();
+  const temprary = () =>{
+    setCurrentItem(undefined)
+  }
+  temprary()
+
+  // const handleUpload = async (file: RcFile) => {
+  //   try {
+  //     const imageRef = ref(storage, `images/${file.name + file.uid}.jpg`);
+  //     const snapshot = await uploadBytes(imageRef, file);
+
+  //     const downloadURL = await getDownloadURL(snapshot.ref);
+  //     setMainPhoto(downloadURL);
+  //   } catch (error) {
+  //     message.error("新增照片失敗");
+  //   }
+  // };
 
   const onFinish = async (values: Recipe) => {
     const recipesCollection = collection(db, "recipess");
-    await waitTime(2000);
+
     try {
       const valuesWithImageURL = {
         ...values,
@@ -86,15 +75,12 @@ const RecipeForm: React.FC = () => {
     }
   };
 
-  interface FileListObject {
-    fileList: any[];
-  }
-  const normFile = (e: any[] | FileListObject): any[] => {
-    if (Array.isArray(e)) {
-      return e;
-    }
-    return e?.fileList || [];
-  };
+  // const normFile = (e: string[] | FileListObject) => {
+  //   if (Array.isArray(e)) {
+  //     return e;
+  //   }
+  //   return e?.fileList || [];
+  // };
 
   return (
     <div>
@@ -119,12 +105,11 @@ const RecipeForm: React.FC = () => {
           },
         }}
       >
-        <ProForm.Group>
+        {/* <ProForm.Group>
           <ProFormText
             width="md"
             name="name"
             label="食譜名稱"
-            tooltip="最長為 24 位"
             placeholder="食譜名稱"
           />
 
@@ -138,6 +123,7 @@ const RecipeForm: React.FC = () => {
         <ProForm.Group>
           <Form.Item
             label="上傳圖片"
+            name="mainPhoto"
             valuePropName="fileList"
             getValueFromEvent={normFile}
           >
@@ -291,7 +277,11 @@ const RecipeForm: React.FC = () => {
         <hr />
 
         <ProFormText width="lg" name="refLink" label="參考連結" />
-        <ProFormTextArea width="lg" name="note" label="備註" />
+        <ProFormTextArea width="lg" name="note" label="備註" /> */}
+        <RecipeModalContent
+          setMainPhoto={setMainPhoto}
+          currentItem={currentItem}
+        />
       </ModalForm>
     </div>
   );
