@@ -2,8 +2,8 @@ import { message } from "antd";
 import "firebase/database";
 import { collection, onSnapshot, query, where } from "firebase/firestore";
 import { useEffect, useState } from "react";
-import { db } from "../../../firbase";
-import { PurchasePlan } from "../../../types";
+import { db } from "../../../../../firbase";
+import { PurchasePlan } from "../../../../../types";
 
 const useGetPurchasePlan = (purchasePlanId: string | undefined) => {
   const [purchasePlan, setPurchasePlan] = useState<PurchasePlan>();

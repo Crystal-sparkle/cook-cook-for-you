@@ -2,7 +2,7 @@ import "firebase/database";
 import { collection, onSnapshot, query, where } from "firebase/firestore";
 import { useEffect, useState } from "react";
 // import { useParams } from "react-router-dom";
-import { db } from "../../../firbase";
+import { db } from "../../../../../firbase";
 
 const useGetPartnerList = (userId: string | undefined) => {
   // const { userId } = useParams();
