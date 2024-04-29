@@ -1,3 +1,4 @@
+import type { UploadFile } from "antd/es/upload";
 import { User } from "firebase/auth";
 import { Timestamp } from "firebase/firestore";
 export interface Recipe {
@@ -167,6 +168,14 @@ export interface CookingPlanData {
   userId: string;
 }
 
+export interface activePlanIngredients {
+  name: string;
+  quantity: number;
+  unit: string;
+  isPurchased: boolean;
+  responsible: string;
+}
+
 //
 export interface MenuItem {
   label: string;
@@ -226,6 +235,10 @@ export interface RecipeDawerPrps {
 }
 
 export interface RecipeModalPrps {
-  currentItem: CurrentItem | undefined;
+  currentItem?: CurrentItem;
   setMainPhoto: (arg0: string) => void;
+}
+
+export interface FileListObject {
+  fileList: UploadFile[];
 }

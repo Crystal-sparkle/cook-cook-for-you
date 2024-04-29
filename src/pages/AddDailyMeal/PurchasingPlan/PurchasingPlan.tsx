@@ -17,6 +17,7 @@ import {
   PurchaseList,
   PurchasePlan,
   PurchasePlanProps,
+  activePlanIngredients,
 } from "../../../types";
 import Partner from "./Partner";
 import PurchasingDrawer from "./PurchasingDrawer";
@@ -41,6 +42,8 @@ const PurchasingPlan = ({
   const [activePlanIngredients, setActivePlanIngredients] = useState<
     CookingPlanItem[]
   >([]);
+  const [planId, setPlanId] = useState<string>("");
+  const [purchaseItems, setPurchaseItems] = useState<PurchaseList[]>([]);
 
   useEffect(() => {
     const purchaseMeals = activeCookingPlan?.cookingItems;
@@ -95,17 +98,9 @@ const PurchasingPlan = ({
     }
   }, [activeCookingPlan]);
 
-  const [purchaseItems, setPurchaseItems] = useState<PurchaseList[]>([]);
-
   useEffect(() => {
     const purchaseItemsArray = activePlanIngredients.reduce<
-      {
-        name: string;
-        quantity: number;
-        unit: string;
-        isPurchased: boolean;
-        responsible: string;
-      }[]
+      activePlanIngredients[]
     >((accumulator, item) => {
       item.ingredients.forEach((ingredient) => {
         const existingIngredient = accumulator.find(
@@ -153,8 +148,6 @@ const PurchasingPlan = ({
     addPurchaseItems();
   }, [purchaseItems]);
 
-  const [planId, setPlanId] = useState<string>("");
-
   useEffect(() => {
     const getPurchasePlanId = async () => {
       const purchaseCollection = collection(db, "purchasePlan");
@@ -181,7 +174,6 @@ const PurchasingPlan = ({
     };
     getPurchasePlanId();
   }, []);
-  console.log(partners);
 
   const dateForCooking = activeCookingPlan?.cookingDate
     ?.toDate()
