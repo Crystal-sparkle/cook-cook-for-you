@@ -1,7 +1,6 @@
 import { ClockCircleOutlined, EditOutlined } from "@ant-design/icons";
 import { ModalForm } from "@ant-design/pro-components";
 import { Button, Space, message } from "antd";
-import "firebase/database";
 import {
   Timestamp,
   collection,

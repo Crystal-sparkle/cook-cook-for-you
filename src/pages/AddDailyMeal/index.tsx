@@ -141,15 +141,6 @@ const AddDailyMeal = ({ user }: AddDailyMealProps) => {
 
   const items = steps.map((item) => ({ key: item.title, title: item.title }));
 
-  // const contentStyle: React.CSSProperties = {
-  //   lineHeight: "120px",
-  //   textAlign: "start",
-  //   color: token.colorTextTertiary,
-  //   borderRadius: token.borderRadiusLG,
-  //   marginTop: "6px",
-  //   width: "100%",
-  // };
-
   const handleProjectClose = () => {
     const closePurchasePlan = async () => {
       const PurchasePlanCollection = collection(db, "purchasePlan");
