@@ -14,7 +14,14 @@ import {
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../../context/authContext";
 import { db } from "../../../firbase";
-import { Accumulator, CookingScheduleProps, MealPlan } from "../../../types";
+import {
+  Accumulator,
+  CookingPlanItem,
+  CookingScheduleProps,
+  MealPlan,
+  PurchaseList,
+  activePlanIngredients,
+} from "../../../types";
 import CookingDatePicker from "./CookingDatePicker";
 import CookingRangePicker from "./CookingRangePicker";
 import {
@@ -31,10 +38,7 @@ import {
 type RangeValue = [Dayjs | null, Dayjs | null] | null;
 const { Meta } = Card;
 
-function CookingSchedule({
-  setCookingPlanId,
-  cookingPlanId,
-}: CookingScheduleProps) {
+function CookingSchedule({ activeCookingPlan }: CookingScheduleProps) {
   const userInformation = useContext(AuthContext);
   const currentUserUid = userInformation?.user?.uid;
 
@@ -107,6 +111,15 @@ function CookingSchedule({
     }
   }, [cookingDate, selectDate]);
 
+  const combinedServingArray = Object.values(combinedSearvings);
+
+  const [visible, setVisible] = useState(false);
+  const handleClick = () => {
+    setVisible(true);
+  };
+
+  const [cookingPlanId, setCookingPlanId] = useState<string>("");
+
   async function addCookingPlan() {
     const CookingPlanCollection = collection(db, "cookingPlan");
 
@@ -134,17 +147,104 @@ function CookingSchedule({
     }
   }
 
-  useEffect(() => {
-    async function addPurchasingPlan() {
-      if (cookingPlanId) {
-        const purchasePlanCollection = collection(db, "purchasePlan");
+  const [activePlanIngredients, setActivePlanIngredients] = useState<
+    CookingPlanItem[]
+  >([]);
+  const [purchaseItems, setPurchaseItems] = useState<PurchaseList[]>([]);
 
+  useEffect(() => {
+    const purchaseMeals = activeCookingPlan?.cookingItems;
+
+    if (Array.isArray(purchaseMeals) && purchaseMeals.length > 0) {
+      const getSelectRecipesIngredients = async () => {
+        const recipesCollection = collection(db, "recipess");
+
+        try {
+          const promises = purchaseMeals.map(async (meal) => {
+            const queryRef = query(
+              recipesCollection,
+              where("id", "==", meal.id)
+            );
+
+            try {
+              const querySnapshot = await getDocs(queryRef);
+
+              if (!querySnapshot.empty) {
+                const ingredients = querySnapshot.docs[0].data().ingredients;
+
+                const newIngredients = {
+                  recipeId: meal.id,
+                  serving: meal.serving,
+                  ingredients: ingredients,
+                };
+                return newIngredients;
+              } else {
+                return null;
+              }
+            } catch (error) {
+              message.error("取得資料失敗");
+              return null;
+            }
+          });
+          const results = await Promise.all(promises);
+
+          const newIngredients = results.filter(
+            (result) => result !== null
+          ) as CookingPlanItem[];
+
+          setActivePlanIngredients((prevIngredients) => [
+            ...prevIngredients,
+            ...newIngredients,
+          ]);
+        } catch (error) {
+          message.error("取得資料失敗");
+        }
+      };
+
+      getSelectRecipesIngredients();
+    }
+  }, [activeCookingPlan]);
+
+  useEffect(() => {
+    const purchaseItemsArray = activePlanIngredients.reduce<
+      activePlanIngredients[]
+    >((accumulator, item) => {
+      item.ingredients.forEach((ingredient) => {
+        const existingIngredient = accumulator.find(
+          (accIngredient) =>
+            accIngredient.name === ingredient.name &&
+            accIngredient.unit === ingredient.unit
+        );
+
+        if (existingIngredient) {
+          existingIngredient.quantity +=
+            Number(ingredient.quantity) * Number(item.serving);
+        } else {
+          accumulator.push({
+            name: ingredient.name,
+            quantity: Number(ingredient.quantity) * Number(item.serving),
+            unit: ingredient.unit,
+            isPurchased: false,
+            responsible: "",
+          });
+        }
+      });
+      return accumulator;
+    }, []);
+
+    setPurchaseItems(purchaseItemsArray);
+  }, [activePlanIngredients]);
+
+  useEffect(() => {
+    if (purchaseItems.length > 0) {
+      const addPurchaseItems = async () => {
+        const purchasePlanCollection = collection(db, "purchasePlan");
         const startDate = selectDate[0]?.toDate() || null;
         const endDate = selectDate[1]?.toDate() || null;
 
         const newPlan = {
           cookingDate: cookingDate,
-          items: [],
+          items: purchaseItems,
           userId: currentUserUid,
           mealsStartDate: startDate,
           mealsEndDate: endDate,
@@ -157,18 +257,11 @@ function CookingSchedule({
         } catch (error) {
           message.error("新增失敗");
         }
-      }
+      };
+
+      addPurchaseItems();
     }
-
-    addPurchasingPlan();
-  }, [cookingPlanId]);
-
-  const combinedServingArray = Object.values(combinedSearvings);
-
-  const [visible, setVisible] = useState(false);
-  const handleClick = () => {
-    setVisible(true);
-  };
+  }, [purchaseItems]);
 
   const createPurchsingList = async () => {
     addCookingPlan();

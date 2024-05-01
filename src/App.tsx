@@ -87,7 +87,7 @@ const App: React.FC = () => {
               <>
                 {user ? (
                   <>
-                    <Route path="/" element={<AddDailyMeal user={user} />} />
+                    <Route path="/" element={<AddDailyMeal />} />
                     <Route path="/recipes" element={<Recipes />} />
                   </>
                 ) : (

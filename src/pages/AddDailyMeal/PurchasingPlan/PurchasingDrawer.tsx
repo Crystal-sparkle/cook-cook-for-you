@@ -18,14 +18,12 @@ import {
   ExportOutlinedIconStyle,
   SharingButton,
   ShoppingListButtonStyle,
-  
 } from "./PurchasingPlan.style";
 import { useDrawerControl } from "./hook/useDrawerControl";
 
 const PurchasingDrawer = ({
   planId,
   purchasePlanCollection,
-  setActiveCookingPlan,
 }: PurchaseDrawerProps) => {
   const userInformation = useContext(AuthContext);
   const currentUserUid = userInformation?.user?.uid;
@@ -69,7 +67,6 @@ const PurchasingDrawer = ({
     };
     closeCookingSchedule();
     closePurchasePlan();
-    setActiveCookingPlan();
 
     message.info("開啟下一個烹煮計畫吧");
   };

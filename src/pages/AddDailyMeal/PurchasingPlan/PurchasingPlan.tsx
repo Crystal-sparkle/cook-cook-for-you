@@ -1,24 +1,10 @@
 import { ProCard } from "@ant-design/pro-components";
 import { Card, message } from "antd";
-import {
-  collection,
-  getDocs,
-  onSnapshot,
-  query,
-  updateDoc,
-  where,
-} from "firebase/firestore";
+import { collection, onSnapshot, query, where } from "firebase/firestore";
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../../context/authContext";
 import { db } from "../../../firbase";
-import {
-  CookingPlanItem,
-  PartnerList,
-  PurchaseList,
-  PurchasePlan,
-  PurchasePlanProps,
-  activePlanIngredients,
-} from "../../../types";
+import { PartnerList, PurchasePlan, PurchasePlanProps } from "../../../types";
 import Partner from "./Partner";
 import PurchasingDrawer from "./PurchasingDrawer";
 import {
@@ -32,121 +18,13 @@ import {
 import useGetPartnerList from "./Shopping/hooks/useGetPartnerList";
 
 const PurchasingPlan = ({
-  setActiveCookingPlan,
-  activeCookingPlan,
   purchasePlanCollection,
+  activeCookingPlan,
 }: PurchasePlanProps) => {
   const userInformation = useContext(AuthContext);
   const userId = userInformation?.user?.uid;
   const partners: PartnerList[] = useGetPartnerList(userId);
-  const [activePlanIngredients, setActivePlanIngredients] = useState<
-    CookingPlanItem[]
-  >([]);
   const [planId, setPlanId] = useState<string>("");
-  const [purchaseItems, setPurchaseItems] = useState<PurchaseList[]>([]);
-
-  useEffect(() => {
-    const purchaseMeals = activeCookingPlan?.cookingItems;
-
-    if (Array.isArray(purchaseMeals) && purchaseMeals.length > 0) {
-      const getSelectRecipesIngredients = async () => {
-        const recipesCollection = collection(db, "recipess");
-
-        try {
-          const promises = purchaseMeals.map(async (meal) => {
-            const queryRef = query(
-              recipesCollection,
-              where("id", "==", meal.id)
-            );
-
-            try {
-              const querySnapshot = await getDocs(queryRef);
-
-              if (!querySnapshot.empty) {
-                const ingredients = querySnapshot.docs[0].data().ingredients;
-
-                const newIngredients = {
-                  recipeId: meal.id,
-                  serving: meal.serving,
-                  ingredients: ingredients,
-                };
-                return newIngredients;
-              } else {
-                return null;
-              }
-            } catch (error) {
-              message.error("取得資料失敗");
-              return null;
-            }
-          });
-          const results = await Promise.all(promises);
-
-          const newIngredients = results.filter(
-            (result) => result !== null
-          ) as CookingPlanItem[];
-
-          setActivePlanIngredients((prevIngredients) => [
-            ...prevIngredients,
-            ...newIngredients,
-          ]);
-        } catch (error) {
-          message.error("取得資料失敗");
-        }
-      };
-
-      getSelectRecipesIngredients();
-    }
-  }, [activeCookingPlan]);
-
-  useEffect(() => {
-    const purchaseItemsArray = activePlanIngredients.reduce<
-      activePlanIngredients[]
-    >((accumulator, item) => {
-      item.ingredients.forEach((ingredient) => {
-        const existingIngredient = accumulator.find(
-          (accIngredient) =>
-            accIngredient.name === ingredient.name &&
-            accIngredient.unit === ingredient.unit
-        );
-
-        if (existingIngredient) {
-          existingIngredient.quantity +=
-            Number(ingredient.quantity) * Number(item.serving);
-        } else {
-          accumulator.push({
-            name: ingredient.name,
-            quantity: Number(ingredient.quantity) * Number(item.serving),
-            unit: ingredient.unit,
-            isPurchased: false,
-            responsible: "",
-          });
-        }
-      });
-      return accumulator;
-    }, []);
-
-    setPurchaseItems(purchaseItemsArray);
-  }, [activePlanIngredients]);
-
-  useEffect(() => {
-    const addPurchaseItems = async () => {
-      const PurchasePlanCollection = collection(db, "purchasePlan");
-      const q = query(PurchasePlanCollection, where("isActive", "==", true));
-
-      try {
-        const querySnapshot = await getDocs(q);
-        querySnapshot.forEach(async (doc) => {
-          const docRef = doc.ref;
-          await updateDoc(docRef, {
-            items: purchaseItems,
-          });
-        });
-      } catch (error) {
-        message.error("取得資料失敗");
-      }
-    };
-    addPurchaseItems();
-  }, [purchaseItems]);
 
   useEffect(() => {
     const getPurchasePlanId = async () => {
@@ -228,7 +106,6 @@ const PurchasingPlan = ({
           <PurchasingDrawer
             purchasePlanCollection={purchasePlanCollection}
             planId={planId}
-            setActiveCookingPlan={setActiveCookingPlan}
           />
         </div>
       </Card>

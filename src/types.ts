@@ -1,5 +1,4 @@
 import type { UploadFile } from "antd/es/upload";
-import { User } from "firebase/auth";
 import { Timestamp } from "firebase/firestore";
 export interface Recipe {
   category: string;
@@ -53,10 +52,7 @@ interface Step {
 //CookingSchedule
 
 export interface CookingScheduleProps {
-  setCookingPlanId: (id: string) => void;
-  cookingPlanId: string;
-  activeCookingPlan?: CookingPlanData | undefined;
-  setActiveCookingPlan: (cookingPlanData: CookingPlanData) => void;
+  activeCookingPlan: CookingPlanData | undefined;
 }
 
 export interface MealPlan {
@@ -86,11 +82,6 @@ export interface CookingPlanData {
   mealsEndDate: Timestamp;
   planId: string;
   userId: string;
-}
-
-//AddDailyMeal
-export interface AddDailyMealProps {
-  user: User | null;
 }
 
 export interface PurchasePlan {
@@ -129,10 +120,8 @@ export interface CalerdarContent {
 }
 //PurchasingPlan
 export interface PurchasePlanProps {
-  activeCookingPlan: CookingPlanData | undefined;
-  setActiveCookingPlan: (cookingPlanData?: CookingPlanData) => void;
   purchasePlanCollection: PurchasePlan[];
-  user: User | null;
+  activeCookingPlan: CookingPlanData | undefined;
 }
 
 export interface CookingPlanItem {
@@ -185,7 +174,6 @@ export interface MenuItem {
 
 //
 export interface PurchaseDrawerProps {
-  setActiveCookingPlan: (cookingPlanData?: CookingPlanData) => void;
   purchasePlanCollection: PurchasePlan[];
   planId: string;
 }

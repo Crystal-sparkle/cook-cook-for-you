@@ -10,7 +10,7 @@ import {
 } from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { db } from "../../firbase";
-import { AddDailyMealProps, CookingPlanData, PurchasePlan } from "../../types";
+import { CookingPlanData, PurchasePlan } from "../../types";
 import CookingSchedule from "./CookingSchedule/CookingSchedule";
 import MealCalendar from "./MealCalendar";
 import PurchasingPlan from "./PurchasingPlan/PurchasingPlan";
@@ -24,16 +24,16 @@ import {
   StepsWrapper,
 } from "./addDailyMeal.style";
 
-const AddDailyMeal = ({ user }: AddDailyMealProps) => {
-  const [cookingPlanId, setCookingPlanId] = useState<string>("");
-  const [activeCookingPlan, setActiveCookingPlan] = useState<
-    CookingPlanData | undefined
-  >();
+const AddDailyMeal = () => {
   // const { token } = theme.useToken();
   const [current, setCurrent] = useState(0);
   const [purchasePlanCollection, setPurchasePanCollection] = useState<
     PurchasePlan[]
   >([]);
+
+  const [activeCookingPlan, setActiveCookingPlan] = useState<
+    CookingPlanData | undefined
+  >();
 
   useEffect(() => {
     const getActivePlan = async () => {
@@ -50,6 +50,8 @@ const AddDailyMeal = ({ user }: AddDailyMealProps) => {
 
           if (results) {
             setActiveCookingPlan(results);
+          } else {
+            setActiveCookingPlan(undefined);
           }
         });
 
@@ -99,25 +101,14 @@ const AddDailyMeal = ({ user }: AddDailyMealProps) => {
     },
     {
       title: "設定烹煮日程",
-      content: (
-        <CookingSchedule
-          cookingPlanId={cookingPlanId}
-          activeCookingPlan={activeCookingPlan}
-          setCookingPlanId={setCookingPlanId}
-          setActiveCookingPlan={(cookingPlanData: CookingPlanData) =>
-            setActiveCookingPlan(cookingPlanData)
-          }
-        />
-      ),
+      content: <CookingSchedule activeCookingPlan={activeCookingPlan} />,
     },
     {
       title: "生成購買清單",
       content: (
         <PurchasingPlan
-          user={user}
-          activeCookingPlan={activeCookingPlan}
-          setActiveCookingPlan={setActiveCookingPlan}
           purchasePlanCollection={purchasePlanCollection}
+          activeCookingPlan={activeCookingPlan}
         />
       ),
     },
@@ -178,8 +169,6 @@ const AddDailyMeal = ({ user }: AddDailyMealProps) => {
     };
     closeCookingSchedule();
     closePurchasePlan();
-
-    setActiveCookingPlan(undefined);
 
     message.info("開啟新的烹煮旅程吧");
   };
