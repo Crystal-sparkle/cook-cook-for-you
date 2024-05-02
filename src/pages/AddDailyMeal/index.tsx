@@ -55,9 +55,7 @@ const AddDailyMeal = () => {
           }
         });
 
-        return () => {
-          unsubscribe();
-        };
+        return () => unsubscribe();
       } catch (error) {
         message.error("查無計劃");
       }
@@ -70,10 +68,8 @@ const AddDailyMeal = () => {
     const getPurchasePlan = async () => {
       const purchaseCollection = collection(db, "purchasePlan");
       const queryRef = query(purchaseCollection, where("isActive", "==", true));
-
-      const unsubscribe = onSnapshot(
-        queryRef,
-        (querySnapshot) => {
+      try {
+        const unsubscribe = onSnapshot(queryRef, (querySnapshot) => {
           const results: PurchasePlan[] = [];
           querySnapshot.forEach((doc) => {
             const data = doc.data();
@@ -81,14 +77,16 @@ const AddDailyMeal = () => {
             results.push(data as PurchasePlan);
           });
 
-          setPurchasePanCollection(results);
-        },
-        () => {
-          message.error("取得資料時發生錯誤");
-        }
-      );
-
-      return () => unsubscribe();
+          if (results.length > 0) {
+            setPurchasePanCollection(results);
+          } else {
+            return;
+          }
+        });
+        return () => unsubscribe();
+      } catch (error) {
+        message.error("取得資料時發生錯誤");
+      }
     };
 
     getPurchasePlan();
@@ -132,43 +130,28 @@ const AddDailyMeal = () => {
 
   const items = steps.map((item) => ({ key: item.title, title: item.title }));
 
-  const handleProjectClose = () => {
-    const closePurchasePlan = async () => {
-      const PurchasePlanCollection = collection(db, "purchasePlan");
-      const q = query(PurchasePlanCollection, where("isActive", "==", true));
+  const closeActivePlan = async (collectionName: string) => {
+    const collectionRef = collection(db, collectionName);
+    const q = query(collectionRef, where("isActive", "==", true));
+    try {
+      const querySnapshot = await getDocs(q);
+      querySnapshot.forEach(async (doc) => {
+        const docRef = doc.ref;
 
-      try {
-        const querySnapshot = await getDocs(q);
-        querySnapshot.forEach(async (doc) => {
-          const docRef = doc.ref;
-
-          await updateDoc(docRef, {
-            isActive: false,
-          });
+        await updateDoc(docRef, {
+          isActive: false,
         });
-      } catch (error) {
-        message.error("存取失敗");
-      }
-    };
-    const closeCookingSchedule = async () => {
-      const CookingPlanCollection = collection(db, "cookingPlan");
-      const q = query(CookingPlanCollection, where("isActive", "==", true));
+      });
+    } catch (error) {
+      message.error("存取失敗");
+    }
+  };
 
-      try {
-        const querySnapshot = await getDocs(q);
-        querySnapshot.forEach(async (doc) => {
-          const docRef = doc.ref;
-
-          await updateDoc(docRef, {
-            isActive: false,
-          });
-        });
-      } catch (error) {
-        message.error("存取失敗");
-      }
-    };
-    closeCookingSchedule();
-    closePurchasePlan();
+  const handleProjectClose = async () => {
+    await Promise.all([
+      closeActivePlan("purchasePlan"),
+      closeActivePlan("cookingPlan"),
+    ]);
 
     message.info("開啟新的烹煮旅程吧");
   };
