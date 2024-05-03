@@ -1,5 +1,6 @@
 import type { UploadFile } from "antd/es/upload";
 import { Timestamp } from "firebase/firestore";
+import { Dispatch, SetStateAction } from "react";
 export interface Recipe {
   category: string;
   cookingTime: number;
@@ -122,6 +123,7 @@ export interface CalerdarContent {
 export interface PurchasePlanProps {
   purchasePlanCollection: PurchasePlan[];
   activeCookingPlan: CookingPlanData | undefined;
+  setPurchasePlanCollection: Dispatch<SetStateAction<PurchasePlan[]>>;
 }
 
 export interface CookingPlanItem {
@@ -176,6 +178,7 @@ export interface MenuItem {
 export interface PurchaseDrawerProps {
   purchasePlanCollection: PurchasePlan[];
   planId: string;
+  setPurchasePlanCollection: Dispatch<SetStateAction<PurchasePlan[]>>;
 }
 //
 export interface PurchaseItem {
