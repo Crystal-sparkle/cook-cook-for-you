@@ -131,24 +131,24 @@ const AddDailyMeal = () => {
 
   const items = steps.map((item) => ({ key: item.title, title: item.title }));
 
-  const closeActivePlan = async (collectionName: string) => {
-    const collectionRef = collection(db, collectionName);
-    const q = query(collectionRef, where("isActive", "==", true));
-    try {
-      const querySnapshot = await getDocs(q);
-      querySnapshot.forEach(async (doc) => {
-        const docRef = doc.ref;
-
-        await updateDoc(docRef, {
-          isActive: false,
-        });
-      });
-    } catch (error) {
-      message.error("存取失敗");
-    }
-  };
-
   const handleProjectClose = async () => {
+    const closeActivePlan = async (collectionName: string) => {
+      const collectionRef = collection(db, collectionName);
+      const q = query(collectionRef, where("isActive", "==", true));
+      try {
+        const querySnapshot = await getDocs(q);
+        querySnapshot.forEach(async (doc) => {
+          const docRef = doc.ref;
+
+          await updateDoc(docRef, {
+            isActive: false,
+          });
+        });
+      } catch (error) {
+        message.error("存取失敗");
+      }
+    };
+
     await Promise.all([
       closeActivePlan("purchasePlan"),
       closeActivePlan("cookingPlan"),
