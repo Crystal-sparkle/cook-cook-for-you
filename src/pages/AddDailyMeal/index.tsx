@@ -27,7 +27,7 @@ import {
 const AddDailyMeal = () => {
   // const { token } = theme.useToken();
   const [current, setCurrent] = useState(0);
-  const [purchasePlanCollection, setPurchasePanCollection] = useState<
+  const [purchasePlanCollection, setPurchasePlanCollection] = useState<
     PurchasePlan[]
   >([]);
 
@@ -78,7 +78,7 @@ const AddDailyMeal = () => {
           });
 
           if (results.length > 0) {
-            setPurchasePanCollection(results);
+            setPurchasePlanCollection(results);
           } else {
             return;
           }
@@ -107,6 +107,7 @@ const AddDailyMeal = () => {
         <PurchasingPlan
           purchasePlanCollection={purchasePlanCollection}
           activeCookingPlan={activeCookingPlan}
+          setPurchasePlanCollection={setPurchasePlanCollection}
         />
       ),
     },
@@ -152,6 +153,7 @@ const AddDailyMeal = () => {
       closeActivePlan("purchasePlan"),
       closeActivePlan("cookingPlan"),
     ]);
+    setPurchasePlanCollection([]);
 
     message.info("開啟新的烹煮旅程吧");
   };

@@ -20,6 +20,7 @@ import useGetPartnerList from "./Shopping/hooks/useGetPartnerList";
 const PurchasingPlan = ({
   purchasePlanCollection,
   activeCookingPlan,
+  setPurchasePlanCollection,
 }: PurchasePlanProps) => {
   const userInformation = useContext(AuthContext);
   const userId = userInformation?.user?.uid;
@@ -106,6 +107,7 @@ const PurchasingPlan = ({
           <PurchasingDrawer
             purchasePlanCollection={purchasePlanCollection}
             planId={planId}
+            setPurchasePlanCollection={setPurchasePlanCollection}
           />
         </div>
       </Card>

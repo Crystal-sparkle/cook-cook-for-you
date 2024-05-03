@@ -24,6 +24,7 @@ import { useDrawerControl } from "./hook/useDrawerControl";
 const PurchasingDrawer = ({
   planId,
   purchasePlanCollection,
+  setPurchasePlanCollection,
 }: PurchaseDrawerProps) => {
   const userInformation = useContext(AuthContext);
   const currentUserUid = userInformation?.user?.uid;
