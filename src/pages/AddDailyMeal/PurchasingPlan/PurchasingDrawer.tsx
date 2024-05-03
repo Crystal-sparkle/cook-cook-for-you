@@ -31,11 +31,10 @@ const PurchasingDrawer = ({
 
   const { open, showDrawer, onClose } = useDrawerControl();
 
-  const closePlan = () => {
-    const closePurchasePlan = async () => {
-      const PurchasePlanCollection = collection(db, "purchasePlan");
-      const q = query(PurchasePlanCollection, where("isActive", "==", true));
-
+  const handleProjectClose = async () => {
+    const closeActivePlan = async (collectionName: string) => {
+      const collectionRef = collection(db, collectionName);
+      const q = query(collectionRef, where("isActive", "==", true));
       try {
         const querySnapshot = await getDocs(q);
         querySnapshot.forEach(async (doc) => {
@@ -46,30 +45,17 @@ const PurchasingDrawer = ({
           });
         });
       } catch (error) {
-        message.error("取得資料失敗");
+        message.error("存取失敗");
       }
     };
-    const closeCookingSchedule = async () => {
-      const CookingPlanCollection = collection(db, "cookingPlan");
-      const q = query(CookingPlanCollection, where("isActive", "==", true));
 
-      try {
-        const querySnapshot = await getDocs(q);
-        querySnapshot.forEach(async (doc) => {
-          const docRef = doc.ref;
+    await Promise.all([
+      closeActivePlan("purchasePlan"),
+      closeActivePlan("cookingPlan"),
+    ]);
+    setPurchasePlanCollection([]);
 
-          await updateDoc(docRef, {
-            isActive: false,
-          });
-        });
-      } catch (error) {
-        message.error("取得資料失敗");
-      }
-    };
-    closeCookingSchedule();
-    closePurchasePlan();
-
-    message.info("開啟下一個烹煮計畫吧");
+    message.info("開啟新的烹煮旅程吧");
   };
 
   return (
