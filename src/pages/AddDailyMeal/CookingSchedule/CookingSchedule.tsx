@@ -5,10 +5,9 @@ import {
   Timestamp,
   addDoc,
   collection,
-  doc,
   getDocs,
   query,
-  setDoc,
+  updateDoc,
   where,
 } from "firebase/firestore";
 import { useContext, useEffect, useState } from "react";
@@ -135,13 +134,7 @@ function CookingSchedule({ activeCookingPlan }: CookingScheduleProps) {
       isActive: true,
     };
     try {
-      const docRef = await addDoc(CookingPlanCollection, newPlan);
-
-      const updatedData = { planId: docRef.id };
-      await setDoc(doc(CookingPlanCollection, docRef.id), updatedData, {
-        merge: true,
-      });
-      setCookingPlanId(docRef.id);
+      await addDoc(CookingPlanCollection, newPlan);
     } catch (error) {
       message.error("烹煮計畫新增失敗");
     }
@@ -151,6 +144,24 @@ function CookingSchedule({ activeCookingPlan }: CookingScheduleProps) {
     CookingPlanItem[]
   >([]);
   const [purchaseItems, setPurchaseItems] = useState<PurchaseList[]>([]);
+  const updatePlanId = async () => {
+    const collectionRef = collection(db, "cookingPlan");
+    const q = query(collectionRef, where("isActive", "==", true));
+    try {
+      const querySnapshot = await getDocs(q);
+      querySnapshot.forEach(async (doc) => {
+        const docRef = doc.ref;
+
+        await updateDoc(docRef, {
+          planId: docRef.id,
+        });
+        setCookingPlanId(docRef.id);
+      });
+    } catch (error) {
+      message.error("存取失敗");
+    }
+  };
+  updatePlanId();
 
   useEffect(() => {
     const purchaseMeals = activeCookingPlan?.cookingItems;
@@ -236,7 +247,8 @@ function CookingSchedule({ activeCookingPlan }: CookingScheduleProps) {
   }, [activePlanIngredients]);
 
   useEffect(() => {
-    if (purchaseItems.length > 0) {
+    if (purchaseItems.length > 0 && cookingPlanId) {
+      console.log("cookingPlanId got it", cookingPlanId);
       const addPurchaseItems = async () => {
         const purchasePlanCollection = collection(db, "purchasePlan");
         const startDate = selectDate[0]?.toDate() || null;
@@ -261,7 +273,7 @@ function CookingSchedule({ activeCookingPlan }: CookingScheduleProps) {
 
       addPurchaseItems();
     }
-  }, [purchaseItems]);
+  }, [purchaseItems, cookingPlanId]);
 
   const createPurchsingList = async () => {
     addCookingPlan();
@@ -283,6 +295,7 @@ function CookingSchedule({ activeCookingPlan }: CookingScheduleProps) {
             <Meta />
             <TotalServingTitle>
               <h4>烹煮份量統計：</h4>
+
               {combinedServingArray.length < 1 && value !== null ? (
                 <div>選取區間無已規劃菜單，請回到上一步規劃每日菜單</div>
               ) : (
