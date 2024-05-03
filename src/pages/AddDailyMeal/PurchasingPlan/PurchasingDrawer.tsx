@@ -83,7 +83,7 @@ const PurchasingDrawer = ({
             </Link>
             <Button onClick={onClose}>Close</Button>
             {purchasePlanCollection.length > 0 ? (
-              <Button type="primary" onClick={closePlan}>
+              <Button type="primary" onClick={handleProjectClose}>
                 完成計畫
               </Button>
             ) : (

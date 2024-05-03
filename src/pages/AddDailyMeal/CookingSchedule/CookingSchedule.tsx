@@ -42,21 +42,25 @@ function CookingSchedule({ activeCookingPlan }: CookingScheduleProps) {
   const currentUserUid = userInformation?.user?.uid;
 
   const [cookingDate, setCookingDate] = useState<Date | undefined>();
-
   const [value, setValue] = useState<RangeValue>(null);
   const [selectDate, setSelectDate] = useState<(Timestamp | null)[]>([]);
+  const [cookingMeals, setCookingMeals] = useState<MealPlan[]>([]);
+  const [visible, setVisible] = useState(false);
+  const [activePlanIngredients, setActivePlanIngredients] = useState<
+    CookingPlanItem[]
+  >([]);
+  const [purchaseItems, setPurchaseItems] = useState<PurchaseList[]>([]);
+
   useEffect(() => {
     if (value !== null) {
-      const filterDates = value.map((item) => {
+      const findMealPlans = value.map((item) => {
         const date = item?.toDate();
 
         return date ? Timestamp.fromDate(date) : null;
       });
-      setSelectDate(filterDates);
+      setSelectDate(findMealPlans);
     }
   }, [value]);
-
-  const [cookingMeals, setCookingMeals] = useState<MealPlan[]>([]);
 
   const combinedSearvings = cookingMeals.reduce(
     (accumulator: Accumulator, meal) => {
@@ -73,6 +77,8 @@ function CookingSchedule({ activeCookingPlan }: CookingScheduleProps) {
 
     {}
   );
+
+  const combinedServingArray = Object.values(combinedSearvings);
 
   useEffect(() => {
     const handleCookingMeals = async () => {
@@ -110,9 +116,6 @@ function CookingSchedule({ activeCookingPlan }: CookingScheduleProps) {
     }
   }, [cookingDate, selectDate]);
 
-  const combinedServingArray = Object.values(combinedSearvings);
-
-  const [visible, setVisible] = useState(false);
   const handleClick = () => {
     setVisible(true);
   };
@@ -121,7 +124,6 @@ function CookingSchedule({ activeCookingPlan }: CookingScheduleProps) {
 
   async function addCookingPlan() {
     const CookingPlanCollection = collection(db, "cookingPlan");
-
     const startDate = selectDate[0]?.toDate() || null;
     const endDate = selectDate[1]?.toDate() || null;
 
@@ -140,10 +142,6 @@ function CookingSchedule({ activeCookingPlan }: CookingScheduleProps) {
     }
   }
 
-  const [activePlanIngredients, setActivePlanIngredients] = useState<
-    CookingPlanItem[]
-  >([]);
-  const [purchaseItems, setPurchaseItems] = useState<PurchaseList[]>([]);
   const updatePlanId = async () => {
     const collectionRef = collection(db, "cookingPlan");
     const q = query(collectionRef, where("isActive", "==", true));
