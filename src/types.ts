@@ -103,6 +103,21 @@ export interface PurchaseItem {
   unit: string;
 }
 
+export interface NewPlan {
+  cookingDate: Date | undefined;
+  cookingItems?: {
+    name: string;
+    serving: number;
+    unit: string;
+  }[];
+  userId: string | undefined;
+  mealsStartDate: Date | null | undefined;
+  mealsEndDate: Date | null | undefined;
+  isActive: boolean;
+  items?: PurchaseList[];
+  planId?: string | undefined;
+}
+
 //MealCalendar
 export interface DailyMealPlan {
   mealPlan: {

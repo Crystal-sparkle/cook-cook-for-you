@@ -245,36 +245,28 @@ function CookingSchedule({ activeCookingPlan }: CookingScheduleProps) {
   }, [activePlanIngredients]);
 
   useEffect(() => {
-    if (purchaseItems.length > 0 && cookingPlanId) {
-      console.log("cookingPlanId got it", cookingPlanId);
-      const addPurchaseItems = async () => {
-        const purchasePlanCollection = collection(db, "purchasePlan");
-        const startDate = selectDate[0]?.toDate() || null;
-        const endDate = selectDate[1]?.toDate() || null;
-
-        const newPlan = {
-          cookingDate: cookingDate,
-          items: purchaseItems,
-          userId: currentUserUid,
-          mealsStartDate: startDate,
-          mealsEndDate: endDate,
-          planId: cookingPlanId,
-          isActive: true,
-        };
-        try {
-          await addDoc(purchasePlanCollection, newPlan);
-          message.success("新增成功!");
-        } catch (error) {
-          message.error("新增失敗");
-        }
-      };
-
-      addPurchaseItems();
+    if (totalIngredients.length > 0 && cookingPlanId) {
+      handleAddPlan("purchasePlan", {
+        cookingDate: cookingDate,
+        items: totalIngredients,
+        userId: currentUserUid,
+        mealsStartDate: selectDate[0]?.toDate() || null,
+        mealsEndDate: selectDate[1]?.toDate(),
+        planId: cookingPlanId,
+        isActive: true,
+      });
     }
-  }, [purchaseItems, cookingPlanId]);
+  }, [totalIngredients, cookingPlanId]);
 
   const createPurchsingList = async () => {
-    addCookingPlan();
+    handleAddPlan("cookingPlan", {
+      cookingDate: cookingDate,
+      cookingItems: combinedServingArray,
+      userId: currentUserUid,
+      mealsStartDate: selectDate[0]?.toDate() || null,
+      mealsEndDate: selectDate[1]?.toDate(),
+      isActive: true,
+    });
     setVisible(false);
   };
 
