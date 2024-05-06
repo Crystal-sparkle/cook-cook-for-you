@@ -1,15 +1,8 @@
 import { Button, Steps, message } from "antd";
 import "firebase/database";
-import {
-  collection,
-  getDocs,
-  onSnapshot,
-  query,
-  updateDoc,
-  where,
-} from "firebase/firestore";
+import { collection, onSnapshot, query, where } from "firebase/firestore";
 import { useEffect, useState } from "react";
-import { db } from "../../firbase";
+import { closeActivePlan, db, handleGetResult } from "../../firbase";
 import { CookingPlanData, PurchasePlan } from "../../types";
 import CookingSchedule from "./CookingSchedule/CookingSchedule";
 import MealCalendar from "./MealCalendar";
@@ -38,10 +31,13 @@ const AddDailyMeal = () => {
   useEffect(() => {
     const getActivePlan = async () => {
       const CookingPlanCollection = collection(db, "cookingPlan");
-      const q = query(CookingPlanCollection, where("isActive", "==", true));
+      const queryRef = query(
+        CookingPlanCollection,
+        where("isActive", "==", true)
+      );
 
       try {
-        const unsubscribe = onSnapshot(q, (querySnapshot) => {
+        const unsubscribe = onSnapshot(queryRef, (querySnapshot) => {
           let results = null;
 
           querySnapshot.forEach((doc) => {
@@ -65,31 +61,12 @@ const AddDailyMeal = () => {
   }, []);
 
   useEffect(() => {
-    const getPurchasePlan = async () => {
-      const purchaseCollection = collection(db, "purchasePlan");
-      const queryRef = query(purchaseCollection, where("isActive", "==", true));
-      try {
-        const unsubscribe = onSnapshot(queryRef, (querySnapshot) => {
-          const results: PurchasePlan[] = [];
-          querySnapshot.forEach((doc) => {
-            const data = doc.data();
-
-            results.push(data as PurchasePlan);
-          });
-
-          if (results.length > 0) {
-            setPurchasePlanCollection(results);
-          } else {
-            return;
-          }
-        });
-        return () => unsubscribe();
-      } catch (error) {
-        message.error("取得資料時發生錯誤");
-      }
-    };
-
-    getPurchasePlan();
+    handleGetResult(
+      "purchasePlan",
+      "isActive",
+      true,
+      setPurchasePlanCollection
+    );
   }, []);
 
   const steps = [
@@ -132,23 +109,6 @@ const AddDailyMeal = () => {
   const items = steps.map((item) => ({ key: item.title, title: item.title }));
 
   const handleProjectClose = async () => {
-    const closeActivePlan = async (collectionName: string) => {
-      const collectionRef = collection(db, collectionName);
-      const q = query(collectionRef, where("isActive", "==", true));
-      try {
-        const querySnapshot = await getDocs(q);
-        querySnapshot.forEach(async (doc) => {
-          const docRef = doc.ref;
-
-          await updateDoc(docRef, {
-            isActive: false,
-          });
-        });
-      } catch (error) {
-        message.error("存取失敗");
-      }
-    };
-
     await Promise.all([
       closeActivePlan("purchasePlan"),
       closeActivePlan("cookingPlan"),
@@ -157,10 +117,12 @@ const AddDailyMeal = () => {
 
     message.info("開啟新的烹煮旅程吧");
   };
+  const imageSrc =
+    "https://firebasestorage.googleapis.com/v0/b/cook-cook-for-you-test.appspot.com/o/images%2Fbanner1.jpeg?alt=media&token=25e37ec8-3cd2-49c1-ac36-cc513642360d";
 
   return (
     <>
-      <Image src="https://firebasestorage.googleapis.com/v0/b/cook-cook-for-you-test.appspot.com/o/images%2Fbanner1.jpeg?alt=media&token=25e37ec8-3cd2-49c1-ac36-cc513642360d" />
+      <Image src={imageSrc} />
       <MainContent>
         <StepsWrapper>
           <Steps direction="vertical" current={current} items={items} />

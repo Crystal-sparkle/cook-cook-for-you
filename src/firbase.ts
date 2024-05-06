@@ -118,6 +118,37 @@ export const handleGetData = async (
     message.error("取得資料時發生錯誤123");
   }
 };
+
+export const handleGetResult = async (
+  collectionName: string,
+  searchKey: string,
+  searchValue: string | boolean | undefined,
+  callback: (value: React.SetStateAction<PurchasePlan[]>) => void
+) => {
+  const collectionRef = collection(db, collectionName);
+  const queryRef = query(collectionRef, where(searchKey, "==", searchValue));
+
+  try {
+    const unsubscribe = onSnapshot(queryRef, (querySnapshot) => {
+      const results: PurchasePlan[] = [];
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+
+        results.push(data as PurchasePlan);
+      });
+
+      if (results.length > 0) {
+        callback(results);
+      } else {
+        return;
+      }
+    });
+    return () => unsubscribe();
+  } catch (error) {
+    message.error("取得資料時發生錯誤");
+  }
+};
+
 export const handleGetDailyMeal = async (
   collectionName: string,
   searchKey: string,
