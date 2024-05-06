@@ -32,23 +32,6 @@ const PurchasingDrawer = ({
   const { open, showDrawer, onClose } = useDrawerControl();
 
   const handleProjectClose = async () => {
-    const closeActivePlan = async (collectionName: string) => {
-      const collectionRef = collection(db, collectionName);
-      const q = query(collectionRef, where("isActive", "==", true));
-      try {
-        const querySnapshot = await getDocs(q);
-        querySnapshot.forEach(async (doc) => {
-          const docRef = doc.ref;
-
-          await updateDoc(docRef, {
-            isActive: false,
-          });
-        });
-      } catch (error) {
-        message.error("存取失敗");
-      }
-    };
-
     await Promise.all([
       closeActivePlan("purchasePlan"),
       closeActivePlan("cookingPlan"),
