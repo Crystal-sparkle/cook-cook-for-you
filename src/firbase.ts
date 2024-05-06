@@ -18,7 +18,7 @@ import {
 import { getStorage } from "firebase/storage";
 
 import "firebase/storage";
-import { DailyMealPlan, NewPlan, PurchasePlan } from "./types";
+import { CookingPlanData, DailyMealPlan, NewPlan, PurchasePlan } from "./types";
 
 const firebaseConfig = {
   apiKey: "AIzaSyASak1RhNpksXuoa_xg4ibo5_NqLTMuYNE",
@@ -176,5 +176,33 @@ export const handleGetDailyMeal = async (
     return () => unsubscribe();
   } catch (error) {
     message.error("取得資料時發生錯誤");
+  }
+};
+
+export const handleGetActivePlan = async (
+  collectionName: string,
+  searchKey: string,
+  searchValue: string | boolean | undefined,
+  callback: (value: React.SetStateAction<CookingPlanData | undefined>) => void
+) => {
+  const collectionRef = collection(db, collectionName);
+  const queryRef = query(collectionRef, where(searchKey, "==", searchValue));
+
+  try {
+    const unsubscribe = onSnapshot(queryRef, (querySnapshot) => {
+      let results = null;
+      querySnapshot.forEach((doc) => {
+        results = doc.data();
+      });
+
+      if (results) {
+        callback(results);
+      } else {
+        callback(undefined);
+      }
+    });
+    return () => unsubscribe();
+  } catch (error) {
+    message.error("查無計劃");
   }
 };

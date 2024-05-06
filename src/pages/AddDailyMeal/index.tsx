@@ -1,8 +1,11 @@
 import { Button, Steps, message } from "antd";
 import "firebase/database";
-import { collection, onSnapshot, query, where } from "firebase/firestore";
 import { useEffect, useState } from "react";
-import { closeActivePlan, db, handleGetResult } from "../../firbase";
+import {
+  closeActivePlan,
+  handleGetActivePlan,
+  handleGetResult,
+} from "../../firbase";
 import { CookingPlanData, PurchasePlan } from "../../types";
 import CookingSchedule from "./CookingSchedule/CookingSchedule";
 import MealCalendar from "./MealCalendar";
@@ -18,7 +21,6 @@ import {
 } from "./addDailyMeal.style";
 
 const AddDailyMeal = () => {
-  // const { token } = theme.useToken();
   const [current, setCurrent] = useState(0);
   const [purchasePlanCollection, setPurchasePlanCollection] = useState<
     PurchasePlan[]
@@ -29,35 +31,7 @@ const AddDailyMeal = () => {
   >();
 
   useEffect(() => {
-    const getActivePlan = async () => {
-      const CookingPlanCollection = collection(db, "cookingPlan");
-      const queryRef = query(
-        CookingPlanCollection,
-        where("isActive", "==", true)
-      );
-
-      try {
-        const unsubscribe = onSnapshot(queryRef, (querySnapshot) => {
-          let results = null;
-
-          querySnapshot.forEach((doc) => {
-            results = doc.data();
-          });
-
-          if (results) {
-            setActiveCookingPlan(results);
-          } else {
-            setActiveCookingPlan(undefined);
-          }
-        });
-
-        return () => unsubscribe();
-      } catch (error) {
-        message.error("查無計劃");
-      }
-    };
-
-    getActivePlan();
+    handleGetActivePlan("cookingPlan", "isActive", true, setActiveCookingPlan);
   }, []);
 
   useEffect(() => {
