@@ -3,16 +3,14 @@ import type { Dayjs } from "dayjs";
 import dayjs from "dayjs";
 import {
   Timestamp,
-  addDoc,
   collection,
   getDocs,
   query,
-  updateDoc,
   where,
 } from "firebase/firestore";
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../../context/authContext";
-import { db } from "../../../firbase";
+import { db, handleAddPlan, handleUpdate } from "../../../firbase";
 import {
   Accumulator,
   CookingPlanItem,
@@ -49,7 +47,7 @@ function CookingSchedule({ activeCookingPlan }: CookingScheduleProps) {
   const [activePlanIngredients, setActivePlanIngredients] = useState<
     CookingPlanItem[]
   >([]);
-  const [purchaseItems, setPurchaseItems] = useState<PurchaseList[]>([]);
+  const [totalIngredients, setTotalIngredients] = useState<PurchaseList[]>([]);
 
   useEffect(() => {
     if (value !== null) {
@@ -122,44 +120,11 @@ function CookingSchedule({ activeCookingPlan }: CookingScheduleProps) {
 
   const [cookingPlanId, setCookingPlanId] = useState<string>("");
 
-  async function addCookingPlan() {
-    const CookingPlanCollection = collection(db, "cookingPlan");
-    const startDate = selectDate[0]?.toDate() || null;
-    const endDate = selectDate[1]?.toDate() || null;
-
-    const newPlan = {
-      cookingDate: cookingDate,
-      cookingItems: combinedServingArray,
-      userId: currentUserUid,
-      mealsStartDate: startDate,
-      mealsEndDate: endDate,
-      isActive: true,
-    };
-    try {
-      await addDoc(CookingPlanCollection, newPlan);
-    } catch (error) {
-      message.error("烹煮計畫新增失敗");
-    }
-  }
-
-  const updatePlanId = async () => {
-    const collectionRef = collection(db, "cookingPlan");
-    const q = query(collectionRef, where("isActive", "==", true));
-    try {
-      const querySnapshot = await getDocs(q);
-      querySnapshot.forEach(async (doc) => {
-        const docRef = doc.ref;
-
-        await updateDoc(docRef, {
-          planId: docRef.id,
-        });
-        setCookingPlanId(docRef.id);
-      });
-    } catch (error) {
-      message.error("存取失敗");
-    }
-  };
-  updatePlanId();
+  handleUpdate(
+    "cookingPlan",
+    (docRef) => ({ planId: docRef.id }),
+    setCookingPlanId
+  );
 
   useEffect(() => {
     const purchaseMeals = activeCookingPlan?.cookingItems;
@@ -215,7 +180,7 @@ function CookingSchedule({ activeCookingPlan }: CookingScheduleProps) {
   }, [activeCookingPlan]);
 
   useEffect(() => {
-    const purchaseItemsArray = activePlanIngredients.reduce<
+    const calculateTotalIngredients = activePlanIngredients.reduce<
       activePlanIngredients[]
     >((accumulator, item) => {
       item.ingredients.forEach((ingredient) => {
@@ -241,7 +206,7 @@ function CookingSchedule({ activeCookingPlan }: CookingScheduleProps) {
       return accumulator;
     }, []);
 
-    setPurchaseItems(purchaseItemsArray);
+    setTotalIngredients(calculateTotalIngredients);
   }, [activePlanIngredients]);
 
   useEffect(() => {
