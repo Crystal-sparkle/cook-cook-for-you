@@ -119,6 +119,36 @@ export const handleGetData = async (
   }
 };
 
+export const handleGetDataObject = async <T>(
+  collectionName: string,
+  searchKey: string,
+  searchValue: string | boolean | undefined,
+  callback: (value: T) => void
+) => {
+  const collectionRef = collection(db, collectionName);
+  const queryRef = query(collectionRef, where(searchKey, "==", searchValue));
+
+  try {
+    const unsubscribe = onSnapshot(queryRef, (querySnapshot) => {
+      const results: T[] = [];
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+
+        results.push(data as T);
+      });
+
+      if (results.length > 0) {
+        callback(results[0]);
+      } else {
+        return;
+      }
+    });
+    return () => unsubscribe();
+  } catch (error) {
+    message.error("取得資料時發生錯誤");
+  }
+};
+
 export const handleGetResult = async (
   collectionName: string,
   searchKey: string,
