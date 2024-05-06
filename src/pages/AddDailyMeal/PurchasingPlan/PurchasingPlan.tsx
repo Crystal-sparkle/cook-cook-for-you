@@ -1,10 +1,9 @@
 import { ProCard } from "@ant-design/pro-components";
-import { Card, message } from "antd";
-import { collection, onSnapshot, query, where } from "firebase/firestore";
+import { Card } from "antd";
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../../context/authContext";
-import { db } from "../../../firbase";
-import { PartnerList, PurchasePlan, PurchasePlanProps } from "../../../types";
+import { handleGetData } from "../../../firbase";
+import { PartnerList, PurchasePlanProps } from "../../../types";
 import Partner from "./Partner";
 import PurchasingDrawer from "./PurchasingDrawer";
 import {
@@ -16,7 +15,6 @@ import {
   Wrapper,
 } from "./PurchasingPlan.style";
 import useGetPartnerList from "./Shopping/hooks/useGetPartnerList";
-
 const PurchasingPlan = ({
   purchasePlanCollection,
   activeCookingPlan,
@@ -28,30 +26,7 @@ const PurchasingPlan = ({
   const [planId, setPlanId] = useState<string>("");
 
   useEffect(() => {
-    const getPurchasePlanId = async () => {
-      const purchaseCollection = collection(db, "purchasePlan");
-      const queryRef = query(purchaseCollection, where("isActive", "==", true));
-
-      const unsubscribe = onSnapshot(
-        queryRef,
-        (querySnapshot) => {
-          const results: PurchasePlan[] = [];
-          querySnapshot.forEach((doc) => {
-            const data = doc.data();
-
-            results.push(data as PurchasePlan);
-          });
-          const purchasePlanId = results[0].planId;
-
-          setPlanId(purchasePlanId);
-        },
-        () => {
-          message.error("取得資料時發生錯誤");
-        }
-      );
-      return () => unsubscribe();
-    };
-    getPurchasePlanId();
+    handleGetData("purchasePlan", "isActive", true, setPlanId);
   }, []);
 
   const dateForCooking = activeCookingPlan?.cookingDate

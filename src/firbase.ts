@@ -89,3 +89,32 @@ export const closeActivePlan = async (collectionName: string) => {
     message.error("存取失敗");
   }
 };
+export const handleGetData = async (
+  collectionName: string,
+  searchKey: string,
+  searchValue: string | boolean,
+  callback: (value: React.SetStateAction<string>) => void
+) => {
+  const collectionRef = collection(db, collectionName);
+  const queryRef = query(collectionRef, where(searchKey, "==", searchValue));
+
+  try {
+    const unsubscribe = onSnapshot(queryRef, (querySnapshot) => {
+      const results: PurchasePlan[] = [];
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+
+        results.push(data as PurchasePlan);
+      });
+
+      if (results.length > 0) {
+        callback(results[0].planId);
+      } else {
+        return;
+      }
+    });
+    return () => unsubscribe();
+  } catch (error) {
+    message.error("取得資料時發生錯誤123");
+  }
+};
