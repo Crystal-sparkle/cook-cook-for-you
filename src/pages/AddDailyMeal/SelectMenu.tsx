@@ -5,20 +5,19 @@ import { Button, DatePicker, Dropdown, Space, message } from "antd";
 import "firebase/database";
 import {
   Timestamp,
+  addDoc,
   collection,
-  doc,
   getDocs,
   onSnapshot,
   query,
-  setDoc,
+  updateDoc,
   where,
 } from "firebase/firestore";
 import React, { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../context/authContext";
 import { db } from "../../firbase";
-import { MenuItem } from "../../types";
+import { SelectedMenu } from "../../types";
 
-// ///
 const quantities: MenuProps["items"] = [
   { key: "1", label: "1" },
   { key: "2", label: "2" },
@@ -28,13 +27,20 @@ const quantities: MenuProps["items"] = [
 ];
 
 const SelectMenu: React.FC = () => {
-  const userInformation = useContext(AuthContext);
-  const currentUserUid = userInformation?.user?.uid;
+  const { user } = useContext(AuthContext);
+  const currentUserUid = user?.uid;
+  const [modalVisit, setModalVisit] = useState(false);
 
-  const [items, setItems] = useState<MenuItem[]>();
+  const [menuState, setMenuState] = useState<SelectedMenu>({
+    selectedDish: "",
+    selectedTime: null,
+    selectedQty: "1",
+    items: [],
+    newMealId: "",
+  });
 
   useEffect(() => {
-    const getRecipesName = async () => {
+    const fetchRecipes = async () => {
       const recipesCollection = collection(db, "recipess");
 
       const queryRef = query(
@@ -42,98 +48,95 @@ const SelectMenu: React.FC = () => {
         where("userId", "==", currentUserUid)
       );
       const unsubscribe = onSnapshot(queryRef, (snapshot) => {
-        const newOptions = snapshot.docs.map((doc, index) => ({
+        const items = snapshot.docs.map((doc, index) => ({
           key: `${index}`,
           label: doc.data().name,
         }));
-        setItems(newOptions as MenuItem[]);
+        setMenuState((prev) => ({ ...prev, items }));
       });
 
       return () => unsubscribe();
     };
 
-    getRecipesName();
-  }, []);
+    fetchRecipes();
+  }, [currentUserUid]);
 
-  ////
-  const [newMealPlan, setNewMealPlan] = useState<string | undefined>("");
-  //newTime 的初始值為 undefined，並且可以接受 Timestamp 或 undefined。
-  //這個錯誤表明 TypeScript 預期 setNewMealPlan 是一個函數，
-  //它接受一個 undefined 的參數，但你卻嘗試將 string 類型的值賦給它。
+  useEffect(() => {
+    const fetchMealId = async () => {
+      const recipesCollection = collection(db, "recipess");
+      const q = query(
+        recipesCollection,
+        where("name", "==", menuState.selectedDish)
+      );
+      try {
+        const querySnapshot = await getDocs(q);
+        querySnapshot.forEach(async (doc) => {
+          const docRef = doc.ref;
 
-  //為了解決這個問題，你需要明確指定 setNewMealPlan 的型別，以確保它可以接受
-  // string 或 undefined。修改 useState 行如下：
-  const [newTime, setNewTime] = useState<Timestamp | undefined>();
-  const [newQty, setNewQty] = useState<string>("1");
+          if (!querySnapshot.empty) {
+            const recipeId = docRef.id;
+            setMenuState((prev) => ({ ...prev, newMealId: recipeId }));
+          }
+        });
+      } catch (error) {
+        message.error("獲取資料失敗");
+      }
+    };
+    fetchMealId();
+  }, [menuState.selectedDish]);
+
   const handleDateChange: DatePickerProps["onChange"] = (date) => {
     if (date !== null) {
       const timestamp = Timestamp.fromDate(date.toDate());
-
-      setNewTime(timestamp);
+      setMenuState((prev) => ({ ...prev, selectedTime: timestamp }));
     }
   };
 
   const handleSelectItem = ({ key }: { key: string }) => {
-    const selectedItem = items?.find((item) => item?.key === key);
+    const selectedItem = menuState.items?.find((item) => item?.key === key);
     if (selectedItem) {
       message.info(`已選取 : ${selectedItem.label}`);
-      setNewMealPlan(selectedItem.label);
+      setMenuState((prev) => ({
+        ...prev,
+        selectedDish: selectedItem ? selectedItem.label : "",
+      }));
     }
   };
 
   const handleQuantitySelection = ({ key }: { key: string }) => {
-    setNewQty(key);
+    setMenuState((prev) => ({ ...prev, selectedQty: key }));
   };
 
-  const [newMealId, setNewMealId] = useState("");
-  useEffect(() => {
-    const handleMealId = async () => {
-      const recipesCollection = collection(db, "recipess");
-      const q = query(recipesCollection, where("name", "==", newMealPlan));
-      try {
-        const querySnapshot = await getDocs(q);
-
-        if (!querySnapshot.empty) {
-          const docSnap = querySnapshot.docs[0];
-          const recipeId = docSnap.id;
-
-          setNewMealId(recipeId);
-        }
-      } catch {
-        message.error("獲取資料失敗");
-      }
-    };
-    handleMealId();
-  }, [newMealPlan]);
-
-  async function addMealPlan() {
-    const DailymealPlanCollection = collection(db, "DailyMealPlan");
-    const docRef = doc(DailymealPlanCollection);
+  const addMealPlan = async () => {
+    const collectionRef = collection(db, "DailyMealPlan");
     const newPlan = {
       mealPlan: [
         {
-          name: newMealPlan,
-          serving: Number(newQty),
+          name: menuState.selectedDish,
+          serving: Number(menuState.selectedQty),
           unit: "份",
-          id: newMealId,
+          id: menuState.newMealId,
         },
       ],
-      planDate: newTime,
+      planDate: menuState.selectedTime,
       userId: currentUserUid,
     };
 
     try {
-      await setDoc(docRef, newPlan);
+      const docRef = await addDoc(collectionRef, newPlan);
       const updatedData = { mealId: docRef.id };
-      await setDoc(doc(DailymealPlanCollection, docRef.id), updatedData, {
-        merge: true,
-      });
+      await updateDoc(docRef, updatedData);
+      message.success("提交成功");
+      setMenuState((prev) => ({
+        ...prev,
+        selectedDish: "",
+        selectedQty: "1",
+        newMealId: "",
+      }));
     } catch (error) {
       message.error("取得資料失敗");
     }
-  }
-
-  const [modalVisit, setModalVisit] = useState(false);
+  };
 
   return (
     <>
@@ -156,9 +159,7 @@ const SelectMenu: React.FC = () => {
         }}
         onFinish={async () => {
           await addMealPlan();
-          message.success("提交成功");
-          setNewMealPlan("");
-          return true;
+          setModalVisit(false);
         }}
         open={modalVisit}
         onOpenChange={setModalVisit}
@@ -174,9 +175,17 @@ const SelectMenu: React.FC = () => {
         </Space>
         <br />
         <h2>選取料理</h2>
-        <Dropdown menu={{ items, onClick: handleSelectItem }}>
+        <Dropdown
+          overlayStyle={{ maxHeight: "200px", overflowY: "auto" }}
+          placement="topLeft"
+          menu={{
+            items: menuState.items,
+            selectable: true,
+            onClick: handleSelectItem,
+          }}
+        >
           <Space>
-            {newMealPlan}
+            {menuState.selectedDish}
             <DownOutlined />
           </Space>
         </Dropdown>
@@ -186,7 +195,7 @@ const SelectMenu: React.FC = () => {
           placement="bottomLeft"
           arrow
         >
-          <Button icon={<DownOutlined />}>{newQty}</Button>
+          <Button icon={<DownOutlined />}>{menuState.selectedQty}</Button>
         </Dropdown>
       </ModalForm>
     </>
