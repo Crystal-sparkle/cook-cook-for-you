@@ -13,7 +13,7 @@ import { FC, useContext, useState } from "react";
 import { useParams } from "react-router-dom";
 import { AuthContext } from "../../context/authContext";
 import { db } from "../../firbase";
-import { PartnerList, ShoppingListProps } from "../../types";
+import { PartnerList, PurchasePlan, ShoppingListProps } from "../../types";
 import useGetPartnerList from "./PurchasingPlan/Shopping/hooks/useGetPartnerList";
 import {
   Header,
@@ -39,33 +39,55 @@ const ShoppingList: FC<ShoppingListProps> = ({ purchasePlan, index }) => {
 
   const { cookingDate, items } = purchasePlan;
   const [checkedItems, setCheckedItems] = useState<Array<Array<boolean>>>([]);
+  async function updateCollectionItems(
+    collectionName: string,
+    itemIndex: number,
+    updateFunction: (docData: PurchasePlan) => void
+  ) {
+    const purchaseCollection = collection(db, collectionName);
+    const q = query(purchaseCollection, where("isActive", "==", true));
+
+    try {
+      const querySnapshot = await getDocs(q);
+      querySnapshot.forEach(async (doc) => {
+        const docRef = doc.ref;
+        const docData = (await getDoc(docRef)).data();
+        console.log(docData);
+
+        if (docData && docData.items && docData.items[itemIndex]) {
+          updateFunction(docData as PurchasePlan);
+          await updateDoc(docRef, {
+            items: docData.items,
+          });
+        }
+      });
+    } catch (error) {
+      message.error("操作失敗");
+    }
+  }
 
   const updateCheckboxStatus = async (
     planIndex: number,
     itemIndex: number,
     isChecked: boolean
   ) => {
-    const purchaseCollection = collection(db, "purchasePlan");
-    const q = query(purchaseCollection, where("isActive", "==", true));
-
-    try {
-      const querySnapshot = await getDocs(q);
-      for (const doc of querySnapshot.docs) {
-        const docRef = doc.ref;
-
-        const docData = (await getDoc(docRef)).data();
-
-        if (docData && docData.items && docData.items[itemIndex]) {
-          docData.items[itemIndex].isPurchased = isChecked;
-
-          await updateDoc(docRef, {
-            items: docData.items,
-          });
-        }
-      }
-    } catch (error) {
+    updateCollectionItems("purchasePlan", itemIndex, (docData) => {
+      docData.items[itemIndex].isPurchased = isChecked;
+    }).catch(() => {
       message.error("存取失敗", planIndex);
-    }
+    });
+  };
+
+  const handleSelectChange = async (value: string, itemIndex: number) => {
+    updateCollectionItems("purchasePlan", itemIndex, (docData) => {
+      docData.items[itemIndex].responsible = value;
+    })
+      .then(() => {
+        message.success(`成功更改採買人員：${value}`);
+      })
+      .catch(() => {
+        message.error("更改失敗");
+      });
   };
 
   const handleCheckboxChange = (planIndex: number, itemIndex: number) => {
@@ -84,31 +106,6 @@ const ShoppingList: FC<ShoppingListProps> = ({ purchasePlan, index }) => {
     });
   };
 
-  const handleSelectChange = async (value: string, itemIndex: number) => {
-    const purchaseCollection = collection(db, "purchasePlan");
-    const q = query(purchaseCollection, where("isActive", "==", true));
-
-    try {
-      const querySnapshot = await getDocs(q);
-      querySnapshot.forEach(async (doc) => {
-        const docRef = doc.ref;
-
-        const docData = (await getDoc(docRef)).data();
-
-        if (docData && docData.items && docData.items[itemIndex]) {
-          docData.items[itemIndex].responsible = value;
-
-          await updateDoc(docRef, {
-            items: docData.items,
-          });
-
-          message.success(`成功更改採買人員：${value}`);
-        }
-      });
-    } catch (error) {
-      message.error("修改失敗");
-    }
-  };
 
   return (
     <Wrapper>
