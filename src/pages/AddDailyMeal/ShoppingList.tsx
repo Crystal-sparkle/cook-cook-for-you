@@ -1,19 +1,11 @@
 import { Select, message } from "antd";
 import "firebase/database";
-import {
-  collection,
-  getDoc,
-  getDocs,
-  query,
-  updateDoc,
-  where,
-} from "firebase/firestore";
 import { FC, useContext, useState } from "react";
 
 import { useParams } from "react-router-dom";
 import { AuthContext } from "../../context/authContext";
-import { db } from "../../firbase";
-import { PartnerList, PurchasePlan, ShoppingListProps } from "../../types";
+import { updateCollectionItems } from "../../firbase";
+import { PartnerList, ShoppingListProps } from "../../types";
 import useGetPartnerList from "./PurchasingPlan/Shopping/hooks/useGetPartnerList";
 import {
   Header,

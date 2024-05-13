@@ -8,6 +8,7 @@ import {
   DocumentReference,
   addDoc,
   collection,
+  getDoc,
   getDocs,
   getFirestore,
   onSnapshot,
@@ -89,6 +90,7 @@ export const closeActivePlan = async (collectionName: string) => {
     message.error("存取失敗");
   }
 };
+
 export const handleGetData = async (
   collectionName: string,
   searchKey: string,
@@ -115,7 +117,7 @@ export const handleGetData = async (
     });
     return () => unsubscribe();
   } catch (error) {
-    message.error("取得資料時發生錯誤123");
+    message.error("取得資料時發生錯誤");
   }
 };
 
@@ -234,5 +236,31 @@ export const handleGetActivePlan = async (
     return () => unsubscribe();
   } catch (error) {
     message.error("查無計劃");
+  }
+};
+
+export const updateCollectionItems = async (
+  collectionName: string,
+  itemIndex: number,
+  updateFunction: (docData: PurchasePlan) => void
+) => {
+  const purchaseCollection = collection(db, collectionName);
+  const q = query(purchaseCollection, where("isActive", "==", true));
+
+  try {
+    const querySnapshot = await getDocs(q);
+    querySnapshot.forEach(async (doc) => {
+      const docRef = doc.ref;
+      const docData = (await getDoc(docRef)).data();
+
+      if (docData && docData.items && docData.items[itemIndex]) {
+        updateFunction(docData as PurchasePlan);
+        await updateDoc(docRef, {
+          items: docData.items,
+        });
+      }
+    });
+  } catch (error) {
+    message.error("更改資料失敗");
   }
 };
