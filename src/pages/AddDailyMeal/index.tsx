@@ -5,7 +5,7 @@ import {
   closeActivePlan,
   handleGetActivePlan,
   handleGetResult,
-} from "../../firebase";
+} from "../../services/firebase";
 import { CookingPlanData, PurchasePlan } from "../../types";
 import CookingSchedule from "./CookingSchedule/CookingSchedule";
 import MealCalendar from "./MealCalendar";

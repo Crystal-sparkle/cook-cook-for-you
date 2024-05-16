@@ -14,7 +14,7 @@ import {
 } from "firebase/firestore";
 import React, { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../context/authContext";
-import { db, handleGetDailyMeal } from "../../firebase";
+import { db, handleGetDailyMeal } from "../../services/firebase";
 import { CalerdarContent, DailyMealPlan } from "../../types";
 import {
   CalerdarWrapper,

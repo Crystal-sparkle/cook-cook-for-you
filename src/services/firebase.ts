@@ -19,7 +19,12 @@ import {
 import { getStorage } from "firebase/storage";
 
 import "firebase/storage";
-import { CookingPlanData, DailyMealPlan, NewPlan, PurchasePlan } from "./types";
+import {
+  CookingPlanData,
+  DailyMealPlan,
+  NewPlan,
+  PurchasePlan,
+} from "../types";
 
 const firebaseConfig = {
   apiKey: "AIzaSyASak1RhNpksXuoa_xg4ibo5_NqLTMuYNE",

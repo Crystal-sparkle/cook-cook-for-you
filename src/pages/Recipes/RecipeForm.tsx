@@ -4,7 +4,7 @@ import { Form, message } from "antd";
 import { Timestamp, addDoc, collection, doc, setDoc } from "firebase/firestore";
 import React, { useContext, useState } from "react";
 import { AuthContext } from "../../context/authContext";
-import { db } from "../../firebase";
+import { db } from "../../services/firebase";
 import { Recipe } from "../../types";
 import RecipeModalContent from "./RecipeModalContent";
 import { AddRecipeButton } from "./recipeForm.style";

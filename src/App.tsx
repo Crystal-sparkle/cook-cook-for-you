@@ -8,11 +8,11 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { createGlobalStyle } from "styled-components";
 import Header from "./components/Header/index.tsx";
 import { AuthContextProvider } from "./context/authContext.tsx";
-import { auth } from "./firebase.ts";
 import Shopping from "./pages/AddDailyMeal/PurchasingPlan/Shopping/index.tsx";
 import AddDailyMeal from "./pages/AddDailyMeal/index.tsx";
 import Login from "./pages/Login/Login.tsx";
 import Recipes from "./pages/Recipes/index.tsx";
+import { auth } from "./services/firebase.ts";
 dayjs.locale("zh-cn");
 
 const GlobalStyle = createGlobalStyle`

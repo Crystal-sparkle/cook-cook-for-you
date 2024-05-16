@@ -15,7 +15,7 @@ import {
 } from "firebase/firestore";
 import React, { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../context/authContext";
-import { db } from "../../firebase";
+import { db, subscribeToRecipes } from "../../services/firebase";
 import { SelectedMenu } from "../../types";
 
 const quantities: MenuProps["items"] = [

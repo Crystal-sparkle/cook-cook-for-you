@@ -10,7 +10,7 @@ import {
 } from "firebase/firestore";
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../../context/authContext";
-import { db, handleAddPlan, handleUpdate } from "../../../firebase";
+import { db, handleAddPlan, handleUpdate } from "../../../services/firebase";
 import {
   Accumulator,
   CookingPlanItem,

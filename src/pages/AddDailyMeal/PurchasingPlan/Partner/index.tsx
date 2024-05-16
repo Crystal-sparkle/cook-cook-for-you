@@ -8,7 +8,7 @@ import {
   where,
 } from "firebase/firestore";
 import React from "react";
-import { auth, db } from "../../../../firebase";
+import { auth, db } from "../../../../services/firebase";
 import { PartnerType } from "../../../../types";
 import { UserOutlinedIconStyle } from "../PurchasingPlan.style";
 import { PartnerContainer, PartnerProCard } from "./partner.style";

@@ -3,7 +3,7 @@ import { Button, Space, message } from "antd";
 import { useContext } from "react";
 import { Link } from "react-router-dom";
 import { AuthContext } from "../../../context/authContext";
-import { closeActivePlan } from "../../../firebase";
+import { closeActivePlan } from "../../../services/firebase";
 import { PurchaseDrawerProps } from "../../../types";
 import ShoppingList from "../ShoppingList";
 import {
