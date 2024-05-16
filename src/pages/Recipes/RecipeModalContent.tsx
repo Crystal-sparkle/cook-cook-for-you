@@ -10,7 +10,7 @@ import { Button, Form, Input, Upload, message } from "antd";
 import type { RcFile } from "antd/es/upload";
 import "firebase/database";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
-import { storage } from "../../firbase";
+import { storage } from "../../firebase";
 import { FileListObject, RecipeModalPrps } from "../../types";
 import { SpaceStyle } from "./recipeDisplay.style";
 

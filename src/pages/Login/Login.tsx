@@ -6,7 +6,7 @@ import {
 } from "firebase/auth";
 import "firebase/firestore";
 import { useState } from "react";
-import { auth } from "../../firbase";
+import { auth } from "../../firebase";
 
 import {
   Background,

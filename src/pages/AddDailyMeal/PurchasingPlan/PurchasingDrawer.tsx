@@ -1,16 +1,9 @@
 import { CarryOutOutlined } from "@ant-design/icons";
 import { Button, Space, message } from "antd";
-import {
-  collection,
-  getDocs,
-  query,
-  updateDoc,
-  where,
-} from "firebase/firestore";
 import { useContext } from "react";
 import { Link } from "react-router-dom";
 import { AuthContext } from "../../../context/authContext";
-import { db } from "../../../firbase";
+import { closeActivePlan } from "../../../firebase";
 import { PurchaseDrawerProps } from "../../../types";
 import ShoppingList from "../ShoppingList";
 import {

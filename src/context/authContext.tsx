@@ -1,6 +1,6 @@
 import { onAuthStateChanged, User } from "firebase/auth";
 import { createContext, ReactNode, useEffect, useState } from "react";
-import { auth } from "../firbase";
+import { auth } from "../firebase";
 
 export const AuthContext = createContext<{ user: User | null }>({ user: null });
 

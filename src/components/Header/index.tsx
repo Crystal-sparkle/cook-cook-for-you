@@ -4,7 +4,7 @@ import { signOut } from "firebase/auth";
 import { useContext, useState } from "react";
 import { Link } from "react-router-dom";
 import { AuthContext } from "../../context/authContext";
-import { auth } from "../../firbase";
+import { auth } from "../../firebase";
 import {
   HeaderSpan,
   ImageWrapper,

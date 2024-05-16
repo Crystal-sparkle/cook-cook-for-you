@@ -14,7 +14,7 @@ import {
 } from "firebase/firestore";
 import React, { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../context/authContext";
-import { db, handleGetDailyMeal } from "../../firbase";
+import { db, handleGetDailyMeal } from "../../firebase";
 import { CalerdarContent, DailyMealPlan } from "../../types";
 import {
   CalerdarWrapper,
@@ -31,28 +31,6 @@ const MealCalendar: React.FC = () => {
   const currentUserUid = userInformation?.user?.uid;
 
   useEffect(() => {
-    // const handleDailyMealPlan = () => {
-    //   const DailyMealPlanCollection = collection(db, "DailyMealPlan");
-    //   const queryRef = query(
-    //     DailyMealPlanCollection,
-    //     where("userId", "==", currentUserUid)
-    //   );
-    //   try {
-    //     const unsubscribe = onSnapshot(queryRef, (querySnapshot) => {
-    //       const results: DailyMealPlan[] = [];
-    //       querySnapshot.forEach((doc) => {
-    //         results.push(doc.data() as DailyMealPlan);
-    //       });
-
-    //       setThisMonthMealPlans(results);
-    //     });
-    //     return () => unsubscribe();
-    //   } catch (error) {
-    //     message.error("發生錯誤");
-    //   }
-    // };
-
-    // handleDailyMealPlan();
     handleGetDailyMeal(
       "DailyMealPlan",
       "userId",

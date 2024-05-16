@@ -13,7 +13,7 @@ import {
 } from "firebase/firestore";
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../context/authContext";
-import { db } from "../../firbase";
+import { db } from "../../firebase";
 import { CurrentItem, Recipe } from "../../types";
 import RecipeDrawer from "./RecipeDrawer";
 import RecipeModalContent from "./RecipeModalContent";

@@ -1,7 +1,7 @@
 import { User } from "firebase/auth";
 import "firebase/database";
 import { useEffect, useState } from "react";
-import { handleGetDataObject } from "../../../../../firbase";
+import { handleGetDataObject } from "../../../../../firebase";
 
 const useGetUser = (userId: string | undefined) => {
   const [user, setUser] = useState<User>();

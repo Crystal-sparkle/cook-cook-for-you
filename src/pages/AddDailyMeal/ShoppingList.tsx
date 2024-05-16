@@ -4,7 +4,7 @@ import { FC, useContext, useState } from "react";
 
 import { useParams } from "react-router-dom";
 import { AuthContext } from "../../context/authContext";
-import { updateCollectionItems } from "../../firbase";
+import { updateCollectionItems } from "../../firebase";
 import { PartnerList, ShoppingListProps } from "../../types";
 import useGetPartnerList from "./PurchasingPlan/Shopping/hooks/useGetPartnerList";
 import {

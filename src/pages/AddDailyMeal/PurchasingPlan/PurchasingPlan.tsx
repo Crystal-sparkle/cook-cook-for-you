@@ -2,7 +2,7 @@ import { ProCard } from "@ant-design/pro-components";
 import { Card } from "antd";
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../../context/authContext";
-import { handleGetData } from "../../../firbase";
+import { handleGetData } from "../../../firebase";
 import { PartnerList, PurchasePlanProps } from "../../../types";
 import Partner from "./Partner";
 import PurchasingDrawer from "./PurchasingDrawer";
