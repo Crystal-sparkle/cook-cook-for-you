@@ -8,7 +8,6 @@ import {
   addDoc,
   collection,
   getDocs,
-  onSnapshot,
   query,
   updateDoc,
   where,
@@ -40,25 +39,18 @@ const SelectMenu: React.FC = () => {
   });
 
   useEffect(() => {
-    const fetchRecipes = async () => {
-      const recipesCollection = collection(db, "recipess");
-
-      const queryRef = query(
-        recipesCollection,
-        where("userId", "==", currentUserUid)
-      );
-      const unsubscribe = onSnapshot(queryRef, (snapshot) => {
-        const items = snapshot.docs.map((doc, index) => ({
-          key: `${index}`,
-          label: doc.data().name,
-        }));
+    const unsubscribe = subscribeToRecipes(
+      currentUserUid,
+      (items) => {
         setMenuState((prev) => ({ ...prev, items }));
-      });
+      },
 
-      return () => unsubscribe();
-    };
+      () => {
+        message.error("獲取資料失敗");
+      }
+    );
 
-    fetchRecipes();
+    return () => unsubscribe();
   }, [currentUserUid]);
 
   useEffect(() => {

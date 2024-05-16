@@ -6,6 +6,7 @@ import { getAuth } from "firebase/auth";
 import {
   DocumentData,
   DocumentReference,
+  QuerySnapshot,
   addDoc,
   collection,
   getDoc,
@@ -267,5 +268,35 @@ export const updateCollectionItems = async (
     });
   } catch (error) {
     message.error("更改資料失敗");
+  }
+};
+
+export const subscribeToRecipes = (
+  userId: string | undefined,
+  callback: (items: { key: string; label: string }[]) => void,
+  onError: (error: Error) => void
+) => {
+  try {
+    const recipesCollection = collection(db, "recipess");
+
+    const queryRef = query(recipesCollection, where("userId", "==", userId));
+    const unsubscribe = onSnapshot(
+      queryRef,
+      (snapshot: QuerySnapshot<DocumentData>) => {
+        const items = snapshot.docs.map((doc, index) => ({
+          key: `${index}`,
+          label: doc.data().name,
+        }));
+        callback(items);
+      },
+      (error) => {
+        onError(new Error(`Failed to fetch recipes: ${error.message}`));
+      }
+    );
+
+    return unsubscribe;
+  } catch (error) {
+    message.error("沒有資料");
+    return () => {};
   }
 };
