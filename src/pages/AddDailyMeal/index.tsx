@@ -31,7 +31,14 @@ const AddDailyMeal = () => {
   >();
 
   useEffect(() => {
-    handleGetActivePlan("cookingPlan", "isActive", true, setActiveCookingPlan);
+    const unsubscribe = handleGetActivePlan(
+      "cookingPlan",
+      "isActive",
+      true,
+      setActiveCookingPlan
+    );
+
+    return () => unsubscribe();
   }, []);
 
   useEffect(() => {

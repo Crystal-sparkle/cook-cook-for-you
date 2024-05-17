@@ -249,6 +249,29 @@ export const subscribeToCollection = <T>(
   }
 };
 
+export const handleGetActivePlan = (
+  collectionName: string,
+  searchKey: string,
+  searchValue: string | boolean | undefined,
+  callback: (value: React.SetStateAction<CookingPlanData | undefined>) => void
+): (() => void) => {
+  return subscribeToCollection(
+    collectionName,
+    searchKey,
+    searchValue,
+    (data) => {
+      const result = data.length > 0 ? data[0] : undefined;
+      callback(result as CookingPlanData);
+    },
+
+    (error) => {
+      message.error(error.message || "查無計劃");
+    }
+  );
+};
+
+//
+
 export const updateCollectionItems = async (
   collectionName: string,
   itemIndex: number,
