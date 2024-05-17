@@ -31,13 +31,14 @@ const MealCalendar: React.FC = () => {
   const currentUserUid = userInformation?.user?.uid;
 
   useEffect(() => {
-    handleGetDailyMeal(
+    const unsubscribe = handleGetDailyMeal(
       "DailyMealPlan",
       "userId",
       currentUserUid,
       setThisMonthMealPlans
     );
-  }, []);
+    return () => unsubscribe();
+  }, [currentUserUid]);
 
   const dateCellRender = (value: Dayjs) => {
     const dynamicListData = thisMonthMealPlans
