@@ -42,12 +42,13 @@ const AddDailyMeal = () => {
   }, []);
 
   useEffect(() => {
-    handleGetResult(
+    const unsubscribe = handleGetResult(
       "purchasePlan",
       "isActive",
       true,
       setPurchasePlanCollection
     );
+    return () => unsubscribe();
   }, []);
 
   const steps = [

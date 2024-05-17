@@ -158,34 +158,24 @@ export const handleGetDataObject = async <T>(
   }
 };
 
-export const handleGetResult = async (
+export const handleGetResult = (
   collectionName: string,
   searchKey: string,
   searchValue: string | boolean | undefined,
   callback: (value: React.SetStateAction<PurchasePlan[]>) => void
 ) => {
-  const collectionRef = collection(db, collectionName);
-  const queryRef = query(collectionRef, where(searchKey, "==", searchValue));
+  return subscribeToCollection(
+    collectionName,
+    searchKey,
+    searchValue,
+    (data) => {
+      callback(data as PurchasePlan[]);
+    },
 
-  try {
-    const unsubscribe = onSnapshot(queryRef, (querySnapshot) => {
-      const results: PurchasePlan[] = [];
-      querySnapshot.forEach((doc) => {
-        const data = doc.data();
-
-        results.push(data as PurchasePlan);
-      });
-
-      if (results.length > 0) {
-        callback(results);
-      } else {
-        return;
-      }
-    });
-    return () => unsubscribe();
-  } catch (error) {
-    message.error("取得資料時發生錯誤");
-  }
+    (error) => {
+      message.error(error.message || "取得資料時發生錯誤");
+    }
+  );
 };
 
 export const handleGetDailyMeal = (
