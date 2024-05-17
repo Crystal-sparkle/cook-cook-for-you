@@ -124,10 +124,30 @@ const SelectMenu: React.FC = () => {
         selectedDish: "",
         selectedQty: "1",
         newMealId: "",
+        selectedTime: null,
       }));
     } catch (error) {
       message.error("取得資料失敗");
     }
+  };
+
+  const handleSubmit = async () => {
+    if (!menuState.selectedTime) {
+      message.error("請選擇日期");
+      return false;
+    }
+    if (!menuState.selectedDish) {
+      message.error("請選擇料理");
+      return false;
+    }
+    if (!menuState.selectedQty) {
+      message.error("請選擇份量");
+      return false;
+    }
+    await addMealPlan();
+    setModalVisit(false);
+
+    return true;
   };
 
   return (
@@ -149,10 +169,11 @@ const SelectMenu: React.FC = () => {
         modalProps={{
           destroyOnClose: true,
         }}
-        onFinish={async () => {
-          await addMealPlan();
-          setModalVisit(false);
-        }}
+        // onFinish={async () => {
+        //   await addMealPlan();
+        //   setModalVisit(false);
+        // }}
+        onFinish={handleSubmit}
         open={modalVisit}
         onOpenChange={setModalVisit}
         submitter={{
