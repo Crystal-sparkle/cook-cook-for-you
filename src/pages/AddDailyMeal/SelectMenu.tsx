@@ -40,13 +40,11 @@ const SelectMenu: React.FC = () => {
 
   useEffect(() => {
     const unsubscribe = subscribeToRecipes(
+      "recipess",
+      "userId",
       currentUserUid,
       (items) => {
         setMenuState((prev) => ({ ...prev, items }));
-      },
-
-      () => {
-        message.error("獲取資料失敗");
       }
     );
 

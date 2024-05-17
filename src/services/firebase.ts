@@ -22,6 +22,7 @@ import { getStorage } from "firebase/storage";
 import "firebase/storage";
 import {
   CookingPlanData,
+  CurrentItem,
   DailyMealPlan,
   NewPlan,
   PurchasePlan,
@@ -217,31 +218,34 @@ export const handleGetDailyMeal = async (
   }
 };
 
-export const handleGetActivePlan = async (
+export const subscribeToCollection = <T>(
   collectionName: string,
   searchKey: string,
   searchValue: string | boolean | undefined,
-  callback: (value: React.SetStateAction<CookingPlanData | undefined>) => void
-) => {
-  const collectionRef = collection(db, collectionName);
-  const queryRef = query(collectionRef, where(searchKey, "==", searchValue));
-
+  onSuccess: (data: T[]) => void,
+  onError: (error: Error) => void
+): (() => void) => {
   try {
-    const unsubscribe = onSnapshot(queryRef, (querySnapshot) => {
-      let results = null;
-      querySnapshot.forEach((doc) => {
-        results = doc.data();
-      });
-
-      if (results) {
-        callback(results);
-      } else {
-        callback(undefined);
+    const collectionRef = collection(db, collectionName);
+    const queryRef = query(collectionRef, where(searchKey, "==", searchValue));
+    const unsubscribe = onSnapshot(
+      queryRef,
+      (snapshot: QuerySnapshot<DocumentData>) => {
+        const data = snapshot.docs.map((doc) => doc.data() as T);
+        onSuccess(data);
+      },
+      (error) => {
+        onError(
+          new Error(
+            `Failed to fetch data from ${collectionName}: ${error.message}`
+          )
+        );
       }
-    });
-    return () => unsubscribe();
+    );
+    return unsubscribe;
   } catch (error) {
-    message.error("查無計劃");
+    message.error("取得資料失敗");
+    return () => {};
   }
 };
 
@@ -272,31 +276,24 @@ export const updateCollectionItems = async (
 };
 
 export const subscribeToRecipes = (
-  userId: string | undefined,
-  callback: (items: { key: string; label: string }[]) => void,
-  onError: (error: Error) => void
+  collectionName: string,
+  searchKey: string,
+  searchValue: string | boolean | undefined,
+  callback: (items: { key: string; label: string }[]) => void
 ) => {
-  try {
-    const recipesCollection = collection(db, "recipess");
-
-    const queryRef = query(recipesCollection, where("userId", "==", userId));
-    const unsubscribe = onSnapshot(
-      queryRef,
-      (snapshot: QuerySnapshot<DocumentData>) => {
-        const items = snapshot.docs.map((doc, index) => ({
-          key: `${index}`,
-          label: doc.data().name,
-        }));
-        callback(items);
-      },
-      (error) => {
-        onError(new Error(`Failed to fetch recipes: ${error.message}`));
-      }
-    );
-
-    return unsubscribe;
-  } catch (error) {
-    message.error("沒有資料");
-    return () => {};
-  }
+  return subscribeToCollection(
+    collectionName,
+    searchKey,
+    searchValue,
+    (data: CurrentItem[]) => {
+      const items = data.map((doc, index) => ({
+        key: `${index}`,
+        label: doc.name,
+      }));
+      callback(items);
+    },
+    (error) => {
+      message.error(error.message || "查無食譜");
+    }
+  );
 };

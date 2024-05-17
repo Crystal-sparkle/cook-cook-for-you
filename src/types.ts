@@ -189,6 +189,13 @@ export interface MenuItem {
 }
 [];
 
+export interface SelectedMenu {
+  selectedDish: string;
+  selectedTime: Timestamp | null;
+  selectedQty: string;
+  items: MenuItem[];
+  newMealId: string;
+}
 //
 export interface PurchaseDrawerProps {
   purchasePlanCollection: PurchasePlan[];
