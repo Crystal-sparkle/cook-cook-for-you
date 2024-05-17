@@ -7,7 +7,9 @@ const useGetUser = (userId: string | undefined) => {
   const [user, setUser] = useState<User>();
 
   useEffect(() => {
-    handleGetDataObject("user", "uid", userId, setUser);
+    const unsubscribe = handleGetDataObject("user", "uid", userId, setUser);
+
+    return () => unsubscribe();
   }, [userId]);
 
   return user;

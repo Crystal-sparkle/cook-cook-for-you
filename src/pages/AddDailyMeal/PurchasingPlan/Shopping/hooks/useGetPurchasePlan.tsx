@@ -7,12 +7,13 @@ const useGetPurchasePlan = (purchasePlanId: string | undefined) => {
   const [purchasePlan, setPurchasePlan] = useState<PurchasePlan>();
 
   useEffect(() => {
-    handleGetDataObject(
+    const unsubscribe = handleGetDataObject(
       "purchasePlan",
       "planId",
       purchasePlanId,
       setPurchasePlan
     );
+    return () => unsubscribe();
   }, [purchasePlanId]);
 
   return purchasePlan;
