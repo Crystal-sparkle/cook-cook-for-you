@@ -7,7 +7,7 @@ import { Timestamp, addDoc, collection, updateDoc } from "firebase/firestore";
 import React, { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../context/authContext";
 import { db, fetchId, subscribeToRecipes } from "../../services/firebase";
-import { SelectedMenu } from "../../types";
+import { MealPlanData, SelectedMenu, SetMenuStateFunction } from "../../types";
 
 const quantities: MenuProps["items"] = [
   { key: "1", label: "1" },
@@ -73,33 +73,46 @@ const SelectMenu: React.FC = () => {
     setMenuState((prev) => ({ ...prev, selectedQty: key }));
   };
 
-  const addMealPlan = async () => {
-    const collectionRef = collection(db, "DailyMealPlan");
-    const newPlan = {
+  const getMealPlanData = (menuState: SelectedMenu) => {
+    const { selectedDish, selectedQty, newMealId, selectedTime } = menuState;
+    return {
       mealPlan: [
         {
-          name: menuState.selectedDish,
-          serving: Number(menuState.selectedQty),
+          name: selectedDish,
+          serving: Number(selectedQty),
           unit: "份",
-          id: menuState.newMealId,
+          id: newMealId,
         },
       ],
-      planDate: menuState.selectedTime,
+      planDate: selectedTime,
       userId: currentUserUid,
     };
+  };
+
+  const resetMenuState = (setMenuState: SetMenuStateFunction): void => {
+    setMenuState((prev) => ({
+      ...prev,
+      selectedDish: "",
+      selectedQty: "1",
+      newMealId: "",
+      selectedTime: null,
+    }));
+  };
+
+  const addMealPlanToFirestore = async (newPlan: MealPlanData) => {
+    const docRef = await addDoc(collection(db, "DailyMealPlan"), newPlan);
+    await updateDoc(docRef, { mealId: docRef.id });
+    console.log("docRef", docRef);
+    return docRef;
+  };
+
+  const addMealPlan = async (): Promise<void> => {
+    const newPlan = getMealPlanData(menuState);
 
     try {
-      const docRef = await addDoc(collectionRef, newPlan);
-      const updatedData = { mealId: docRef.id };
-      await updateDoc(docRef, updatedData);
+      await addMealPlanToFirestore(newPlan);
       message.success("提交成功");
-      setMenuState((prev) => ({
-        ...prev,
-        selectedDish: "",
-        selectedQty: "1",
-        newMealId: "",
-        selectedTime: null,
-      }));
+      resetMenuState(setMenuState);
     } catch (error) {
       message.error("取得資料失敗");
     }
@@ -143,10 +156,6 @@ const SelectMenu: React.FC = () => {
         modalProps={{
           destroyOnClose: true,
         }}
-        // onFinish={async () => {
-        //   await addMealPlan();
-        //   setModalVisit(false);
-        // }}
         onFinish={handleSubmit}
         open={modalVisit}
         onOpenChange={setModalVisit}
