@@ -98,6 +98,27 @@ export const closeActivePlan = async (collectionName: string) => {
   }
 };
 
+export const fetchId = async (
+  collectionName: string,
+  searchKey: string,
+  searchValue: string | boolean | undefined,
+  setValue: (Id: string) => void
+) => {
+  const collectionRef = collection(db, collectionName);
+  const queryRef = query(collectionRef, where(searchKey, "==", searchValue));
+  try {
+    const querySnapshot = await getDocs(queryRef);
+    querySnapshot.forEach(async (doc) => {
+      const docRef = doc.ref;
+
+      const Id = docRef.id;
+      setValue(Id);
+    });
+  } catch (error) {
+    message.error("獲取資料失敗");
+  }
+};
+
 export const handleGetData = async (
   collectionName: string,
   searchKey: string,
@@ -125,6 +146,39 @@ export const handleGetData = async (
     return () => unsubscribe();
   } catch (error) {
     message.error("取得資料時發生錯誤");
+  }
+};
+
+export const subscribeToCollection = <T>(
+  collectionName: string,
+  searchKey: string,
+  searchValue: string | boolean | undefined,
+  onSuccess: (data: T[]) => void,
+  onError: (error: Error) => void
+): (() => void) => {
+  try {
+    const queryRef = query(
+      collection(db, collectionName),
+      where(searchKey, "==", searchValue)
+    );
+    const unsubscribe = onSnapshot(
+      queryRef,
+      (snapshot: QuerySnapshot<DocumentData>) => {
+        const data = snapshot.docs.map((doc) => doc.data() as T);
+        onSuccess(data);
+      },
+      (error) => {
+        onError(
+          new Error(
+            `Failed to fetch data from ${collectionName}: ${error.message}`
+          )
+        );
+      }
+    );
+    return unsubscribe;
+  } catch (error) {
+    message.error("取得資料失敗");
+    return () => {};
   }
 };
 
@@ -191,36 +245,6 @@ export const handleGetDailyMeal = (
   );
 };
 
-export const subscribeToCollection = <T>(
-  collectionName: string,
-  searchKey: string,
-  searchValue: string | boolean | undefined,
-  onSuccess: (data: T[]) => void,
-  onError: (error: Error) => void
-): (() => void) => {
-  try {
-    const collectionRef = collection(db, collectionName);
-    const queryRef = query(collectionRef, where(searchKey, "==", searchValue));
-    const unsubscribe = onSnapshot(
-      queryRef,
-      (snapshot: QuerySnapshot<DocumentData>) => {
-        const data = snapshot.docs.map((doc) => doc.data() as T);
-        onSuccess(data);
-      },
-      (error) => {
-        onError(
-          new Error(
-            `Failed to fetch data from ${collectionName}: ${error.message}`
-          )
-        );
-      }
-    );
-    return unsubscribe;
-  } catch (error) {
-    message.error("取得資料失敗");
-    return () => {};
-  }
-};
 
 export const handleGetActivePlan = (
   collectionName: string,

@@ -3,18 +3,10 @@ import { ModalForm } from "@ant-design/pro-components";
 import type { DatePickerProps, MenuProps } from "antd";
 import { Button, DatePicker, Dropdown, Space, message } from "antd";
 import "firebase/database";
-import {
-  Timestamp,
-  addDoc,
-  collection,
-  getDocs,
-  query,
-  updateDoc,
-  where,
-} from "firebase/firestore";
+import { Timestamp, addDoc, collection, updateDoc } from "firebase/firestore";
 import React, { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../context/authContext";
-import { db, subscribeToRecipes } from "../../services/firebase";
+import { db, fetchId, subscribeToRecipes } from "../../services/firebase";
 import { SelectedMenu } from "../../types";
 
 const quantities: MenuProps["items"] = [
@@ -52,27 +44,11 @@ const SelectMenu: React.FC = () => {
   }, [currentUserUid]);
 
   useEffect(() => {
-    const fetchMealId = async () => {
-      const recipesCollection = collection(db, "recipess");
-      const q = query(
-        recipesCollection,
-        where("name", "==", menuState.selectedDish)
-      );
-      try {
-        const querySnapshot = await getDocs(q);
-        querySnapshot.forEach(async (doc) => {
-          const docRef = doc.ref;
-
-          if (!querySnapshot.empty) {
-            const recipeId = docRef.id;
-            setMenuState((prev) => ({ ...prev, newMealId: recipeId }));
-          }
-        });
-      } catch (error) {
-        message.error("獲取資料失敗");
-      }
-    };
-    fetchMealId();
+    if (menuState.selectedDish) {
+      fetchId("recipess", "name", menuState.selectedDish, (Id) => {
+        setMenuState((prev) => ({ ...prev, newMealId: Id }));
+      });
+    }
   }, [menuState.selectedDish]);
 
   const handleDateChange: DatePickerProps["onChange"] = (date) => {
