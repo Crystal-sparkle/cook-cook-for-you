@@ -317,3 +317,35 @@ export const subscribeToRecipes = (
     }
   );
 };
+
+export const subscribeToPartnerData = (
+  collectionName: string,
+  searchKey: string,
+  searchValue: string | boolean | undefined,
+  updatePartnerList: (value: string[]) => void,
+  setUserName: (value: string) => void
+): (() => void) => {
+  return subscribeToCollection<PartnersType>(
+    collectionName,
+    searchKey,
+    searchValue,
+    (data: PartnersType[]) => {
+      if (data[0].partners || data[0].name) {
+        updatePartnerList(data[0].partners);
+        setUserName(data[0].name);
+      } else {
+        message.error("查無資料");
+      }
+    },
+
+    (error) => {
+      message.error(error.message || "取得資料時發生錯誤");
+    }
+  );
+};
+
+interface PartnersType {
+  name: string;
+  partners: string[];
+  uid: string;
+}
