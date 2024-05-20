@@ -24,6 +24,7 @@ import {
   CookingPlanData,
   CurrentItem,
   DailyMealPlan,
+  MealPlanData,
   NewPlan,
   PurchasePlan,
 } from "../types";
@@ -117,6 +118,16 @@ export const fetchId = async (
   } catch (error) {
     message.error("獲取資料失敗");
   }
+};
+
+export const addMealPlanToFirestore = async (
+  newPlan: MealPlanData,
+  collectionName: string
+) => {
+  const docRef = await addDoc(collection(db, collectionName), newPlan);
+  await updateDoc(docRef, { mealId: docRef.id });
+  console.log("docRef", typeof docRef, docRef);
+  return docRef;
 };
 
 export const handleGetData = async (
@@ -266,8 +277,6 @@ export const handleGetActivePlan = (
     }
   );
 };
-
-//
 
 export const updateCollectionItems = async (
   collectionName: string,

@@ -3,11 +3,15 @@ import { ModalForm } from "@ant-design/pro-components";
 import type { DatePickerProps, MenuProps } from "antd";
 import { Button, DatePicker, Dropdown, Space, message } from "antd";
 import "firebase/database";
-import { Timestamp, addDoc, collection, updateDoc } from "firebase/firestore";
+import { Timestamp } from "firebase/firestore";
 import React, { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../context/authContext";
-import { db, fetchId, subscribeToRecipes } from "../../services/firebase";
-import { MealPlanData, SelectedMenu, SetMenuStateFunction } from "../../types";
+import {
+  addMealPlanToFirestore,
+  fetchId,
+  subscribeToRecipes,
+} from "../../services/firebase";
+import { SelectedMenu, SetMenuStateFunction } from "../../types";
 
 const quantities: MenuProps["items"] = [
   { key: "1", label: "1" },
@@ -99,18 +103,11 @@ const SelectMenu: React.FC = () => {
     }));
   };
 
-  const addMealPlanToFirestore = async (newPlan: MealPlanData) => {
-    const docRef = await addDoc(collection(db, "DailyMealPlan"), newPlan);
-    await updateDoc(docRef, { mealId: docRef.id });
-    console.log("docRef", docRef);
-    return docRef;
-  };
-
   const addMealPlan = async (): Promise<void> => {
     const newPlan = getMealPlanData(menuState);
 
     try {
-      await addMealPlanToFirestore(newPlan);
+      await addMealPlanToFirestore(newPlan, "DailyMealPlan");
       message.success("提交成功");
       resetMenuState(setMenuState);
     } catch (error) {
