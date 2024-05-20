@@ -7,13 +7,17 @@ import {
   DocumentData,
   DocumentReference,
   QuerySnapshot,
+  Timestamp,
   addDoc,
   collection,
+  doc,
   getDoc,
   getDocs,
   getFirestore,
   onSnapshot,
+  orderBy,
   query,
+  setDoc,
   updateDoc,
   where,
 } from "firebase/firestore";
@@ -27,6 +31,7 @@ import {
   MealPlanData,
   NewPlan,
   PurchasePlan,
+  Recipe,
 } from "../types";
 
 const firebaseConfig = {
@@ -126,7 +131,6 @@ export const addMealPlanToFirestore = async (
 ) => {
   const docRef = await addDoc(collection(db, collectionName), newPlan);
   await updateDoc(docRef, { mealId: docRef.id });
-  console.log("docRef", typeof docRef, docRef);
   return docRef;
 };
 
@@ -191,6 +195,44 @@ export const subscribeToCollection = <T>(
     message.error("取得資料失敗");
     return () => {};
   }
+};
+
+export const fetchAndsubscribeToRecipes = (
+  collectionName: string,
+  searchKey: string,
+  searchValue: string | boolean | undefined,
+  onSuccess: (results: Recipe[]) => void,
+  onError: (error: Error) => void,
+  setLoading: (value: boolean) => void
+
+  // setUserRecipes: (value: React.SetStateAction<Recipe[]>) => void,
+  // setLoading: (value: boolean) => void
+): (() => void) => {
+  const queryRef = query(
+    collection(db, collectionName),
+    where(searchKey, "==", searchValue),
+    orderBy("time", "desc")
+  );
+
+  const unsubscribe = onSnapshot(
+    queryRef,
+    (querySnapshot) => {
+      const results: Recipe[] = [];
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        results.push(data as Recipe);
+      });
+
+      onSuccess(results);
+      setLoading(false);
+    },
+    (error) => {
+      onError(error);
+      message.error("發生錯誤");
+    }
+  );
+
+  return () => unsubscribe();
 };
 
 export const handleGetDataObject = <T>(
@@ -358,3 +400,28 @@ interface PartnersType {
   partners: string[];
   uid: string;
 }
+
+export const updateRecipeInFirebase = async (
+  itemId: string,
+  values: Recipe,
+  mainPhoto: string,
+  userId: string | undefined
+) => {
+  try {
+    const docRef = doc(collection(db, "recipess"), itemId);
+    const updatedValues = {
+      ...values,
+      mainPhoto: mainPhoto,
+      userId: userId,
+      time: Timestamp.now(),
+    };
+
+    await setDoc(docRef, updatedValues);
+    await updateDoc(docRef, { id: docRef.id });
+
+    return true;
+  } catch (error) {
+    console.error("Error updating recipe:", error);
+    throw new Error("新增失敗");
+  }
+};

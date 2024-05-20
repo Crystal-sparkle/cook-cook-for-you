@@ -1,19 +1,12 @@
 import { ClockCircleOutlined, EditOutlined } from "@ant-design/icons";
 import { ModalForm } from "@ant-design/pro-components";
 import { Button, Space, message } from "antd";
-import {
-  Timestamp,
-  collection,
-  doc,
-  onSnapshot,
-  orderBy,
-  query,
-  setDoc,
-  where,
-} from "firebase/firestore";
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../context/authContext";
-import { db } from "../../services/firebase";
+import {
+  fetchAndsubscribeToRecipes,
+  updateRecipeInFirebase,
+} from "../../services/firebase";
 import { CurrentItem, Recipe } from "../../types";
 import RecipeDrawer from "./RecipeDrawer";
 import RecipeModalContent from "./RecipeModalContent";
@@ -30,14 +23,6 @@ import {
   Title,
   TitleWrapper,
 } from "./recipeDisplay.style";
-
-const waitTime = (time: number = 100) => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(true);
-    }, time);
-  });
-};
 
 const RecipeDisplay: React.FC = () => {
   const userInformation = useContext(AuthContext);
@@ -60,59 +45,30 @@ const RecipeDisplay: React.FC = () => {
   };
 
   useEffect(() => {
-    const getRecipes = async () => {
-      const recipesCollection = collection(db, "recipess");
-      const queryRef = query(
-        recipesCollection,
-        where("userId", "==", currentUserUid),
-        orderBy("time", "desc")
-      );
+    const unsubscribe = fetchAndsubscribeToRecipes(
+      "recipess",
+      "userId",
+      currentUserUid,
+      (results) => setUserRecipes(results),
+      (error) => message.error(`發生錯誤: ${error.message}`),
+      setLoading
+    );
 
-      const unsubscribe = onSnapshot(
-        queryRef,
-        (querySnapshot) => {
-          const results: Recipe[] = [];
-          querySnapshot.forEach((doc) => {
-            const data = doc.data();
-            results.push(data as Recipe);
-          });
-
-          setUserRecipes(results);
-          setLoading(false);
-        },
-        () => {
-          message.error("發生錯誤");
-        }
-      );
-
-      return () => unsubscribe();
-    };
-
-    getRecipes();
+    return () => unsubscribe();
   }, [currentUserUid]);
 
-  const UpdatRecipe = async (item: CurrentItem, values: Recipe) => {
-    const recipesCollection = collection(db, "recipess");
-
-    await waitTime(1000);
+  const updateRecipe = async (item: CurrentItem, values: Recipe) => {
     try {
-      const docRef = doc(recipesCollection, item.id);
-      const valuesWithImageURL = {
-        ...values,
-        mainPhoto: mainPhoto,
-        userId: currentUserUid,
-        time: Timestamp.now(),
-      };
-
-      await setDoc(docRef, valuesWithImageURL);
-      const updatedData = { id: docRef.id };
-      await setDoc(doc(recipesCollection, docRef.id), updatedData, {
-        merge: true,
-      });
-
-      setMainPhoto(item.mainPhoto);
-      message.success("新增成功");
-      return true;
+      const result = await updateRecipeInFirebase(
+        item.id,
+        values,
+        mainPhoto,
+        currentUserUid
+      );
+      if (result) {
+        setMainPhoto(item.mainPhoto);
+        message.success("新增成功");
+      }
     } catch (error) {
       message.error("新增失敗");
     }
@@ -163,7 +119,7 @@ const RecipeDisplay: React.FC = () => {
                             destroyOnClose: true,
                           }}
                           onFinish={async (values) => {
-                            await UpdatRecipe(item, values);
+                            await updateRecipe(item, values);
                             return true;
                           }}
                           submitter={{
