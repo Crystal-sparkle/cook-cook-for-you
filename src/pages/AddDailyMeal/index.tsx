@@ -1,5 +1,4 @@
 import { Button, Steps, message } from "antd";
-import "firebase/database";
 import { useEffect, useState } from "react";
 import {
   closeActivePlan,

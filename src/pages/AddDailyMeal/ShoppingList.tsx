@@ -31,32 +31,6 @@ const ShoppingList: FC<ShoppingListProps> = ({ purchasePlan, index }) => {
 
   const { cookingDate, items } = purchasePlan;
   const [checkedItems, setCheckedItems] = useState<Array<Array<boolean>>>([]);
-  async function updateCollectionItems(
-    collectionName: string,
-    itemIndex: number,
-    updateFunction: (docData: PurchasePlan) => void
-  ) {
-    const purchaseCollection = collection(db, collectionName);
-    const q = query(purchaseCollection, where("isActive", "==", true));
-
-    try {
-      const querySnapshot = await getDocs(q);
-      querySnapshot.forEach(async (doc) => {
-        const docRef = doc.ref;
-        const docData = (await getDoc(docRef)).data();
-        console.log(docData);
-
-        if (docData && docData.items && docData.items[itemIndex]) {
-          updateFunction(docData as PurchasePlan);
-          await updateDoc(docRef, {
-            items: docData.items,
-          });
-        }
-      });
-    } catch (error) {
-      message.error("操作失敗");
-    }
-  }
 
   const updateCheckboxStatus = async (
     planIndex: number,
@@ -70,7 +44,7 @@ const ShoppingList: FC<ShoppingListProps> = ({ purchasePlan, index }) => {
     });
   };
 
-  const handleSelectChange = async (value: string, itemIndex: number) => {
+  const handleChangeResponsible = async (value: string, itemIndex: number) => {
     updateCollectionItems("purchasePlan", itemIndex, (docData) => {
       docData.items[itemIndex].responsible = value;
     })
@@ -97,7 +71,6 @@ const ShoppingList: FC<ShoppingListProps> = ({ purchasePlan, index }) => {
       return newCheckedItems;
     });
   };
-
 
   return (
     <Wrapper>
@@ -138,7 +111,7 @@ const ShoppingList: FC<ShoppingListProps> = ({ purchasePlan, index }) => {
               <Select
                 defaultValue={purchaseItem.responsible}
                 style={{ maxWidth: "100px" }}
-                onChange={(value) => handleSelectChange(value, itemIndex)}
+                onChange={(value) => handleChangeResponsible(value, itemIndex)}
               >
                 {partners?.map((partner) => (
                   <Option key={partner.key} value={partner.label}>

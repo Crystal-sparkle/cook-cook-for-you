@@ -1,14 +1,7 @@
 import { ModalForm, ProFormText } from "@ant-design/pro-components";
 import { Button, message } from "antd";
-import {
-  collection,
-  getDocs,
-  query,
-  updateDoc,
-  where,
-} from "firebase/firestore";
 import React from "react";
-import { auth, db } from "../../../../services/firebase";
+import { UpdateToPartnerList, auth } from "../../../../services/firebase";
 import { PartnerType } from "../../../../types";
 import { UserOutlinedIconStyle } from "../PurchasingPlan.style";
 import { PartnerContainer, PartnerProCard } from "./partner.style";
@@ -17,39 +10,16 @@ const Partner: React.FC = () => {
   const currentUser = auth.currentUser;
   const currentUid: string = currentUser?.uid ?? "";
 
-  const handleParnerList = async (values: PartnerType) => {
-    if (!currentUid) {
+  const handlePartnerList = async (values: PartnerType) => {
+    if (!values.partner1Name) {
+      message.error("Missing partner details");
       return false;
     }
-    const userCollection = collection(db, "user");
-    const q = query(userCollection, where("uid", "==", currentUid));
-
-    try {
-      if (!values.partner1Name) {
-        message.error("Missing partner details");
-        return false;
-      }
-      const partners = [values.partner1Name, values.partner2Name];
-
-      const querySnapshot = await getDocs(q);
-      if (querySnapshot.empty) {
-        message.error("找不到資料");
-        return false;
-      }
-      querySnapshot.forEach(async (doc: { ref: any }) => {
-        const docRef = doc.ref;
-
-        await updateDoc(docRef, {
-          partners,
-        });
-      });
-
-      message.success("成功加入夥伴");
-      return true;
-    } catch (error) {
-      message.error("夥伴名單更新失敗");
-      return false;
-    }
+    UpdateToPartnerList("user", "uid", currentUid, [
+      values.partner1Name,
+      values.partner2Name,
+    ]);
+    return true;
   };
 
   return (
@@ -65,7 +35,7 @@ const Partner: React.FC = () => {
         modalProps={{
           destroyOnClose: true,
         }}
-        onFinish={handleParnerList}
+        onFinish={handlePartnerList}
       >
         <PartnerContainer>
           <PartnerProCard>

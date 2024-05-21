@@ -31,6 +31,7 @@ import {
   DailyMealPlan,
   MealPlanData,
   NewPlan,
+  PartnersType,
   PurchasePlan,
   Recipe,
 } from "../types";
@@ -99,6 +100,26 @@ export const closeActivePlan = async (collectionName: string) => {
       await updateDoc(docRef, {
         isActive: false,
       });
+    });
+  } catch (error) {
+    message.error("存取失敗");
+  }
+};
+
+export const UpdateToPartnerList = async (
+  collectionName: string,
+  searchKey: string,
+  searchValue: string | boolean | undefined,
+  partners: (string | null)[]
+) => {
+  const collectionRef = collection(db, collectionName);
+  const q = query(collectionRef, where(searchKey, "==", searchValue));
+  try {
+    const querySnapshot = await getDocs(q);
+    querySnapshot.forEach(async (doc) => {
+      const docRef = doc.ref;
+
+      await updateDoc(docRef, { partners });
     });
   } catch (error) {
     message.error("存取失敗");
@@ -418,12 +439,6 @@ export const subscribeToPartnerData = (
     }
   );
 };
-
-interface PartnersType {
-  name: string;
-  partners: string[];
-  uid: string;
-}
 
 export const updateRecipeInFirebase = async (
   itemId: string,

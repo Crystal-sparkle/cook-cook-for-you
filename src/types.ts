@@ -273,3 +273,9 @@ export interface RecipeModalPrps {
 export interface FileListObject {
   fileList: UploadFile[];
 }
+
+export interface PartnersType {
+  name: string;
+  partners: string[];
+  uid: string;
+}
