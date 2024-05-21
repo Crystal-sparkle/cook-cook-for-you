@@ -4,18 +4,16 @@ import { message } from "antd";
 import type { Dayjs } from "dayjs";
 import dayjs from "dayjs";
 import "firebase/database";
-import {
-  collection,
-  deleteDoc,
-  getDocs,
-  query,
-  setDoc,
-  where,
-} from "firebase/firestore";
+import { DocumentData, QueryDocumentSnapshot } from "firebase/firestore";
 import React, { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../context/authContext";
-import { db, handleGetDailyMeal } from "../../services/firebase";
-import { CalerdarContent, DailyMealPlan } from "../../types";
+import {
+  deleteMealPlan,
+  getDailyMealPlanDocs,
+  handleGetDailyMeal,
+  updateServingCount,
+} from "../../services/firebase";
+import { DailyMealPlan } from "../../types";
 import {
   CalerdarWrapper,
   PopoverStyle,
@@ -54,42 +52,37 @@ const MealCalendar: React.FC = () => {
           : [],
       }));
 
-    const preventDefault =
-      (content: CalerdarContent, id: string) =>
-      (e: React.MouseEvent<HTMLElement>) => {
-        e.preventDefault();
+    const handleDailyMealUpdate = async (
+      id: string,
+      content: { name: string; serving?: number }
+    ) => {
+      try {
+        const querySnapshot = await getDailyMealPlanDocs(id);
+        querySnapshot.forEach(
+          async (doc: QueryDocumentSnapshot<DocumentData, DocumentData>) => {
+            const docRef = doc.ref;
+            const mealPlan = doc.data().mealPlan[0];
+            const serving = doc.data().mealPlan[0].serving;
 
-        async function updateDailyMealQty() {
-          const DailyMealPlanCollection = collection(db, "DailyMealPlan");
-          const q = query(DailyMealPlanCollection, where("mealId", "==", id));
-
-          try {
-            const querySnapshot = await getDocs(q);
-            for (const doc of querySnapshot.docs) {
-              const docRef = doc.ref;
-              const data = doc.data();
-
-              const mealPlan = data.mealPlan[0];
-              const serving = data.mealPlan[0].serving;
-
-              if (serving > 1) {
-                const updatedMealPlan = {
-                  mealPlan: [{ ...mealPlan, serving: serving - 1 }],
-                };
-
-                await setDoc(docRef, updatedMealPlan, { merge: true });
-              } else {
-                await deleteDoc(docRef);
-              }
+            if (serving > 1) {
+              updateServingCount(docRef, mealPlan, serving);
+            } else {
+              deleteMealPlan(docRef);
             }
-
-            message.success(`成功刪除：${content.name}`);
-          } catch (error) {
-            message.error("刪除失敗");
           }
-        }
+        );
 
-        updateDailyMealQty();
+        message.success(`成功刪除：${content.name}`);
+      } catch (error) {
+        message.error("刪除失敗");
+      }
+    };
+
+    const preventDefault =
+      (content: { name: string; serving?: number }, id: string) =>
+      (e: { preventDefault: () => void }) => {
+        e.preventDefault();
+        handleDailyMealUpdate(id, content);
       };
 
     const eventTags = dynamicListData.map((item, index) => (
@@ -130,8 +123,6 @@ const MealCalendar: React.FC = () => {
     );
   };
 
-  //current 是代表目前處理的日期，它是 cellRender 函式的一個參數。在你的情境中，dateCellRender 函式中的 value 參數即是 current，用來表示正在處理的日期。
-  //info.originNode 是一個用來取得日期單元格原始節點的屬性，你可以使用它來獲取和操作原始的日期單元格內容。
   const cellRender: CalendarProps<Dayjs>["cellRender"] = (current, info) => {
     if (info.type === "date") return dateCellRender(current);
     return info.originNode;

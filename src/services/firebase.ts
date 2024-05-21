@@ -10,6 +10,7 @@ import {
   Timestamp,
   addDoc,
   collection,
+  deleteDoc,
   doc,
   getDoc,
   getDocs,
@@ -131,7 +132,30 @@ export const addMealPlanToFirestore = async (
 ) => {
   const docRef = await addDoc(collection(db, collectionName), newPlan);
   await updateDoc(docRef, { mealId: docRef.id });
+
   return docRef;
+};
+
+export const getDailyMealPlanDocs = async (id: string) => {
+  const q = query(collection(db, "DailyMealPlan"), where("mealId", "==", id));
+  return await getDocs(q);
+};
+
+export const updateServingCount = async (
+  docRef: DocumentReference<DocumentData, DocumentData>,
+  mealPlan: MealPlanData,
+  serving: number
+) => {
+  const updatedMealPlan = {
+    mealPlan: [{ ...mealPlan, serving: serving - 1 }],
+  };
+  await setDoc(docRef, updatedMealPlan, { merge: true });
+};
+
+export const deleteMealPlan = async (
+  docRef: DocumentReference<DocumentData, DocumentData>
+) => {
+  await deleteDoc(docRef);
 };
 
 export const handleGetData = async (

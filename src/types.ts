@@ -196,6 +196,24 @@ export interface SelectedMenu {
   items: MenuItem[];
   newMealId: string;
 }
+
+interface Meal {
+  name: string;
+  serving: number;
+  unit: string;
+  id: string;
+}
+
+export interface MealPlanData {
+  mealPlan: Meal[];
+  planDate: Timestamp | null;
+  userId: string | undefined;
+}
+
+export interface SetMenuStateFunction {
+  (updateFn: (prevState: SelectedMenu) => SelectedMenu): void;
+}
+
 //
 export interface PurchaseDrawerProps {
   purchasePlanCollection: PurchasePlan[];
