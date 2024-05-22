@@ -41,10 +41,21 @@ const RecipeModalContent = ({ currentItem, setMainPhoto }: RecipeModalPrps) => {
     }
   };
 
+  const category = [
+    "主餐",
+    "肉類",
+    "蔬菜類",
+    "蛋、豆類",
+    "海鮮",
+    "烘焙類",
+    "其他類",
+  ];
+
   return (
     <div>
       <ProForm.Group>
         <ProFormText width="md" name="name" label="食譜名稱" />
+        <ProFormTextArea width="lg" name="description" label="簡介料理" />
       </ProForm.Group>
       <ProForm.Group>
         <Form.Item
@@ -111,19 +122,7 @@ const RecipeModalContent = ({ currentItem, setMainPhoto }: RecipeModalPrps) => {
           label="烹煮時間"
         />
       </ProForm.Group>
-      <ProFormRadio.Group
-        label="類別"
-        name="category"
-        options={[
-          "主餐",
-          "肉類",
-          "蔬菜類",
-          "蛋、豆類",
-          "海鮮",
-          "烘焙類",
-          "其他類",
-        ]}
-      />
+      <ProFormRadio.Group label="類別" name="category" options={category} />
       <ProForm.Group>
         <Form.List name="ingredients">
           {(fields, { add, remove }) => (
