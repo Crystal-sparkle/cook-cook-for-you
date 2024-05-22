@@ -10,6 +10,7 @@ import { Button, Form, Input, Upload, message } from "antd";
 import type { RcFile } from "antd/es/upload";
 import "firebase/database";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { useCallback } from "react";
 import { storage } from "../../services/firebase";
 import { FileListObject, RecipeModalPrps } from "../../types";
 import { SpaceStyle } from "./recipeDisplay.style";
@@ -20,25 +21,31 @@ const cookingTimeOption = [5, 10, 15, 20, 25, 30, 45, 60, 90, 120].map(
     label: `${minutes}分鐘`,
   })
 );
+const useUploadPhoto = (setMainPhoto: (url: string) => void) => {
+  const handleUpload = useCallback(
+    async (file: RcFile) => {
+      try {
+        const imageRef = ref(storage, `images/${file.name + file.uid}.jpg`);
+        const snapshot = await uploadBytes(imageRef, file);
+        const downloadURL = await getDownloadURL(snapshot.ref);
+        setMainPhoto(downloadURL);
+      } catch {
+        message.error("新增照片失敗");
+      }
+    },
+    [setMainPhoto]
+  );
+
+  return handleUpload;
+};
 
 const RecipeModalContent = ({ currentItem, setMainPhoto }: RecipeModalPrps) => {
+  const handleUpload = useUploadPhoto(setMainPhoto);
   const normFile = (e: string[] | FileListObject) => {
     if (Array.isArray(e)) {
       return e;
     }
     return e?.fileList || [];
-  };
-
-  const handleUpload = async (file: RcFile) => {
-    try {
-      const imageRef = ref(storage, `images/${file.name + file.uid}.jpg`);
-      const snapshot = await uploadBytes(imageRef, file);
-
-      const downloadURL = await getDownloadURL(snapshot.ref);
-      setMainPhoto(downloadURL);
-    } catch {
-      message.error("新增照片失敗");
-    }
   };
 
   const category = [
@@ -123,89 +130,91 @@ const RecipeModalContent = ({ currentItem, setMainPhoto }: RecipeModalPrps) => {
         />
       </ProForm.Group>
       <ProFormRadio.Group label="類別" name="category" options={category} />
-      <ProForm.Group>
-        <Form.List name="ingredients">
-          {(fields, { add, remove }) => (
-            <>
-              {fields.map(({ key, name, ...restField }) => (
-                <SpaceStyle key={`${key}-${name}`} align="baseline">
-                  <Form.Item {...restField} name={[name, "name"]}>
-                    <Input placeholder="食材" />
-                  </Form.Item>
-                  <Form.Item
-                    {...restField}
-                    name={[name, "quantity"]}
-                    rules={[
-                      {
-                        type: "number",
-                        message: "請輸入有效的數字",
-                      },
-                      {
-                        required: true,
-                        message: "請輸入數量",
-                      },
-                    ]}
-                    normalize={(value) => (value ? Number(value) : undefined)}
-                  >
-                    <Input type="number" placeholder="數量" />
-                  </Form.Item>
-                  <Form.Item {...restField} name={[name, "unit"]}>
-                    <Input placeholder="單位" />
-                  </Form.Item>
-                  <MinusCircleOutlined onClick={() => remove(name)} />
-                </SpaceStyle>
-              ))}
-              <Form.Item>
-                <Button
-                  type="dashed"
-                  onClick={() => add()}
-                  block
-                  icon={<PlusOutlined />}
-                  style={{ maxWidth: 600 }}
-                >
-                  添加食材
-                </Button>
-              </Form.Item>
-            </>
-          )}
-        </Form.List>
-      </ProForm.Group>
+      <IngredientsFormList />
       <hr />
-      <ProForm.Group>
-        <Form.List name="steps">
-          {(fields, { add, remove }) => (
-            <>
-              {fields.map(({ key, name, ...restField }) => (
-                <SpaceStyle key={`${key}-${name}`} align="center">
-                  <Form.Item
-                    label="說明"
-                    {...restField}
-                    name={[name, "stepDescription"]}
-                  >
-                    <ProFormTextArea width="lg" placeholder="步驟說明" />
-                  </Form.Item>
-                  <MinusCircleOutlined onClick={() => remove(name)} />
-                </SpaceStyle>
-              ))}
-              <Form.Item>
-                <Button
-                  type="dashed"
-                  onClick={() => add()}
-                  block
-                  icon={<PlusOutlined />}
-                >
-                  添加步驟
-                </Button>
-              </Form.Item>
-            </>
-          )}
-        </Form.List>
-      </ProForm.Group>
+      <StepsFormList />
       <hr />
       <ProFormTextArea width="lg" name="refLink" label="參考連結" />
       <ProFormTextArea width="lg" name="note" label="備註" />
     </div>
   );
 };
+
+const IngredientsFormList = () => (
+  <ProForm.Group>
+    <Form.List name="ingredients">
+      {(fields, { add, remove }) => (
+        <>
+          {fields.map(({ key, name, ...restField }) => (
+            <SpaceStyle key={`${key}-${name}`} align="baseline">
+              <Form.Item {...restField} name={[name, "name"]}>
+                <Input placeholder="食材" />
+              </Form.Item>
+              <Form.Item
+                {...restField}
+                name={[name, "quantity"]}
+                rules={[
+                  { type: "number", message: "請輸入有效的數字" },
+                  { required: true, message: "請輸入數量" },
+                ]}
+                normalize={(value) => (value ? Number(value) : undefined)}
+              >
+                <Input type="number" placeholder="數量" />
+              </Form.Item>
+              <Form.Item {...restField} name={[name, "unit"]}>
+                <Input placeholder="單位" />
+              </Form.Item>
+              <MinusCircleOutlined onClick={() => remove(name)} />
+            </SpaceStyle>
+          ))}
+          <Form.Item>
+            <Button
+              type="dashed"
+              onClick={() => add()}
+              block
+              icon={<PlusOutlined />}
+              style={{ maxWidth: 600 }}
+            >
+              添加食材
+            </Button>
+          </Form.Item>
+        </>
+      )}
+    </Form.List>
+  </ProForm.Group>
+);
+
+const StepsFormList = () => (
+  <ProForm.Group>
+    <Form.List name="steps">
+      {(fields, { add, remove }) => (
+        <>
+          {fields.map(({ key, name, ...restField }) => (
+            <SpaceStyle key={`${key}-${name}`} align="center">
+              <Form.Item
+                label="說明"
+                {...restField}
+                name={[name, "stepDescription"]}
+              >
+                <ProFormTextArea width="lg" placeholder="步驟說明" />
+              </Form.Item>
+              <MinusCircleOutlined onClick={() => remove(name)} />
+            </SpaceStyle>
+          ))}
+          <Form.Item>
+            <Button
+              type="dashed"
+              onClick={() => add()}
+              block
+              icon={<PlusOutlined />}
+            >
+              添加步驟
+            </Button>
+          </Form.Item>
+        </>
+      )}
+    </Form.List>
+  </ProForm.Group>
+);
 
 export default RecipeModalContent;
