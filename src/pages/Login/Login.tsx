@@ -38,12 +38,10 @@ function Login() {
   const handleLogin = async () => {
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      message.success("登入成功!");
 
       const currentUser = auth.currentUser;
       if (currentUser) {
-        const userUID = currentUser.uid;
-        console.log(`使用者 UID: ${userUID}`);
+        message.success("登入成功!");
       } else {
         console.log("沒有當前登入的使用者");
       }
@@ -57,17 +55,13 @@ function Login() {
   const handleToggle = () => {
     setShowLogin(!showLogin);
   };
+  const backgroundSRC =
+    "https://firebasestorage.googleapis.com/v0/b/cook-cook-for-you-test.appspot.com/o/%E8%8D%89%E8%8E%93%E6%B2%99%E6%8B%89.jpeg?alt=media&token=4d731914-153f-4001-b7cb-bd451c343968";
 
   return (
     <>
       <VideoContainer>
-        {/* <BackgroundVideo autoPlay loop muted playsInline>
-          <source
-          // src="https://firebasestorage.googleapis.com/v0/b/cook-cook-for-you-test.appspot.com/o/baking-cut.mp4?alt=media&token=6f6d9fdc-1d05-4f51-9f8b-7d30b213e1de"
-          // type="video/mp4"
-          />
-        </BackgroundVideo> */}
-        <Background src="https://firebasestorage.googleapis.com/v0/b/cook-cook-for-you-test.appspot.com/o/%E8%8D%89%E8%8E%93%E6%B2%99%E6%8B%89.jpeg?alt=media&token=4d731914-153f-4001-b7cb-bd451c343968" />
+        <Background src={backgroundSRC} />
         <Overlay />
         <LoginFormContainer>
           {showLogin ? (
