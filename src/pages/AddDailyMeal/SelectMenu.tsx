@@ -7,7 +7,7 @@ import { Timestamp } from "firebase/firestore";
 import React, { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../context/authContext";
 import {
-  addMealPlanToFirestore,
+  addPlanAndIdToFirestore,
   fetchId,
   subscribeToRecipes,
 } from "../../services/firebase";
@@ -107,7 +107,7 @@ const SelectMenu: React.FC = () => {
     const newPlan = getMealPlanData(menuState);
 
     try {
-      await addMealPlanToFirestore(newPlan, "DailyMealPlan");
+      await addPlanAndIdToFirestore(newPlan, "DailyMealPlan");
       message.success("提交成功");
       resetMenuState(setMenuState);
     } catch (error) {

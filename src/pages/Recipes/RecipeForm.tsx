@@ -1,10 +1,10 @@
 import { PlusOutlined } from "@ant-design/icons";
 import { ModalForm } from "@ant-design/pro-components";
 import { Form, message } from "antd";
-import { Timestamp, addDoc, collection, doc, setDoc } from "firebase/firestore";
+import { Timestamp } from "firebase/firestore";
 import React, { useContext, useState } from "react";
 import { AuthContext } from "../../context/authContext";
-import { db } from "../../services/firebase";
+import { addPlanAndIdToFirestore_Form } from "../../services/firebase";
 import { Recipe } from "../../types";
 import RecipeModalContent from "./RecipeModalContent";
 import { AddRecipeButton } from "./recipeForm.style";
@@ -17,30 +17,18 @@ const RecipeForm: React.FC = () => {
   const [currentItem] = useState(undefined);
   const [form] = Form.useForm();
 
-  const onFinish = async (values: Recipe) => {
-    const recipesCollection = collection(db, "recipess");
+  const addRecipeInFirebase = async (values: Recipe) => {
+    const updatedValues = {
+      ...values,
+      mainPhoto: mainPhoto,
+      userId: currentUserUid,
+      time: Timestamp.now(),
+    };
 
-    try {
-      const valuesWithImageURL = {
-        ...values,
-        mainPhoto: mainPhoto,
-        userId: currentUserUid,
-        time: Timestamp.now(),
-      };
-
-      const docRef = await addDoc(recipesCollection, valuesWithImageURL);
-
-      const updatedData = { id: docRef.id };
-      await setDoc(doc(recipesCollection, docRef.id), updatedData, {
-        merge: true,
-      });
-
-      setMainPhoto("");
-      message.success("成功新增");
-      return true;
-    } catch (error) {
-      message.error("新增失败");
-    }
+    await addPlanAndIdToFirestore_Form(updatedValues, "recipess");
+    message.success("提交成功");
+    setMainPhoto("");
+    return true;
   };
 
   return (
@@ -59,7 +47,7 @@ const RecipeForm: React.FC = () => {
           destroyOnClose: true,
         }}
         submitTimeout={1000}
-        onFinish={onFinish}
+        onFinish={addRecipeInFirebase}
         submitter={{
           searchConfig: {
             submitText: "確認",

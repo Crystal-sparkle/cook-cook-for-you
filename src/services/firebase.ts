@@ -147,14 +147,21 @@ export const fetchId = async (
   }
 };
 
-export const addMealPlanToFirestore = async (
+export const addPlanAndIdToFirestore = async (
   newPlan: MealPlanData,
   collectionName: string
 ) => {
   const docRef = await addDoc(collection(db, collectionName), newPlan);
   await updateDoc(docRef, { mealId: docRef.id });
+};
 
-  return docRef;
+export const addPlanAndIdToFirestore_Form = async (
+  newPlan: MealPlanData | Recipe,
+  collectionName: string
+) => {
+  const docRef = await addDoc(collection(db, collectionName), newPlan);
+  await updateDoc(docRef, { id: docRef.id });
+  console.log(docRef.id);
 };
 
 export const getDailyMealPlanDocs = async (id: string) => {
