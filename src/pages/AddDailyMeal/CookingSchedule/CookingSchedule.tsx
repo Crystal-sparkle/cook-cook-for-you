@@ -10,7 +10,11 @@ import {
 } from "firebase/firestore";
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../../context/authContext";
-import { db, handleAddPlan, handleUpdate } from "../../../services/firebase";
+import {
+  db,
+  handleAddPlan,
+  updateCollectionData,
+} from "../../../services/firebase";
 import {
   Accumulator,
   CookingPlanItem,
@@ -56,6 +60,7 @@ function CookingSchedule({ activeCookingPlan }: CookingScheduleProps) {
 
         return date ? Timestamp.fromDate(date) : null;
       });
+
       setSelectDate(findMealPlans);
     }
   }, [value]);
@@ -79,7 +84,7 @@ function CookingSchedule({ activeCookingPlan }: CookingScheduleProps) {
   const combinedServingArray = Object.values(combinedSearvings);
 
   useEffect(() => {
-    const handleCookingMeals = async () => {
+    const fetchCookingMeals = async () => {
       const CookingMealCollection = collection(db, "DailyMealPlan");
       const startDate = selectDate[0]?.toDate() || null;
       const endDate = selectDate[1]?.toDate() || null;
@@ -109,8 +114,9 @@ function CookingSchedule({ activeCookingPlan }: CookingScheduleProps) {
         message.error("取得資料失敗");
       }
     };
+
     if (cookingDate !== undefined && selectDate !== null) {
-      handleCookingMeals();
+      fetchCookingMeals();
     }
   }, [cookingDate, selectDate]);
 
@@ -120,7 +126,7 @@ function CookingSchedule({ activeCookingPlan }: CookingScheduleProps) {
 
   const [cookingPlanId, setCookingPlanId] = useState<string>("");
 
-  handleUpdate(
+  updateCollectionData(
     "cookingPlan",
     (docRef) => ({ planId: docRef.id }),
     setCookingPlanId
@@ -129,7 +135,7 @@ function CookingSchedule({ activeCookingPlan }: CookingScheduleProps) {
   useEffect(() => {
     const purchaseMeals = activeCookingPlan?.cookingItems;
 
-    if (Array.isArray(purchaseMeals) && purchaseMeals.length > 0) {
+    if (purchaseMeals && purchaseMeals.length > 0) {
       const getSelectRecipesIngredients = async () => {
         const recipesCollection = collection(db, "recipess");
 
@@ -238,7 +244,8 @@ function CookingSchedule({ activeCookingPlan }: CookingScheduleProps) {
   const handleCancel = () => {
     setVisible(false);
   };
-
+  const shoppingListPicture =
+    "https://firebasestorage.googleapis.com/v0/b/cook-cook-for-you-test.appspot.com/o/shoppingList.jpeg?alt=media&token=c7fe0a6f-e59c-44a1-9725-6bfe30b477f9";
   return (
     <Wrapper>
       <CardStyle>
@@ -299,7 +306,7 @@ function CookingSchedule({ activeCookingPlan }: CookingScheduleProps) {
             <ModleText>要建立採購清單嗎？</ModleText>
             <PhotoWrapper>
               <ShoppingListPhoto
-                src="https://firebasestorage.googleapis.com/v0/b/cook-cook-for-you-test.appspot.com/o/shoppingList.jpeg?alt=media&token=c7fe0a6f-e59c-44a1-9725-6bfe30b477f9"
+                src={shoppingListPicture}
                 alt="shoppingList picture "
               />
             </PhotoWrapper>

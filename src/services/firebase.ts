@@ -53,7 +53,7 @@ export const db = getFirestore(app);
 export const storage = getStorage(app);
 export const auth = getAuth(app);
 
-export const handleUpdate = async (
+export const updateCollectionData = async (
   collectionName: string,
   updateData: (docRef: DocumentReference<DocumentData>) => {
     [key: string]: string;
@@ -161,7 +161,6 @@ export const addPlanAndIdToFirestore_Form = async (
 ) => {
   const docRef = await addDoc(collection(db, collectionName), newPlan);
   await updateDoc(docRef, { id: docRef.id });
-  console.log(docRef.id);
 };
 
 export const getDailyMealPlanDocs = async (id: string) => {
@@ -350,7 +349,6 @@ export const handleGetDailyMeal = (
   );
 };
 
-
 export const handleGetActivePlan = (
   collectionName: string,
   searchKey: string,
@@ -467,7 +465,6 @@ export const updateRecipeInFirebase = async (
 
     return true;
   } catch (error) {
-    console.error("Error updating recipe:", error);
     throw new Error("新增失敗");
   }
 };

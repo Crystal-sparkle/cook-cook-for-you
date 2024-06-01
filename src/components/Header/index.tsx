@@ -13,7 +13,6 @@ import {
   RotatingImage,
   Wrapper,
 } from "./Header.style";
-import logoFirst from "./LogoFirst.png";
 import lemonCircle from "./lemonCircle.png";
 
 export default function Header() {
@@ -68,13 +67,14 @@ export default function Header() {
         ]
       : []),
   ];
-
+  const LogoImg =
+    "https://cook-cook-for-you-test.web.app/assets/logoFirst-IihrsvVx.png";
   return (
     <div>
       <Wrapper>
         <Link to="/" style={{ textDecoration: "none" }}>
           <div>
-            <Logo src={logoFirst} />
+            <Logo src={LogoImg} />
           </div>
         </Link>
 

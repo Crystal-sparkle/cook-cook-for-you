@@ -42,8 +42,6 @@ function Login() {
       const currentUser = auth.currentUser;
       if (currentUser) {
         message.success("登入成功!");
-      } else {
-        console.log("沒有當前登入的使用者");
       }
     } catch (error) {
       message.error("登入失敗");

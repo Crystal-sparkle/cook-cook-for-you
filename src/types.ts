@@ -18,7 +18,7 @@ export interface Recipe {
     stepPhoto: string;
   }[];
   mainPhoto: string;
-  userId: string;
+  userId: string | undefined;
   time: Timestamp;
   recipeId: string;
   id: string;
